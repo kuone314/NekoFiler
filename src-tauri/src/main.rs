@@ -35,7 +35,7 @@ fn write_setting_file(filename: &str, content: &str) -> () {
 }
 
 fn setting_dir() -> std::path::PathBuf {
-    let dir_name = "Settings";
+    let dir_name = "AmaterasuFilerSettings";
 
     let result = std::path::PathBuf::from(dir_name);
     if result.exists() {
