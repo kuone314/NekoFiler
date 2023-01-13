@@ -598,7 +598,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "filer"
+name = "amaterasu_filer"
 version = "0.0.0"
 dependencies = [
  "dunce",
