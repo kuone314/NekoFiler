@@ -26,13 +26,17 @@ use std::env;
 use std::io::Write;
 #[tauri::command]
 fn read_setting_file(filename: &str) -> String {
-    fs::read_to_string("Settings/".to_owned() + filename).unwrap_or_default()
+    fs::read_to_string(setting_dir().join(filename)).unwrap_or_default()
 }
 #[tauri::command]
 fn write_setting_file(filename: &str, content: &str) -> () {
     let _ = fs::create_dir("Settings");
-    let mut file = fs::File::create("Settings/".to_owned() + filename).unwrap();
+    let mut file = fs::File::create(setting_dir().join(filename)).unwrap();
     file.write_all(content.as_bytes()).unwrap();
+}
+
+fn setting_dir() -> std::path::PathBuf {
+    std::path::PathBuf::from("Settings")
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
