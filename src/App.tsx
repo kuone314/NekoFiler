@@ -19,7 +19,7 @@ import JSON5 from 'json5'
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const last_opend_setting_file_name = "tabs.json5";
+const last_opend_setting_file_name = "last_opend.json5";
 
 const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
 const defaultDir = await homeDir();
