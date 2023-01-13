@@ -35,7 +35,14 @@ fn write_setting_file(filename: &str, content: &str) -> () {
 }
 
 fn setting_dir() -> std::path::PathBuf {
-    std::path::PathBuf::from("Settings")
+    let dir_name = "Settings";
+
+    let result = std::path::PathBuf::from(dir_name);
+    if result.exists() {
+        return result;
+    }
+
+    std::env::current_exe().unwrap().join(dir_name)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
