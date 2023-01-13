@@ -35,7 +35,6 @@ fn write_setting_file(filename: &str, content: &str) -> () {
     file.write_all(content.as_bytes()).unwrap();
 }
 
-use std::os::windows::prelude::MetadataExt;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 use std::process::Command;
 #[tauri::command]
@@ -94,6 +93,7 @@ struct FileInfo {
     date: String,
 }
 
+use std::os::windows::prelude::MetadataExt;
 #[tauri::command]
 fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
     let entries = fs::read_dir(path).map_err(|e| format!("{}", e))?;
