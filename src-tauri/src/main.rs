@@ -94,9 +94,6 @@ struct FileInfo {
     date: String,
 }
 
-// extern crate kernel32;
-
-// use winapi::um::timezoneapi::{FileTimeToSystemTime, SystemTimeToTzSpecificLocalTime};
 #[tauri::command]
 fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
     let entries = fs::read_dir(path).map_err(|e| format!("{}", e))?;
@@ -108,7 +105,12 @@ fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
             let type_ = entry.file_type().ok()?;
             let md = entry.metadata().ok()?;
             let fsize = md.file_size();
-            let extension = entry.path().extension().unwrap_or_default().to_string_lossy().to_string();
+            let extension = entry
+                .path()
+                .extension()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
 
             let date = file_time_to_system_time(md.last_write_time());
             let date = match date {
