@@ -26,16 +26,25 @@ use std::env;
 use std::io::Write;
 #[tauri::command]
 fn read_setting_file(filename: &str) -> String {
-    fs::read_to_string("Settings/".to_owned() + filename).unwrap_or_default()
+    fs::read_to_string(setting_dir().join(filename)).unwrap_or_default()
 }
 #[tauri::command]
 fn write_setting_file(filename: &str, content: &str) -> () {
-    let _ = fs::create_dir("Settings");
-    let mut file = fs::File::create("Settings/".to_owned() + filename).unwrap();
+    let mut file = fs::File::create(setting_dir().join(filename)).unwrap();
     file.write_all(content.as_bytes()).unwrap();
 }
 
-use std::os::windows::prelude::MetadataExt;
+fn setting_dir() -> std::path::PathBuf {
+    let dir_name = "AmaterasuFilerSettings";
+
+    let result = std::path::PathBuf::from(dir_name);
+    if result.exists() {
+        return result;
+    }
+
+    std::env::current_exe().unwrap().join(dir_name)
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 use std::process::Command;
 #[tauri::command]
@@ -94,9 +103,7 @@ struct FileInfo {
     date: String,
 }
 
-// extern crate kernel32;
-
-// use winapi::um::timezoneapi::{FileTimeToSystemTime, SystemTimeToTzSpecificLocalTime};
+use std::os::windows::prelude::MetadataExt;
 #[tauri::command]
 fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
     let entries = fs::read_dir(path).map_err(|e| format!("{}", e))?;
@@ -108,7 +115,12 @@ fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
             let type_ = entry.file_type().ok()?;
             let md = entry.metadata().ok()?;
             let fsize = md.file_size();
-            let extension = entry.path().extension().unwrap_or_default().to_string_lossy().to_string();
+            let extension = entry
+                .path()
+                .extension()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
 
             let date = file_time_to_system_time(md.last_write_time());
             let date = match date {

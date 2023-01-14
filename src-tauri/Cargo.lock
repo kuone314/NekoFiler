@@ -39,6 +39,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "amaterasu_filer"
+version = "0.0.0"
+dependencies = [
+ "dunce",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "winapi",
+]
+
+[[package]]
 name = "anyhow"
 version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -595,18 +607,6 @@ checksum = "1e1c54951450cbd39f3dbcf1005ac413b49487dabf18a720ad2383eccfeffb92"
 dependencies = [
  "memoffset",
  "rustc_version 0.3.3",
-]
-
-[[package]]
-name = "filer"
-version = "0.0.0"
-dependencies = [
- "dunce",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "winapi",
 ]
 
 [[package]]

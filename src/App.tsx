@@ -6,7 +6,7 @@ import React from 'react';
 
 import 'jqwidgets-scripts/jqwidgets/styles/jqx.base.css';
 import 'jqwidgets-scripts/jqwidgets/styles/jqx.material-purple.css';
-import JqxGrid, {  } from 'jqwidgets-scripts/jqwidgets-react-tsx/jqxgrid';
+import JqxGrid, { } from 'jqwidgets-scripts/jqwidgets-react-tsx/jqxgrid';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
@@ -19,7 +19,9 @@ import JSON5 from 'json5'
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const initTabs = await invoke<String>("read_setting_file", { filename: "tabs.json5" });
+const last_opend_setting_file_name = "last_opend.json5";
+
+const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
 const defaultDir = await homeDir();
 const getInitTab = () => {
   const defaultTabInfo = { pathAry: [defaultDir], activeTabIndex: 0 }
@@ -71,7 +73,7 @@ const App = () => {
 
     const data = JSON5.stringify(tabsPathAry.current, null, 2);
     (async () => {
-      await invoke<void>("write_setting_file", { filename: "tabs.json5", content: data })
+      await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })
     })()
   }
 
