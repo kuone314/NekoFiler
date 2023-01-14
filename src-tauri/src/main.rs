@@ -25,24 +25,25 @@ fn main() {
 use std::env;
 use std::io::Write;
 #[tauri::command]
-fn read_setting_file(filename: &str) -> String {
-    fs::read_to_string(setting_dir().join(filename)).unwrap_or_default()
-}
-#[tauri::command]
-fn write_setting_file(filename: &str, content: &str) -> () {
-    let mut file = fs::File::create(setting_dir().join(filename)).unwrap();
-    file.write_all(content.as_bytes()).unwrap();
+fn read_setting_file(filename: &str) -> Option<String> {
+    fs::read_to_string(setting_dir()?.join(filename)).ok()
 }
 
-fn setting_dir() -> std::path::PathBuf {
+#[tauri::command]
+fn write_setting_file(filename: &str, content: &str) -> Option<()> {
+    let mut file = fs::File::create(setting_dir()?.join(filename)).ok()?;
+    file.write_all(content.as_bytes()).ok()
+}
+
+fn setting_dir() -> Option<std::path::PathBuf> {
     let dir_name = "AmaterasuFilerSettings";
 
     let result = std::path::PathBuf::from(dir_name);
     if result.exists() {
-        return result;
+        return Some(result);
     }
 
-    std::env::current_exe().unwrap().join(dir_name)
+    Some(std::env::current_exe().ok()?.join(dir_name))
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
