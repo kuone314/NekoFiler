@@ -106,13 +106,13 @@ export const PaineTabs = (
           {
             tabAry.map((path, idx) => {
               return <Button
-                style={
-                  {
+                css={[
+                  css({
                     textTransform: 'none',
                     background: tabColor(path),
                     border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
-                  }
-                }
+                  }),
+                ]}
                 onClick={() => { setActiveTabIdx(idx) }}
                 defaultValue={pathToTabName(path)}
               >
