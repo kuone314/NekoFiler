@@ -87,8 +87,10 @@ export const PaineTabs = (
   }
 
   const tabColor = (path: string) => {
-    if (path.startsWith('C')) return '#ffff00'
-    return '#00ff00'
+    return css({
+      background: path.startsWith('C') ? '#ffff00' : '#00ff00',
+      color: '#ffffff',
+    })
   }
 
   return (
@@ -109,9 +111,9 @@ export const PaineTabs = (
                 css={[
                   css({
                     textTransform: 'none',
-                    background: tabColor(path),
                     border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
                   }),
+                  tabColor(path),
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
                 defaultValue={pathToTabName(path)}
