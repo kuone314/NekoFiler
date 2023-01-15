@@ -43,7 +43,7 @@ fn setting_dir() -> Option<std::path::PathBuf> {
         return Some(result);
     }
 
-    Some(std::env::current_exe().ok()?.join(dir_name))
+    Some(std::env::current_exe().ok()?.parent()?.join(dir_name))
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
