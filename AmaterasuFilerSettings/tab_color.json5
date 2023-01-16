@@ -1,0 +1,16 @@
+[
+  {
+    color: {
+      backGround: '#ffff00',
+      string: '#000000',
+    },
+    pathRegExp: '^C:/',
+  },
+  {
+    color: {
+      backGround: '#00ff00',
+      string: '#000000',
+    },
+    pathRegExp: '^D:/',
+  },
+]
