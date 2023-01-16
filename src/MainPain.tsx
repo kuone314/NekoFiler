@@ -118,7 +118,7 @@ export const PaineTabs = (
           ApplySeparator(path, '/'),
           ApplySeparator(path, '\\'),
         ];
-        return !!path_ary.find(path => pathRegExp.test(path)) ;
+        return !!path_ary.find(path => pathRegExp.test(path));
       }
       const setting = colorSetting.find(s => match(s));
       if (!setting) { return ``; }
@@ -148,8 +148,8 @@ export const PaineTabs = (
               return <Button
                 css={[
                   css({
-                        textTransform: 'none',
-                        border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
+                    textTransform: 'none',
+                    border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
                   }),
                   tabColor(path),
                 ]}
@@ -478,10 +478,12 @@ const MainPanel = (
     </ControlledMenu>
   }
 
-  const table_color = (row_idx: number) => css({
-    background: (selectingIndexArray.has(row_idx)) ? '#0090ff' : '',
-    border: (row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
-  });
+  const table_color = (row_idx: number) => {
+    return css({
+      background: (selectingIndexArray.has(row_idx)) ? '#0090ff' : '',
+      border: (row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
+    });
+  }
   const table_border = css({
     border: '1pt solid #000000',
   });
