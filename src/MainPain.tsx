@@ -478,7 +478,7 @@ const MainPanel = (
     </ControlledMenu>
   }
 
-  const table_selection_attribute = (row_idx: number) => css({
+  const table_color = (row_idx: number) => css({
     background: (selectingIndexArray.has(row_idx)) ? '#0090ff' : '',
     border: (row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
   });
@@ -555,7 +555,7 @@ const MainPanel = (
                     ref={(idx === currentIndex) ? current_row : null}
                     onClick={(event) => onRowclick(idx, event)}
                     onDoubleClick={(event) => onRowdoubleclick(idx, event)}
-                    css={table_selection_attribute(idx)}
+                    css={table_color(idx)}
                   >
                     <td css={table_border}>{entry.name}</td>
                     <td css={table_border}>{entry.is_dir ? 'folder' : entry.extension.length === 0 ? '-' : entry.extension}</td>
