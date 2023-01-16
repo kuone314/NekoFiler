@@ -38,7 +38,7 @@ export interface TabInfo {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-interface ColorSetting {
+interface TabColorSetting {
   color: {
     backGround: string,
     string: string,
@@ -46,9 +46,9 @@ interface ColorSetting {
   pathRegExp: string,
 }
 
-async function readColorSetting(): Promise<ColorSetting[]> {
+async function readTabColorSetting(): Promise<TabColorSetting[]> {
   const result = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' });
-  return JSON5.parse(result.toString()) as ColorSetting[];
+  return JSON5.parse(result.toString()) as TabColorSetting[];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,10 +65,10 @@ export const PaineTabs = (
   const [tabAry, setTabAry] = useState<string[]>(props.pathAry.pathAry);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(props.pathAry.activeTabIndex);
 
-  const [colorSetting, setColorSetting] = useState<ColorSetting[]>([]);
+  const [colorSetting, setColorSetting] = useState<TabColorSetting[]>([]);
   useEffect(() => {
     (async () => {
-      const color_seting = await readColorSetting();
+      const color_seting = await readTabColorSetting();
       setColorSetting(color_seting);
     })()
   }, []);
@@ -112,7 +112,7 @@ export const PaineTabs = (
 
   const tabColor = (path: string) => {
     try {
-      const match = (setting: ColorSetting): boolean => {
+      const match = (setting: TabColorSetting): boolean => {
         const pathRegExp = new RegExp(setting.pathRegExp);
         const path_ary = [
           ApplySeparator(path, '/'),
