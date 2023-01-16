@@ -18,6 +18,7 @@ import '@szhsin/react-menu/dist/transitions/slide.css';
 
 import useInterval from 'use-interval';
 
+import JSON5 from 'json5'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type Entry = {
@@ -37,6 +38,20 @@ export interface TabInfo {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+interface ColorSetting {
+  color: {
+    backGround: string,
+    string: string,
+  },
+  pathRegExp: string,
+}
+
+async function readColorSetting(): Promise<ColorSetting[]> {
+  const result = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' });
+  return JSON5.parse(result.toString()) as ColorSetting[];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 export const PaineTabs = (
   props: {
     pathAry: TabInfo,
@@ -49,6 +64,15 @@ export const PaineTabs = (
 ) => {
   const [tabAry, setTabAry] = useState<string[]>(props.pathAry.pathAry);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(props.pathAry.activeTabIndex);
+
+  const [colorSetting, setColorSetting] = useState<ColorSetting[]>([]);
+  useEffect(() => {
+    (async () => {
+      const color_seting = await readColorSetting();
+      setColorSetting(color_seting);
+    })()
+  }, []);
+
   const addNewTab = (newTabPath: string) => {
     let newTabAry = Array.from(tabAry);
     newTabAry.splice(activeTabIdx + 1, 0, newTabPath);
@@ -87,11 +111,25 @@ export const PaineTabs = (
   }
 
   const tabColor = (path: string) => {
-    return css({
-      background: path.startsWith('C') ? '#ffff00' : '#00ff00',
-      color: '#ffffff',
-    })
-  }
+    try {
+      const match = (setting: ColorSetting): boolean => {
+        const pathRegExp = new RegExp(setting.pathRegExp);
+        const path_ary = [
+          ApplySeparator(path, '/'),
+          ApplySeparator(path, '\\'),
+        ];
+        return !!path_ary.find(path => pathRegExp.test(path)) ;
+      }
+      const setting = colorSetting.find(s => match(s));
+      if (!setting) { return ``; }
+      return css({
+        background: setting.color.backGround,
+        color: setting.color.string,
+      })
+    } catch {
+      return '';
+    }
+  };
 
   return (
     <>
@@ -110,8 +148,8 @@ export const PaineTabs = (
               return <Button
                 css={[
                   css({
-                    textTransform: 'none',
-                    border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
+                        textTransform: 'none',
+                        border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
                   }),
                   tabColor(path),
                 ]}
