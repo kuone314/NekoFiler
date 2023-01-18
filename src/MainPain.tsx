@@ -508,14 +508,18 @@ const MainPanel = (
     }
 
     const stringColor = () => {
-      const entry = entries[row_idx];
-      const found = colorSetting.find(setting => {
-        if (setting.matching.isDirectory !== entry.is_dir) { return false; }
-        const regExp = new RegExp(setting.matching.fileNameRegExp);
-        if (!regExp.test(entry.name)) { return false; }
-        return true;
-      });
-      return found?.color ?? '';
+      try {
+        const entry = entries[row_idx];
+        const found = colorSetting.find(setting => {
+          if (setting.matching.isDirectory !== entry.is_dir) { return false; }
+          const regExp = new RegExp(setting.matching.fileNameRegExp);
+          if (!regExp.test(entry.name)) { return false; }
+          return true;
+        });
+        return found?.color ?? '';
+      } catch {
+        return '';
+      }
     }
 
     return css({
