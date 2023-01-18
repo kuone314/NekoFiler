@@ -480,7 +480,8 @@ const MainPanel = (
 
   const table_color = (row_idx: number) => {
     const backgroundColor = () => {
-      return (selectingIndexArray.has(row_idx)) ? '#0090ff' : ''
+      return (selectingIndexArray.has(row_idx)) ? '#0090ff'
+        : (row_idx % 2) ? '#dddddd' : '#ffffff';
     }
 
     return css({
