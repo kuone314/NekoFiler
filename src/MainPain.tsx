@@ -19,6 +19,7 @@ import '@szhsin/react-menu/dist/transitions/slide.css';
 import useInterval from 'use-interval';
 
 import JSON5 from 'json5'
+import { color } from '@mui/system';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type Entry = {
@@ -179,6 +180,20 @@ export const PaineTabs = (
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+interface FileNameColorSetting {
+  color: string,
+  matching: {
+    isDirectory: boolean,
+    fileNameRegExp: string,
+  },
+}
+
+async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
+  const result = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
+  return JSON5.parse(result.toString()) as FileNameColorSetting[];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 const MainPanel = (
   props: {
     initPath: string,
@@ -208,6 +223,14 @@ const MainPanel = (
     }
     setSelectingIndexArray(new_ary);
   }
+
+  const [colorSetting, setColorSetting] = useState<FileNameColorSetting[]>([]);
+  useEffect(() => {
+    (async () => {
+      const color_seting = await readFileNameColorSetting();
+      setColorSetting(color_seting);
+    })()
+  }, []);
 
   const accessDirectry = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path });
@@ -484,8 +507,20 @@ const MainPanel = (
         : (row_idx % 2) ? '#dddddd' : '#ffffff';
     }
 
+    const stringColor = () => {
+      const entry = entries[row_idx];
+      const found = colorSetting.find(setting => {
+        if (setting.matching.isDirectory !== entry.is_dir) { return false; }
+        const regExp = new RegExp(setting.matching.fileNameRegExp);
+        if (!regExp.test(entry.name)) { return false; }
+        return true;
+      });
+      return found?.color ?? '';
+    }
+
     return css({
       background: backgroundColor(),
+      color: stringColor(),
       border: (row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
     });
   }
