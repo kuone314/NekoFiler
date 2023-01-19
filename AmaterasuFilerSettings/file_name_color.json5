@@ -1,0 +1,51 @@
+[
+  {
+    matching: {
+      isDirectory: true,
+      fileNameRegExp: '.*',
+    },
+    color: '#D9845D',
+  },
+  {
+    matching: {
+      isDirectory: false,
+      fileNameRegExp: '\\.md',
+    },
+    color: '#2A63C1',
+  },
+  {
+    matching: {
+      isDirectory: false,
+      fileNameRegExp: '\\.txt',
+    },
+    color: '#2A636E',
+  },
+  {
+    matching: {
+      isDirectory: false,
+      fileNameRegExp: '\\.exe',
+    },
+    color: '#09870B',
+  },
+  {
+    matching: {
+      isDirectory: false,
+      fileNameRegExp: '\\.pdb',
+    },
+    color: '#44A64E',
+  },
+  {
+    matching: {
+      isDirectory: false,
+      fileNameRegExp: '\\.dll',
+    },
+    color: '#2C8500',
+  },
+  {
+    matching: {
+      isDirectory: false,
+      fileNameRegExp: '\\.lib',
+    },
+    color: '#8D8500',
+  },
+]

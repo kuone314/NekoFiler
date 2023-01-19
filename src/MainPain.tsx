@@ -19,6 +19,7 @@ import '@szhsin/react-menu/dist/transitions/slide.css';
 import useInterval from 'use-interval';
 
 import JSON5 from 'json5'
+import { color } from '@mui/system';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type Entry = {
@@ -38,7 +39,7 @@ export interface TabInfo {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-interface ColorSetting {
+interface TabColorSetting {
   color: {
     backGround: string,
     string: string,
@@ -46,9 +47,9 @@ interface ColorSetting {
   pathRegExp: string,
 }
 
-async function readColorSetting(): Promise<ColorSetting[]> {
+async function readTabColorSetting(): Promise<TabColorSetting[]> {
   const result = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' });
-  return JSON5.parse(result.toString()) as ColorSetting[];
+  return JSON5.parse(result.toString()) as TabColorSetting[];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,10 +66,10 @@ export const PaineTabs = (
   const [tabAry, setTabAry] = useState<string[]>(props.pathAry.pathAry);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(props.pathAry.activeTabIndex);
 
-  const [colorSetting, setColorSetting] = useState<ColorSetting[]>([]);
+  const [colorSetting, setColorSetting] = useState<TabColorSetting[]>([]);
   useEffect(() => {
     (async () => {
-      const color_seting = await readColorSetting();
+      const color_seting = await readTabColorSetting();
       setColorSetting(color_seting);
     })()
   }, []);
@@ -112,13 +113,13 @@ export const PaineTabs = (
 
   const tabColor = (path: string) => {
     try {
-      const match = (setting: ColorSetting): boolean => {
+      const match = (setting: TabColorSetting): boolean => {
         const pathRegExp = new RegExp(setting.pathRegExp);
         const path_ary = [
           ApplySeparator(path, '/'),
           ApplySeparator(path, '\\'),
         ];
-        return !!path_ary.find(path => pathRegExp.test(path)) ;
+        return !!path_ary.find(path => pathRegExp.test(path));
       }
       const setting = colorSetting.find(s => match(s));
       if (!setting) { return ``; }
@@ -148,8 +149,8 @@ export const PaineTabs = (
               return <Button
                 css={[
                   css({
-                        textTransform: 'none',
-                        border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
+                    textTransform: 'none',
+                    border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
                   }),
                   tabColor(path),
                 ]}
@@ -176,6 +177,20 @@ export const PaineTabs = (
       </div>
     </>
   )
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+interface FileNameColorSetting {
+  color: string,
+  matching: {
+    isDirectory: boolean,
+    fileNameRegExp: string,
+  },
+}
+
+async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
+  const result = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
+  return JSON5.parse(result.toString()) as FileNameColorSetting[];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,6 +223,14 @@ const MainPanel = (
     }
     setSelectingIndexArray(new_ary);
   }
+
+  const [colorSetting, setColorSetting] = useState<FileNameColorSetting[]>([]);
+  useEffect(() => {
+    (async () => {
+      const color_seting = await readFileNameColorSetting();
+      setColorSetting(color_seting);
+    })()
+  }, []);
 
   const accessDirectry = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path });
@@ -478,10 +501,33 @@ const MainPanel = (
     </ControlledMenu>
   }
 
-  const table_selection_attribute = (row_idx: number) => css({
-    background: (selectingIndexArray.has(row_idx)) ? '#0090ff' : '',
-    border: (row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
-  });
+  const table_color = (row_idx: number) => {
+    const backgroundColor = () => {
+      return (selectingIndexArray.has(row_idx)) ? '#0090ff'
+        : (row_idx % 2) ? '#dddddd' : '#ffffff';
+    }
+
+    const stringColor = () => {
+      try {
+        const entry = entries[row_idx];
+        const found = colorSetting.find(setting => {
+          if (setting.matching.isDirectory !== entry.is_dir) { return false; }
+          const regExp = new RegExp(setting.matching.fileNameRegExp);
+          if (!regExp.test(entry.name)) { return false; }
+          return true;
+        });
+        return found?.color ?? '';
+      } catch {
+        return '';
+      }
+    }
+
+    return css({
+      background: backgroundColor(),
+      color: stringColor(),
+      border: (row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
+    });
+  }
   const table_border = css({
     border: '1pt solid #000000',
   });
@@ -555,7 +601,7 @@ const MainPanel = (
                     ref={(idx === currentIndex) ? current_row : null}
                     onClick={(event) => onRowclick(idx, event)}
                     onDoubleClick={(event) => onRowdoubleclick(idx, event)}
-                    css={table_selection_attribute(idx)}
+                    css={table_color(idx)}
                   >
                     <td css={table_border}>{entry.name}</td>
                     <td css={table_border}>{entry.is_dir ? 'folder' : entry.extension.length === 0 ? '-' : entry.extension}</td>
