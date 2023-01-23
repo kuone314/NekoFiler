@@ -396,6 +396,7 @@ const MainPanel = (
   const execBuildInCommand = (commandName: string) => {
     switch (commandName) {
       case 'accessCurrentItem': accessCurrentItem(); return;
+      case 'accessParentDir': accessParentDir(); return;
       case 'moveUp': moveUp(); return;
       case 'moveUpSelect': moveUpSelect(); return;
       case 'moveDown': moveDown(); return;

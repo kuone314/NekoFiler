@@ -247,6 +247,14 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\n\
     },
   },
   {
+    command_name: 'accessParentDir',
+    key: 'ctrl+shift+ArrowUp',
+    action: {
+      type: 'build_in',
+      command: 'accessParentDir',
+    },
+  },
+  {
     command_name: 'focusAddoressBar',
     key: 'ctrl+l',
     action: {
