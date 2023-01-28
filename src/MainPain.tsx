@@ -258,6 +258,7 @@ const MainPanel = (
 
   useEffect(() => {
     UpdateList();
+    setCurrentIndex(0);
     setSelectingIndexArray(new Set([]));
     setAddressbatStr(ApplySeparator(dir, props.separator));
     props.onPathChanged(dir);
