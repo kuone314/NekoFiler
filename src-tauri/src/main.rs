@@ -90,23 +90,20 @@ static SHELL_ARY: Lazy<Mutex<VecDeque<Box<Child>>>> = Lazy::new(|| Mutex::new(Ve
 fn execute_shell_command(dir: &str, command: &str) -> Option<String> {
     let mut shell = get_shell()?;
 
-    let command = "cd ".to_owned() + dir + ";\n" + command;
+    let command = "cd ".to_owned() + dir + ";\n" + command + "\n";
+    use encoding_rs;
+    let (command, _, _) = encoding_rs::SHIFT_JIS.encode(&command);
+
     let stdin = shell.stdin.as_mut().expect("Failed to open stdin");
-    stdin
-        .write_all((command.to_owned() + "\n").as_bytes())
-        .ok()?;
+    stdin.write_all(command.as_ref()).ok()?;
 
     let _ = shell.wait();
 
     use std::io::{BufRead, BufReader, Write};
-    let reader = BufReader::new(shell.stdout.as_mut()?);
-    let std_out = reader
-        .lines()
-        .filter_map(|line| line.ok())
-        .map(|line| line + "\n")
-        .collect();
+    let mut reader = BufReader::new(shell.stdout.as_mut()?);
+    let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&reader.fill_buf().ok()?);
 
-    return Some(std_out);
+    return Some(std_out.to_string());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
