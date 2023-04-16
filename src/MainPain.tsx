@@ -585,6 +585,8 @@ const MainPanel = (
                 height: 10, // table全体の最小サイズを指定。これが無いと、行数が少ない時に縦長になってしまう…。
                 width: '95%',
                 userSelect: 'none',
+                fontSize: '13px',
+                lineHeight:'13pt'
               }
             }
           >
