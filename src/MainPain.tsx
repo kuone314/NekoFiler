@@ -354,7 +354,7 @@ const MainPanel = (
     if (entry.is_dir) {
       accessDirectry(dir + props.separator + entry.name);
     } else {
-      const decoretedPath = '&"' + entry.name + '"';
+      const decoretedPath = '&"./' + entry.name + '"';
       executeShellCommand(decoretedPath, dir);
     }
   }
