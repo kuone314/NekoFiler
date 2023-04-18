@@ -238,7 +238,7 @@ const MainPanel = (
   }
 
 
-  const UpdateList = async () => {
+  const UpdateList = async (dir: string) => {
     const newEntries = await invoke<Entries>("get_entries", { path: dir })
       .catch(err => {
         console.error(err);
@@ -257,7 +257,7 @@ const MainPanel = (
   }, [props.separator]);
 
   useEffect(() => {
-    UpdateList();
+    UpdateList(dir);
     setCurrentIndex(0);
     setSelectingIndexArray(new Set([]));
     setAddressbatStr(ApplySeparator(dir, props.separator));
@@ -269,7 +269,7 @@ const MainPanel = (
   }, []);
 
   useInterval(
-    UpdateList,
+    () => UpdateList(dir),
     1500
   );
 
@@ -586,7 +586,7 @@ const MainPanel = (
                 width: '95%',
                 userSelect: 'none',
                 fontSize: '13px',
-                lineHeight:'13pt'
+                lineHeight: '13pt'
               }
             }
           >
