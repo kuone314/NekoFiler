@@ -577,6 +577,7 @@ const MainPanel = (
           value={addressbatStr}
           onChange={e => setAddressbatStr(e.target.value)}
           onKeyDown={onKeyDown}
+          onClick={e => addressBar.current?.select()}
           ref={addressBar}
         />
         <div
