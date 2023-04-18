@@ -20,6 +20,7 @@ import useInterval from 'use-interval';
 
 import JSON5 from 'json5'
 import { color } from '@mui/system';
+import { basename, normalize } from '@tauri-apps/api/path';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type Entry = {
@@ -462,7 +463,9 @@ const MainPanel = (
   };
 
   const accessParentDir = async () => {
-    accessDirectry(addressbatStr + props.separator + '..')
+    const parentDir = await normalize(dir + props.separator + '..');
+    const dirName = await basename(dir);
+    UpdateList(parentDir, dirName);
   };
 
   const onEnterDown = async () => {
