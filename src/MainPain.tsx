@@ -454,6 +454,7 @@ const MainPanel = (
 
   type AdjustedAddressbarStr = {
     dir: string,
+    filename: string,
   };
 
   const accessParentDir = async () => {
