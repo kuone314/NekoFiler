@@ -234,11 +234,11 @@ const MainPanel = (
 
   const accessDirectry = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path });
-    UpdateList(adjusted.dir);
+    UpdateList(adjusted.dir, adjusted.filename);
   }
 
 
-  const UpdateList = async (dir: string) => {
+  const UpdateList = async (dir: string, trgFile: string) => {
     const newEntries = await invoke<Entries>("get_entries", { path: dir })
       .catch(err => {
         console.error(err);
@@ -246,12 +246,16 @@ const MainPanel = (
       });
 
     if (!newEntries) { return; }
-    if (JSON.stringify(newEntries) === JSON.stringify(entries)) {
+    if (JSON.stringify(newEntries) === JSON.stringify(entries) && trgFile === "") {
       return;
     }
+
+    const findRes = newEntries.findIndex(entry => entry.name === trgFile);
+    const newIndex = (findRes !== -1) ? findRes : 0;
+
     setDir(dir);
     setEntries(newEntries);
-    setCurrentIndex(0);
+    setCurrentIndex(newIndex);
     setSelectingIndexArray(new Set([]));
   }
 
@@ -260,7 +264,7 @@ const MainPanel = (
   }, [props.separator]);
 
   useEffect(() => {
-    UpdateList(dir);
+    UpdateList(dir, "");
     setAddressbatStr(ApplySeparator(dir, props.separator));
     props.onPathChanged(dir);
   }, [dir]);
@@ -270,7 +274,7 @@ const MainPanel = (
   }, []);
 
   useInterval(
-    () => UpdateList(dir),
+    () => UpdateList(dir, ""),
     1500
   );
 
