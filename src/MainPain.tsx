@@ -234,7 +234,7 @@ const MainPanel = (
 
   const accessDirectry = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path });
-    setDir(adjusted.dir);
+    UpdateList(adjusted.dir);
   }
 
 
@@ -249,7 +249,10 @@ const MainPanel = (
     if (JSON.stringify(newEntries) === JSON.stringify(entries)) {
       return;
     }
+    setDir(dir);
     setEntries(newEntries);
+    setCurrentIndex(0);
+    setSelectingIndexArray(new Set([]));
   }
 
   useEffect(() => {
@@ -258,8 +261,6 @@ const MainPanel = (
 
   useEffect(() => {
     UpdateList(dir);
-    setCurrentIndex(0);
-    setSelectingIndexArray(new Set([]));
     setAddressbatStr(ApplySeparator(dir, props.separator));
     props.onPathChanged(dir);
   }, [dir]);
