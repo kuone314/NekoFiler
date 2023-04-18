@@ -20,6 +20,7 @@ import useInterval from 'use-interval';
 
 import JSON5 from 'json5'
 import { color } from '@mui/system';
+import { basename, normalize } from '@tauri-apps/api/path';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type Entry = {
@@ -234,11 +235,11 @@ const MainPanel = (
 
   const accessDirectry = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path });
-    setDir(adjusted.dir);
+    UpdateList(adjusted.dir, adjusted.filename);
   }
 
 
-  const UpdateList = async () => {
+  const UpdateList = async (dir: string, trgFile: string) => {
     const newEntries = await invoke<Entries>("get_entries", { path: dir })
       .catch(err => {
         console.error(err);
@@ -246,10 +247,17 @@ const MainPanel = (
       });
 
     if (!newEntries) { return; }
-    if (JSON.stringify(newEntries) === JSON.stringify(entries)) {
+    if (JSON.stringify(newEntries) === JSON.stringify(entries) && trgFile === "") {
       return;
     }
+
+    const findRes = newEntries.findIndex(entry => entry.name === trgFile);
+    const newIndex = (findRes !== -1) ? findRes : 0;
+
+    setDir(dir);
     setEntries(newEntries);
+    setCurrentIndex(newIndex);
+    setSelectingIndexArray(new Set([]));
   }
 
   useEffect(() => {
@@ -257,9 +265,7 @@ const MainPanel = (
   }, [props.separator]);
 
   useEffect(() => {
-    UpdateList();
-    setCurrentIndex(0);
-    setSelectingIndexArray(new Set([]));
+    UpdateList(dir, "");
     setAddressbatStr(ApplySeparator(dir, props.separator));
     props.onPathChanged(dir);
   }, [dir]);
@@ -269,7 +275,7 @@ const MainPanel = (
   }, []);
 
   useInterval(
-    UpdateList,
+    () => UpdateList(dir, ""),
     1500
   );
 
@@ -453,10 +459,13 @@ const MainPanel = (
 
   type AdjustedAddressbarStr = {
     dir: string,
+    filename: string,
   };
 
   const accessParentDir = async () => {
-    accessDirectry(addressbatStr + props.separator + '..')
+    const parentDir = await normalize(dir + props.separator + '..');
+    const dirName = await basename(dir);
+    UpdateList(parentDir, dirName);
   };
 
   const onEnterDown = async () => {
@@ -586,7 +595,7 @@ const MainPanel = (
                 width: '95%',
                 userSelect: 'none',
                 fontSize: '13px',
-                lineHeight:'13pt'
+                lineHeight: '13pt'
               }
             }
           >

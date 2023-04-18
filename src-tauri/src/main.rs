@@ -110,6 +110,7 @@ fn execute_shell_command(dir: &str, command: &str) -> Option<String> {
 #[derive(Debug, Serialize, Deserialize)]
 struct AdjustedAddressbarStr {
     dir: String,
+    filename: String,
 }
 #[tauri::command]
 fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String> {
@@ -127,12 +128,14 @@ fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String> {
         };
         return Ok(AdjustedAddressbarStr {
             dir: parent.as_os_str().to_str().unwrap_or_default().to_string(),
+            filename: path.file_name().unwrap().to_str().unwrap_or_default().to_string(),
         });
     }
 
     if file_info.is_dir() {
         return Ok(AdjustedAddressbarStr {
             dir: path.as_os_str().to_str().unwrap_or_default().to_string(),
+            filename: "".to_string(),
         });
     }
 
