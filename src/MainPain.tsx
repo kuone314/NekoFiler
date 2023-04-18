@@ -584,6 +584,7 @@ const MainPanel = (
             accessDirectry(str)
             myGrid.current?.focus();
           }}
+          onBlur={e => setAddressbatStr(dir)}
           ref={addressBar}
         />
         <div
