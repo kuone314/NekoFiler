@@ -578,6 +578,12 @@ const MainPanel = (
           onChange={e => setAddressbatStr(e.target.value)}
           onKeyDown={onKeyDown}
           onClick={e => addressBar.current?.select()}
+          onPaste={e => {
+            const str = e.clipboardData.getData('text');
+            setAddressbatStr(str);
+            accessDirectry(str)
+            myGrid.current?.focus();
+          }}
           ref={addressBar}
         />
         <div
