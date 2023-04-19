@@ -20,6 +20,7 @@ import JSON5 from 'json5'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const last_opend_setting_file_name = "last_opend.json5";
+const last_opend_setting_current_version = 1;
 
 const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
 const defaultDir = await invoke<string>("get_exe_dir", {});
@@ -27,8 +28,8 @@ const getInitTab = () => {
   const defaultTabInfo = { pathAry: [defaultDir], activeTabIndex: 0 }
 
   try {
-    let result = JSON5.parse(initTabs.toString()) as TabInfo[];
-    if (result.length !== 2) {
+    let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabInfo[], };
+    if (result.data.length !== 2) {
       return [{ ...defaultTabInfo }, { ...defaultTabInfo }];
     }
 
@@ -45,7 +46,7 @@ const getInitTab = () => {
       return tabInfo;
     }
 
-    return result.map(fixError);
+    return result.data.map(fixError);
   } catch {
     return [{ ...defaultTabInfo }, { ...defaultTabInfo }];
   }
@@ -71,7 +72,7 @@ const App = () => {
     tabsPathAry.current[painIndex].pathAry = newTabs;
     tabsPathAry.current[painIndex].activeTabIndex = newTabIdx;
 
-    const data = JSON5.stringify(tabsPathAry.current, null, 2);
+    const data = JSON5.stringify({ version: last_opend_setting_current_version, data: tabsPathAry.current }, null, 2);
     (async () => {
       await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })
     })()
