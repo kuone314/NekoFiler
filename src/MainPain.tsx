@@ -92,6 +92,7 @@ export const PaineTabs = (
   const removeTab = (trgIdx: number) => {
     if (tabAry.length === 1) { return; }
     if (trgIdx >= tabAry.length) { return; }
+    if (tabAry[trgIdx].pined) { return; }
 
     let newTabAry = Array.from(tabAry);
     newTabAry.splice(trgIdx, 1);
