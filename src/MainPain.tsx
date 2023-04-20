@@ -115,10 +115,14 @@ export const PaineTabs = (
     props.onTabsChanged(tabAry, activeTabIdx);
   }, [tabAry, activeTabIdx]);
 
-  const pathToTabName = (pathStr: string) => {
-    const splited = ApplySeparator(pathStr, '/').split('/').reverse();
-    if (splited[0].length !== 0) { return splited[0]; }
-    return splited[1];
+  const pathToTabName = (tab: TabInfo) => {
+    const pinedPrefix = tab.pined ? "*:" : "";
+    const dirName = (() => {
+      const splited = ApplySeparator(tab.path, '/').split('/').reverse();
+      if (splited[0].length !== 0) { return splited[0]; }
+      return splited[1];
+    })();
+    return pinedPrefix + dirName;
   }
 
   const tabColor = (path: string) => {
@@ -170,9 +174,9 @@ export const PaineTabs = (
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
                 onDoubleClick={() => togglePined(idx)}
-                defaultValue={pathToTabName(path.path)}
+                defaultValue={pathToTabName(path)}
               >
-                {pathToTabName(path.path)}
+                {pathToTabName(path)}
               </Button>
             })
           }
