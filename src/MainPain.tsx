@@ -100,6 +100,11 @@ export const PaineTabs = (
     const new_val = (activeTabIdx + offset + tabAry.length) % tabAry.length;
     setActiveTabIdx(new_val);
   }
+  const togglePined = (idx: number) => {
+    let newTabAry = Array.from(tabAry);
+    newTabAry[idx].pined = !newTabAry[idx].pined;
+    setTabAry(newTabAry);
+  }
 
   const onPathChanged = (newPath: string) => {
     tabAry[activeTabIdx].path = newPath
@@ -164,6 +169,7 @@ export const PaineTabs = (
                   tabColor(path.path),
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
+                onDoubleClick={() => togglePined(idx)}
                 defaultValue={pathToTabName(path.path)}
               >
                 {pathToTabName(path.path)}
