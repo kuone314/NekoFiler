@@ -152,6 +152,10 @@ export const PaineTabs = (
                   css({
                     textTransform: 'none',
                     border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
+                    fontSize: '10pt',
+                    height: '20pt',
+                    margin:'1pt',
+                    minWidth:'5pt'
                   }),
                   tabColor(path),
                 ]}
