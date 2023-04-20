@@ -164,7 +164,7 @@ export const PaineTabs = (
       >
         <div css={css({ textTransform: 'none' })}>
           {
-            tabAry.map((path, idx) => {
+            tabAry.map((tab, idx) => {
               return <Button
                 css={[
                   css({
@@ -175,13 +175,13 @@ export const PaineTabs = (
                     margin: '1pt',
                     minWidth: '5pt'
                   }),
-                  tabColor(path.path),
+                  tabColor(tab.path),
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
                 onDoubleClick={() => togglePined(idx)}
-                defaultValue={pathToTabName(path)}
+                defaultValue={pathToTabName(tab)}
               >
-                {pathToTabName(path)}
+                {pathToTabName(tab)}
               </Button>
             })
           }
