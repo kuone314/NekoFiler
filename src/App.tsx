@@ -10,7 +10,7 @@ import JqxGrid, { } from 'jqwidgets-scripts/jqwidgets-react-tsx/jqxgrid';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { PaineTabs, TabInfo, TabsInfo } from './MainPain';
+import { IsValid, PaineTabs, TabInfo, TabsInfo } from './MainPain';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -34,7 +34,7 @@ const getInitTab = () => {
     }
 
     const fixError = (tabInfo: TabsInfo) => {
-      tabInfo.pathAry = tabInfo.pathAry.filter(s => s);
+      tabInfo.pathAry = tabInfo.pathAry.filter(tabInfo => IsValid(tabInfo));
       if (tabInfo.pathAry.length === 0) {
         tabInfo.pathAry.push({ path: defaultDir, pined: false })
       }
