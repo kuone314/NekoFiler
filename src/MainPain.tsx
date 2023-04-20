@@ -247,8 +247,8 @@ const MainPanel = (
   }
 
 
-  const UpdateList = async (dir: string, trgFile: string) => {
-    const newEntries = await invoke<Entries>("get_entries", { path: dir })
+  const UpdateList = async (newDir: string, trgFile: string) => {
+    const newEntries = await invoke<Entries>("get_entries", { path: newDir })
       .catch(err => {
         console.error(err);
         return null;
@@ -262,7 +262,7 @@ const MainPanel = (
     const findRes = newEntries.findIndex(entry => entry.name === trgFile);
     const newIndex = (findRes !== -1) ? findRes : 0;
 
-    setDir(dir);
+    setDir(newDir);
     setEntries(newEntries);
     setCurrentIndex(newIndex);
     setSelectingIndexArray(new Set([]));
