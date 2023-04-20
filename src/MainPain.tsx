@@ -36,6 +36,7 @@ type Entries = Array<Entry>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabInfo {
   path: string,
+  pined: boolean,
 }
 export interface TabsInfo {
   pathAry: TabInfo[],
@@ -80,7 +81,7 @@ export const PaineTabs = (
 
   const addNewTab = (newTabPath: string) => {
     let newTabAry = Array.from(tabAry);
-    newTabAry.splice(activeTabIdx + 1, 0, { path: newTabPath });
+    newTabAry.splice(activeTabIdx + 1, 0, { path: newTabPath, pined: false });
     setTabAry(newTabAry);
   }
   const removeTab = () => {

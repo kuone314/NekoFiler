@@ -25,7 +25,7 @@ const last_opend_setting_current_version = 1;
 const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
 const defaultDir = await invoke<string>("get_exe_dir", {});
 const getInitTab = () => {
-  const defaultTabInfo = { pathAry: [{ path: defaultDir }], activeTabIndex: 0 }
+  const defaultTabInfo = { pathAry: [{ path: defaultDir, pined: false }], activeTabIndex: 0 }
 
   try {
     let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabsInfo[], };
@@ -36,7 +36,7 @@ const getInitTab = () => {
     const fixError = (tabInfo: TabsInfo) => {
       tabInfo.pathAry = tabInfo.pathAry.filter(s => s);
       if (tabInfo.pathAry.length === 0) {
-        tabInfo.pathAry.push({ path: defaultDir })
+        tabInfo.pathAry.push({ path: defaultDir, pined: false })
       }
 
       if (tabInfo.activeTabIndex < 0 || tabInfo.pathAry.length <= tabInfo.activeTabIndex) {
