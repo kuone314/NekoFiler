@@ -23,9 +23,16 @@ fn main() {
             execute_shell_command,
             read_setting_file,
             write_setting_file,
+            get_exe_dir,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#[tauri::command]
+fn get_exe_dir() -> Option<String> {
+    Some(std::env::current_exe().ok()?.parent()?.to_str()?.to_string())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

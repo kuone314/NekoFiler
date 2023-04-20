@@ -35,7 +35,16 @@ type Entries = Array<Entry>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabInfo {
-  pathAry: string[],
+  path: string,
+  pined: boolean,
+}
+export function IsValid(tabInfo: TabInfo) {
+  if (!tabInfo) { return false; }
+  if (!tabInfo.path) { return false; }
+  return true;
+}
+export interface TabsInfo {
+  pathAry: TabInfo[],
   activeTabIndex: number,
 }
 
@@ -56,15 +65,15 @@ async function readTabColorSetting(): Promise<TabColorSetting[]> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const PaineTabs = (
   props: {
-    pathAry: TabInfo,
-    onTabsChanged: (newTabs: string[], newTabIdx: number,) => void,
+    pathAry: TabsInfo,
+    onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
     getOppositePath: () => string,
     separator: separator,
     focusOppositePain: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
   },
 ) => {
-  const [tabAry, setTabAry] = useState<string[]>(props.pathAry.pathAry);
+  const [tabAry, setTabAry] = useState<TabInfo[]>(props.pathAry.pathAry);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(props.pathAry.activeTabIndex);
 
   const [colorSetting, setColorSetting] = useState<TabColorSetting[]>([]);
@@ -77,7 +86,7 @@ export const PaineTabs = (
 
   const addNewTab = (newTabPath: string) => {
     let newTabAry = Array.from(tabAry);
-    newTabAry.splice(activeTabIdx + 1, 0, newTabPath);
+    newTabAry.splice(activeTabIdx + 1, 0, { path: newTabPath, pined: false });
     setTabAry(newTabAry);
   }
   const removeTab = () => {
@@ -96,9 +105,14 @@ export const PaineTabs = (
     const new_val = (activeTabIdx + offset + tabAry.length) % tabAry.length;
     setActiveTabIdx(new_val);
   }
+  const togglePined = (idx: number) => {
+    let newTabAry = Array.from(tabAry);
+    newTabAry[idx].pined = !newTabAry[idx].pined;
+    setTabAry(newTabAry);
+  }
 
   const onPathChanged = (newPath: string) => {
-    tabAry[activeTabIdx] = newPath
+    tabAry[activeTabIdx].path = newPath
     setTabAry(Array.from(tabAry));
   }
 
@@ -106,10 +120,14 @@ export const PaineTabs = (
     props.onTabsChanged(tabAry, activeTabIdx);
   }, [tabAry, activeTabIdx]);
 
-  const pathToTabName = (pathStr: string) => {
-    const splited = ApplySeparator(pathStr, '/').split('/').reverse();
-    if (splited[0].length !== 0) { return splited[0]; }
-    return splited[1];
+  const pathToTabName = (tab: TabInfo) => {
+    const pinedPrefix = tab.pined ? "*:" : "";
+    const dirName = (() => {
+      const splited = ApplySeparator(tab.path, '/').split('/').reverse();
+      if (splited[0].length !== 0) { return splited[0]; }
+      return splited[1];
+    })();
+    return pinedPrefix + dirName;
   }
 
   const tabColor = (path: string) => {
@@ -146,25 +164,31 @@ export const PaineTabs = (
       >
         <div css={css({ textTransform: 'none' })}>
           {
-            tabAry.map((path, idx) => {
+            tabAry.map((tab, idx) => {
               return <Button
                 css={[
                   css({
                     textTransform: 'none',
                     border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
+                    fontSize: '10pt',
+                    height: '20pt',
+                    margin: '1pt',
+                    minWidth: '5pt'
                   }),
-                  tabColor(path),
+                  tabColor(tab.path),
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
-                defaultValue={pathToTabName(path)}
+                onDoubleClick={() => togglePined(idx)}
+                defaultValue={pathToTabName(tab)}
               >
-                {pathToTabName(path)}
+                {pathToTabName(tab)}
               </Button>
             })
           }
         </div >
         <MainPanel
-          initPath={tabAry[activeTabIdx]}
+          initPath={tabAry[activeTabIdx].path}
+          pined={tabAry[activeTabIdx].pined}
           onPathChanged={onPathChanged}
           addNewTab={addNewTab}
           removeTab={removeTab}
@@ -198,6 +222,7 @@ async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
 const MainPanel = (
   props: {
     initPath: string,
+    pined: boolean,
     onPathChanged: (newPath: string) => void
     addNewTab: (newTabPath: string) => void,
     removeTab: () => void,
@@ -239,8 +264,13 @@ const MainPanel = (
   }
 
 
-  const UpdateList = async (dir: string, trgFile: string) => {
-    const newEntries = await invoke<Entries>("get_entries", { path: dir })
+  const UpdateList = async (newDir: string, trgFile: string) => {
+    if (props.pined && dir !== newDir) {
+      props.addNewTab(newDir);
+      return;
+    }
+
+    const newEntries = await invoke<Entries>("get_entries", { path: newDir })
       .catch(err => {
         console.error(err);
         return null;
@@ -254,7 +284,7 @@ const MainPanel = (
     const findRes = newEntries.findIndex(entry => entry.name === trgFile);
     const newIndex = (findRes !== -1) ? findRes : 0;
 
-    setDir(dir);
+    setDir(newDir);
     setEntries(newEntries);
     setCurrentIndex(newIndex);
     setSelectingIndexArray(new Set([]));

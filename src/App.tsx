@@ -10,7 +10,7 @@ import JqxGrid, { } from 'jqwidgets-scripts/jqwidgets-react-tsx/jqxgrid';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { PaineTabs, TabInfo } from './MainPain';
+import { IsValid, PaineTabs, TabInfo, TabsInfo } from './MainPain';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -20,22 +20,23 @@ import JSON5 from 'json5'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const last_opend_setting_file_name = "last_opend.json5";
+const last_opend_setting_current_version = 1;
 
 const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
-const defaultDir = await homeDir();
+const defaultDir = await invoke<string>("get_exe_dir", {});
 const getInitTab = () => {
-  const defaultTabInfo = { pathAry: [defaultDir], activeTabIndex: 0 }
+  const defaultTabInfo = { pathAry: [{ path: defaultDir, pined: false }], activeTabIndex: 0 }
 
   try {
-    let result = JSON5.parse(initTabs.toString()) as TabInfo[];
-    if (result.length !== 2) {
+    let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabsInfo[], };
+    if (result.data.length !== 2) {
       return [{ ...defaultTabInfo }, { ...defaultTabInfo }];
     }
 
-    const fixError = (tabInfo: TabInfo) => {
-      tabInfo.pathAry = tabInfo.pathAry.filter(s => s);
+    const fixError = (tabInfo: TabsInfo) => {
+      tabInfo.pathAry = tabInfo.pathAry.filter(tabInfo => IsValid(tabInfo));
       if (tabInfo.pathAry.length === 0) {
-        tabInfo.pathAry.push(defaultDir)
+        tabInfo.pathAry.push({ path: defaultDir, pined: false })
       }
 
       if (tabInfo.activeTabIndex < 0 || tabInfo.pathAry.length <= tabInfo.activeTabIndex) {
@@ -45,33 +46,33 @@ const getInitTab = () => {
       return tabInfo;
     }
 
-    return result.map(fixError);
+    return result.data.map(fixError);
   } catch {
     return [{ ...defaultTabInfo }, { ...defaultTabInfo }];
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function GetActive(tab_info: TabInfo) {
+function GetActive(tab_info: TabsInfo) {
   return tab_info.pathAry[tab_info.activeTabIndex];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const App = () => {
   const getPath = () => {
-    return GetActive(tabsPathAry.current[currentPainIndex]);
+    return GetActive(tabsPathAry.current[currentPainIndex]).path;
   }
 
   const [currentPainIndex, setCurrentPainIndex] = useState(0);
-  const tabsPathAry = useRef<TabInfo[]>(getInitTab());
+  const tabsPathAry = useRef<TabsInfo[]>(getInitTab());
 
-  const onTabsChanged = (newTabs: string[], newTabIdx: number, painIndex: number) => {
+  const onTabsChanged = (newTabs: TabInfo[], newTabIdx: number, painIndex: number) => {
     setCurrentPainIndex(painIndex);
 
     tabsPathAry.current[painIndex].pathAry = newTabs;
     tabsPathAry.current[painIndex].activeTabIndex = newTabIdx;
 
-    const data = JSON5.stringify(tabsPathAry.current, null, 2);
+    const data = JSON5.stringify({ version: last_opend_setting_current_version, data: tabsPathAry.current }, null, 2);
     (async () => {
       await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })
     })()
@@ -79,7 +80,7 @@ const App = () => {
 
   const getOppositePath = () => {
     const oppositeIndex = (currentPainIndex + 1) % 2;
-    return GetActive(tabsPathAry.current[oppositeIndex]);
+    return GetActive(tabsPathAry.current[oppositeIndex]).path;
   }
 
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
@@ -116,7 +117,7 @@ const App = () => {
             >
               <PaineTabs
                 pathAry={pathAry}
-                onTabsChanged={(newTabs: string[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
                 getOppositePath={getOppositePath}
                 separator={separator}
                 gridRef={grid[idx]}
