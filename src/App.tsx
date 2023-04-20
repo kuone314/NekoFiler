@@ -10,7 +10,7 @@ import JqxGrid, { } from 'jqwidgets-scripts/jqwidgets-react-tsx/jqxgrid';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { PaineTabs, TabsInfo } from './MainPain';
+import { PaineTabs, TabInfo, TabsInfo } from './MainPain';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -25,7 +25,7 @@ const last_opend_setting_current_version = 1;
 const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
 const defaultDir = await invoke<string>("get_exe_dir", {});
 const getInitTab = () => {
-  const defaultTabInfo = { pathAry: [defaultDir], activeTabIndex: 0 }
+  const defaultTabInfo = { pathAry: [{ path: defaultDir }], activeTabIndex: 0 }
 
   try {
     let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabsInfo[], };
@@ -36,7 +36,7 @@ const getInitTab = () => {
     const fixError = (tabInfo: TabsInfo) => {
       tabInfo.pathAry = tabInfo.pathAry.filter(s => s);
       if (tabInfo.pathAry.length === 0) {
-        tabInfo.pathAry.push(defaultDir)
+        tabInfo.pathAry.push({ path: defaultDir })
       }
 
       if (tabInfo.activeTabIndex < 0 || tabInfo.pathAry.length <= tabInfo.activeTabIndex) {
@@ -60,13 +60,13 @@ function GetActive(tab_info: TabsInfo) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const App = () => {
   const getPath = () => {
-    return GetActive(tabsPathAry.current[currentPainIndex]);
+    return GetActive(tabsPathAry.current[currentPainIndex]).path;
   }
 
   const [currentPainIndex, setCurrentPainIndex] = useState(0);
   const tabsPathAry = useRef<TabsInfo[]>(getInitTab());
 
-  const onTabsChanged = (newTabs: string[], newTabIdx: number, painIndex: number) => {
+  const onTabsChanged = (newTabs: TabInfo[], newTabIdx: number, painIndex: number) => {
     setCurrentPainIndex(painIndex);
 
     tabsPathAry.current[painIndex].pathAry = newTabs;
@@ -80,7 +80,7 @@ const App = () => {
 
   const getOppositePath = () => {
     const oppositeIndex = (currentPainIndex + 1) % 2;
-    return GetActive(tabsPathAry.current[oppositeIndex]);
+    return GetActive(tabsPathAry.current[oppositeIndex]).path;
   }
 
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
@@ -117,7 +117,7 @@ const App = () => {
             >
               <PaineTabs
                 pathAry={pathAry}
-                onTabsChanged={(newTabs: string[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
                 getOppositePath={getOppositePath}
                 separator={separator}
                 gridRef={grid[idx]}

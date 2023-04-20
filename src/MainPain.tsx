@@ -34,8 +34,11 @@ type Entry = {
 type Entries = Array<Entry>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+export interface TabInfo {
+  path: string,
+}
 export interface TabsInfo {
-  pathAry: string[],
+  pathAry: TabInfo[],
   activeTabIndex: number,
 }
 
@@ -57,14 +60,14 @@ async function readTabColorSetting(): Promise<TabColorSetting[]> {
 export const PaineTabs = (
   props: {
     pathAry: TabsInfo,
-    onTabsChanged: (newTabs: string[], newTabIdx: number,) => void,
+    onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
     getOppositePath: () => string,
     separator: separator,
     focusOppositePain: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
   },
 ) => {
-  const [tabAry, setTabAry] = useState<string[]>(props.pathAry.pathAry);
+  const [tabAry, setTabAry] = useState<TabInfo[]>(props.pathAry.pathAry);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(props.pathAry.activeTabIndex);
 
   const [colorSetting, setColorSetting] = useState<TabColorSetting[]>([]);
@@ -77,7 +80,7 @@ export const PaineTabs = (
 
   const addNewTab = (newTabPath: string) => {
     let newTabAry = Array.from(tabAry);
-    newTabAry.splice(activeTabIdx + 1, 0, newTabPath);
+    newTabAry.splice(activeTabIdx + 1, 0, { path: newTabPath });
     setTabAry(newTabAry);
   }
   const removeTab = () => {
@@ -98,7 +101,7 @@ export const PaineTabs = (
   }
 
   const onPathChanged = (newPath: string) => {
-    tabAry[activeTabIdx] = newPath
+    tabAry[activeTabIdx].path = newPath
     setTabAry(Array.from(tabAry));
   }
 
@@ -154,21 +157,21 @@ export const PaineTabs = (
                     border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
                     fontSize: '10pt',
                     height: '20pt',
-                    margin:'1pt',
-                    minWidth:'5pt'
+                    margin: '1pt',
+                    minWidth: '5pt'
                   }),
-                  tabColor(path),
+                  tabColor(path.path),
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
-                defaultValue={pathToTabName(path)}
+                defaultValue={pathToTabName(path.path)}
               >
-                {pathToTabName(path)}
+                {pathToTabName(path.path)}
               </Button>
             })
           }
         </div >
         <MainPanel
-          initPath={tabAry[activeTabIdx]}
+          initPath={tabAry[activeTabIdx].path}
           onPathChanged={onPathChanged}
           addNewTab={addNewTab}
           removeTab={removeTab}
