@@ -173,6 +173,7 @@ export const PaineTabs = (
         </div >
         <MainPanel
           initPath={tabAry[activeTabIdx].path}
+          pined={tabAry[activeTabIdx].pined}
           onPathChanged={onPathChanged}
           addNewTab={addNewTab}
           removeTab={removeTab}
@@ -206,6 +207,7 @@ async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
 const MainPanel = (
   props: {
     initPath: string,
+    pined: boolean,
     onPathChanged: (newPath: string) => void
     addNewTab: (newTabPath: string) => void,
     removeTab: () => void,
@@ -248,6 +250,11 @@ const MainPanel = (
 
 
   const UpdateList = async (newDir: string, trgFile: string) => {
+    if (props.pined && dir !== newDir) {
+      props.addNewTab(newDir);
+      return;
+    }
+
     const newEntries = await invoke<Entries>("get_entries", { path: newDir })
       .catch(err => {
         console.error(err);
