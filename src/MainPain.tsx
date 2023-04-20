@@ -179,6 +179,7 @@ export const PaineTabs = (
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
                 onDoubleClick={() => togglePined(idx)}
+                onAuxClick={() => { removeTab(idx) }}
                 defaultValue={pathToTabName(tab)}
               >
                 {pathToTabName(tab)}
