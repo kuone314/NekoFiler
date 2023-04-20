@@ -34,7 +34,7 @@ type Entry = {
 type Entries = Array<Entry>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export interface TabInfo {
+export interface TabsInfo {
   pathAry: string[],
   activeTabIndex: number,
 }
@@ -56,7 +56,7 @@ async function readTabColorSetting(): Promise<TabColorSetting[]> {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const PaineTabs = (
   props: {
-    pathAry: TabInfo,
+    pathAry: TabsInfo,
     onTabsChanged: (newTabs: string[], newTabIdx: number,) => void,
     getOppositePath: () => string,
     separator: separator,

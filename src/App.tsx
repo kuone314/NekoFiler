@@ -10,7 +10,7 @@ import JqxGrid, { } from 'jqwidgets-scripts/jqwidgets-react-tsx/jqxgrid';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { PaineTabs, TabInfo } from './MainPain';
+import { PaineTabs, TabsInfo } from './MainPain';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -28,12 +28,12 @@ const getInitTab = () => {
   const defaultTabInfo = { pathAry: [defaultDir], activeTabIndex: 0 }
 
   try {
-    let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabInfo[], };
+    let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabsInfo[], };
     if (result.data.length !== 2) {
       return [{ ...defaultTabInfo }, { ...defaultTabInfo }];
     }
 
-    const fixError = (tabInfo: TabInfo) => {
+    const fixError = (tabInfo: TabsInfo) => {
       tabInfo.pathAry = tabInfo.pathAry.filter(s => s);
       if (tabInfo.pathAry.length === 0) {
         tabInfo.pathAry.push(defaultDir)
@@ -53,7 +53,7 @@ const getInitTab = () => {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function GetActive(tab_info: TabInfo) {
+function GetActive(tab_info: TabsInfo) {
   return tab_info.pathAry[tab_info.activeTabIndex];
 }
 
@@ -64,7 +64,7 @@ const App = () => {
   }
 
   const [currentPainIndex, setCurrentPainIndex] = useState(0);
-  const tabsPathAry = useRef<TabInfo[]>(getInitTab());
+  const tabsPathAry = useRef<TabsInfo[]>(getInitTab());
 
   const onTabsChanged = (newTabs: string[], newTabIdx: number, painIndex: number) => {
     setCurrentPainIndex(painIndex);
