@@ -83,7 +83,7 @@ fn get_shell() -> Option<Box<Child>> {
         return startup_power_shell();
     }
 
-    std::thread::spawn(stock_power_shell);
+    stock_power_shell;
     return result;
 }
 
