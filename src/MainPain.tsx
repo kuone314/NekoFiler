@@ -235,7 +235,7 @@ const MainPanel = (
     gridRef?: React.RefObject<HTMLDivElement>,
   }
 ) => {
-  const [addressbatStr, setAddressbatStr] = useState<string>("");
+  const [addressbarStr, setAddressbarStr] = useState<string>("");
   const [dir, setDir] = useState<string>(props.initPath);
   const [entries, setEntries] = useState<Entries>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -293,12 +293,12 @@ const MainPanel = (
   }
 
   useEffect(() => {
-    setAddressbatStr(ApplySeparator(addressbatStr, props.separator));
+    setAddressbarStr(ApplySeparator(addressbarStr, props.separator));
   }, [props.separator]);
 
   useEffect(() => {
     UpdateList(dir, "");
-    setAddressbatStr(ApplySeparator(dir, props.separator));
+    setAddressbarStr(ApplySeparator(dir, props.separator));
     props.onPathChanged(dir);
   }, [dir]);
 
@@ -501,7 +501,7 @@ const MainPanel = (
   };
 
   const onEnterDown = async () => {
-    accessDirectry(addressbatStr)
+    accessDirectry(addressbarStr)
     myGrid.current?.focus();
   }
   const onEscapeDown = () => {
@@ -606,17 +606,17 @@ const MainPanel = (
       >
         <input
           type="text"
-          value={addressbatStr}
-          onChange={e => setAddressbatStr(e.target.value)}
+          value={addressbarStr}
+          onChange={e => setAddressbarStr(e.target.value)}
           onKeyDown={onKeyDown}
           onFocus={e => addressBar.current?.select()}
           onPaste={e => {
             const str = e.clipboardData.getData('text');
-            setAddressbatStr(str);
+            setAddressbarStr(str);
             accessDirectry(str)
             myGrid.current?.focus();
           }}
-          onBlur={e => setAddressbatStr(dir)}
+          onBlur={e => setAddressbarStr(dir)}
           ref={addressBar}
         />
         <div
