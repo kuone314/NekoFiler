@@ -51,8 +51,9 @@ function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key:
 
 async function readCommandsSetting(): Promise<CommandInfo[]> {
   const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" });
-  const setting_ary = JSON5.parse(setting_str.toString()) as CommandInfo[];
-  return setting_ary;
+  const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
+  if (setting_ary.version !== 1) { return []; }
+  return setting_ary.data;
 }
 
 export async function matchingKeyEvent(keyboard_event: React.KeyboardEvent<HTMLDivElement>) {
