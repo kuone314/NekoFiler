@@ -16,7 +16,7 @@ import '@szhsin/react-menu/dist/transitions/slide.css';
 
 import JSON5 from 'json5'
 
-import {MainPanel} from './MainPain';
+import { MainPanel } from './MainPain';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabInfo {
@@ -121,7 +121,7 @@ export const PaineTabs = (
   const tabColor = (path: string) => {
     try {
       const match = (setting: TabColorSetting): boolean => {
-        const pathRegExp = new RegExp(setting.pathRegExp);
+        const pathRegExp = new RegExp(setting.pathRegExp, 'i');
         const path_ary = [
           ApplySeparator(path, '/'),
           ApplySeparator(path, '\\'),
