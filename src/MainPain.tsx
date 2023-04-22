@@ -89,6 +89,7 @@ export const PaineTabs = (
     let newTabAry = Array.from(tabAry);
     newTabAry.splice(activeTabIdx + 1, 0, { path: newTabPath, pined: false });
     setTabAry(newTabAry);
+    setActiveTabIdx(activeTabIdx + 1);
   }
   const removeTab = (trgIdx: number) => {
     if (tabAry.length === 1) { return; }
