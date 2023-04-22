@@ -59,7 +59,8 @@ interface TabColorSetting {
 
 async function readTabColorSetting(): Promise<TabColorSetting[]> {
   const result = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' });
-  return JSON5.parse(result.toString()) as TabColorSetting[];
+  const read = JSON5.parse(result.toString()) as { version: number, data: TabColorSetting[] };
+  return read.data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,7 +218,8 @@ interface FileNameColorSetting {
 
 async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
   const result = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
-  return JSON5.parse(result.toString()) as FileNameColorSetting[];
+  const read = JSON5.parse(result.toString()) as { version: number, data: FileNameColorSetting[] };
+  return read.data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,6 @@
-[
+{
+  version: 1,
+  data: [
   {
     command_name: 'Copy to clopboard',
     key: 'ctrl+c',
@@ -270,4 +272,5 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\n\
       command: 'focusOppositePain',
     },
   },
-]
+],
+}
