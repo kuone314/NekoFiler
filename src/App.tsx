@@ -1,16 +1,15 @@
 import { useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api';
-import { homeDir } from '@tauri-apps/api/path';
 import React from 'react';
 
 
 import 'jqwidgets-scripts/jqwidgets/styles/jqx.base.css';
 import 'jqwidgets-scripts/jqwidgets/styles/jqx.material-purple.css';
-import JqxGrid, { } from 'jqwidgets-scripts/jqwidgets-react-tsx/jqxgrid';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { IsValid, PaineTabs, TabInfo, TabsInfo } from './MainPain';
+import { IsValid, TabInfo, TabsInfo } from './MainPain';
+import { PaineTabs } from './PaineTabs';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
