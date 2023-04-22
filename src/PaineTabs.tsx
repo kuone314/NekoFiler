@@ -19,17 +19,6 @@ import JSON5 from 'json5'
 import {MainPanel} from './MainPain';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-type Entry = {
-  name: string,
-  is_dir: boolean,
-  extension: string,
-  size: number,
-  date: string,
-};
-
-type Entries = Array<Entry>;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabInfo {
   path: string,
   pined: boolean,
