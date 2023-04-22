@@ -201,6 +201,14 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\n\
     },
   },
   {
+    command_name: 'selectAll',
+    key: 'ctrl+a',
+    action: {
+      type: 'build_in',
+      command: 'selectAll',
+    },
+  },
+  {
     command_name: 'toggleSelection',
     key: 'Space',
     action: {
