@@ -419,6 +419,14 @@ const MainPanel = (
   const moveTopSelect = () => { setupCurrentIndex(0, true) }
   const moveBottom = () => { setupCurrentIndex(entries.length - 1, false) }
   const moveBottomSelect = () => { setupCurrentIndex(entries.length - 1, true) }
+  const selectAll = () => {
+    const isSelectAll = (selectingIndexArray.size === entries.length);
+    if (isSelectAll) {
+      setSelectingIndexArray(new Set());
+    } else {
+      addSelectingIndexRange(0, entries.length - 1)
+    }
+  }
   const toggleSelection = () => {
     let new_ary = new Set([...selectingIndexArray]);
     if (selectingIndexArray.has(currentIndex)) {
@@ -446,6 +454,7 @@ const MainPanel = (
       case 'moveTopSelect': moveTopSelect(); return;
       case 'moveBottom': moveBottom(); return;
       case 'moveBottomSelect': moveBottomSelect(); return;
+      case 'selectAll': selectAll(); return;
       case 'toggleSelection': toggleSelection(); return;
       case 'addNewTab': addNewTab(); return;
       case 'removeTab': removeTab(); return;
