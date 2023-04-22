@@ -8,7 +8,7 @@ import 'jqwidgets-scripts/jqwidgets/styles/jqx.material-purple.css';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { IsValid, TabInfo, TabsInfo } from './MainPain';
+import { IsValid, TabInfo, TabsInfo } from './PaineTabs';
 import { PaineTabs } from './PaineTabs';
 
 /** @jsxImportSource @emotion/react */

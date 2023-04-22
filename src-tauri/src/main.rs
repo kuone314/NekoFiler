@@ -32,7 +32,8 @@ fn main() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
 fn get_exe_dir() -> Option<String> {
-    Some(std::env::current_exe().ok()?.parent()?.to_str()?.to_string())
+    let result = dunce::canonicalize(std::env::current_exe().ok()?.parent()?);
+    Some(result.ok()?.to_str()?.to_owned())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
