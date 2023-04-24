@@ -122,7 +122,7 @@ struct AdjustedAddressbarStr {
 }
 #[tauri::command]
 fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String> {
-    let Ok(path) = dunce::canonicalize(&str) else {
+    let Ok(path) = dunce::canonicalize(&str.trim()) else {
         return Err("unfond".to_string());
     };
 
