@@ -5,7 +5,7 @@ import React from 'react';
 import { Button } from '@mui/material';
 
 
-import { separator, ApplySeparator } from './FilePathSeparator';
+import { SEPARATOR, separator, ApplySeparator } from './FilePathSeparator';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -122,10 +122,8 @@ export const PaineTabs = (
     try {
       const match = (setting: TabColorSetting): boolean => {
         const pathRegExp = new RegExp(setting.pathRegExp, 'i');
-        const path_ary = [
-          ApplySeparator(path, '/'),
-          ApplySeparator(path, '\\'),
-        ];
+        const path_ary = Object.values(SEPARATOR)
+          .map(separator => ApplySeparator(path, separator) + separator);
         return !!path_ary.find(path => pathRegExp.test(path));
       }
       const setting = colorSetting.find(s => match(s));
