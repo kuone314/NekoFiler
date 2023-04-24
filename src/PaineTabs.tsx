@@ -123,7 +123,7 @@ export const PaineTabs = (
       const match = (setting: TabColorSetting): boolean => {
         const pathRegExp = new RegExp(setting.pathRegExp, 'i');
         const path_ary = Object.values(SEPARATOR)
-          .map(separator => ApplySeparator(path, separator));
+          .map(separator => ApplySeparator(path, separator) + separator);
         return !!path_ary.find(path => pathRegExp.test(path));
       }
       const setting = colorSetting.find(s => match(s));
