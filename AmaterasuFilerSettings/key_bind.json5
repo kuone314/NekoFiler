@@ -92,6 +92,16 @@ Remove-Item $selecting_item_path_ary -Recurse;\n\
     },
   },
   {
+    command_name: 'Delete file',
+    key: 'delete',
+    action: {
+      type: 'power_shell',
+      command: '\
+Remove-Item $selecting_item_path_ary -Recurse;\n\
+      '
+    },
+  },
+  {
     command_name: 'Copy file path',
     key: 'ctrl+alt+c',
     action: {
