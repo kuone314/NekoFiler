@@ -161,17 +161,24 @@ export function commandExecuter(
   const textarea = React.createRef<HTMLTextAreaElement>();
 
 
+  const sizeHalf =
+    css({
+      height: '100%',
+      width: '50%',
+    });
+
   const textAreaWhithRef = () => {
     return <div
       css={css({
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
       })}
     >
       <textarea
         value={refString}
         disabled={true}
         rows={countTextRows(refString)}
+        css={sizeHalf}
       />
       <textarea
         value={dlgString}
@@ -180,6 +187,7 @@ export function commandExecuter(
           setDlgString(e.target.value);
         }}
         rows={countTextRows(refString)}
+        css={sizeHalf}
         ref={textarea}
       />
     </div>
