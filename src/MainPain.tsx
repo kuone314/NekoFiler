@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api';
 import React from 'react';
 
-
-
 import { executeShellCommand } from './RustFuncs';
-import { separator, ApplySeparator } from './FilePathSeparator';
+
+import { separator } from './FilePathSeparator';
+import { AddressBar, } from './AddressBar';
+
 import { CommandInfo, COMMAND_TYPE, matchingKeyEvent, commandExecuter } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
@@ -61,7 +62,6 @@ export const MainPanel = (
     gridRef?: React.RefObject<HTMLDivElement>,
   }
 ) => {
-  const [addressbarStr, setAddressbarStr] = useState<string>("");
   const [dir, setDir] = useState<string>(props.initPath);
   const [entries, setEntries] = useState<Entries>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -119,12 +119,7 @@ export const MainPanel = (
   }
 
   useEffect(() => {
-    setAddressbarStr(ApplySeparator(addressbarStr, props.separator));
-  }, [props.separator]);
-
-  useEffect(() => {
     UpdateList(dir, "");
-    setAddressbarStr(ApplySeparator(dir, props.separator));
     props.onPathChanged(dir);
   }, [dir]);
 
@@ -264,7 +259,7 @@ export const MainPanel = (
   const removeTab = () => { props.removeTab(); }
   const toPrevTab = () => { props.changeTab(-1); }
   const toNextTab = () => { props.changeTab(+1); }
-  const focusAddoressBar = () => { addressBar.current?.focus(); }
+  const focusAddoressBar = () => { addressBarFunc.focus(); }
 
   const execBuildInCommand = (commandName: string) => {
     switch (commandName) {
@@ -322,8 +317,6 @@ export const MainPanel = (
     })();
   };
 
-  const addressBar = React.createRef<HTMLInputElement>();
-
   type AdjustedAddressbarStr = {
     dir: string,
     filename: string,
@@ -333,18 +326,6 @@ export const MainPanel = (
     const parentDir = await normalize(dir + props.separator + '..');
     const dirName = await basename(dir);
     UpdateList(parentDir, dirName);
-  };
-
-  const onEnterDown = async () => {
-    accessDirectry(addressbarStr)
-    myGrid.current?.focus();
-  }
-  const onEscapeDown = () => {
-    myGrid.current?.focus();
-  }
-  const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') { onEnterDown(); return; }
-    if (event.key === 'Escape') { onEscapeDown(); return; }
   };
 
   const onDoubleClick = () => {
@@ -424,6 +405,15 @@ export const MainPanel = (
     border: '1pt solid #000000',
   });
 
+  const [addressBar, addressBarFunc] = AddressBar(
+    {
+      dirPath: dir,
+      separator: props.separator,
+      confirmInput: (path) => accessDirectry(path),
+      onEndEdit: () => myGrid.current?.focus(),
+    }
+  );
+
   const merginForDoubleClick = () => {
     return <div style={{ height: 50, }}>. </div>
   }
@@ -439,21 +429,7 @@ export const MainPanel = (
           height: '100%',
         })}
       >
-        <input
-          type="text"
-          value={addressbarStr}
-          onChange={e => setAddressbarStr(e.target.value)}
-          onKeyDown={onKeyDown}
-          onFocus={e => addressBar.current?.select()}
-          onPaste={e => {
-            const str = e.clipboardData.getData('text');
-            setAddressbarStr(str);
-            accessDirectry(str)
-            myGrid.current?.focus();
-          }}
-          onBlur={e => setAddressbarStr(dir)}
-          ref={addressBar}
-        />
+        {addressBar}
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
           onDoubleClick={onDoubleClick}
