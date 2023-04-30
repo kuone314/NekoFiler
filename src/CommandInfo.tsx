@@ -53,7 +53,8 @@ export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, comma
 class CommandInfoVersiton {
   static first = 1;
   static add_valid_on_addressbar = 2;
-  static latest = CommandInfoVersiton.add_valid_on_addressbar;
+  static read_script_from_file = 3;
+  static latest = CommandInfoVersiton.read_script_from_file;
 }
 
 export async function readCommandsSetting(): Promise<CommandInfo[]> {
@@ -61,9 +62,26 @@ export async function readCommandsSetting(): Promise<CommandInfo[]> {
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
   if (setting_ary.version > CommandInfoVersiton.latest) { return []; }
 
-  if (setting_ary.version === CommandInfoVersiton.first) {
+  if (setting_ary.version < CommandInfoVersiton.add_valid_on_addressbar) {
     setting_ary.data
       .forEach(v1 => v1.valid_on_addressbar = false);
+  }
+
+  if (setting_ary.version < CommandInfoVersiton.read_script_from_file) {
+    const shellCommands = setting_ary.data
+      .filter(setting => setting.action.type === COMMAND_TYPE.power_shell);
+    for (const setting of shellCommands) {
+        await invoke<String>(
+          "write_setting_file",
+          { filename: setting.command_name + ".ps1", content: setting.action.command });
+        setting.action.command = setting.command_name + ".ps1";
+    }
+  }
+
+  if (setting_ary.version < CommandInfoVersiton.latest) {
+    const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: setting_ary.data }, null, 2);
+    await invoke<String>(
+      "write_setting_file", { filename: "key_bind.json5", content: data });
   }
 
   return setting_ary.data;
@@ -92,14 +110,16 @@ export function commandExecuter(
   const [refString, setRefString] = useState<string>('');
   const dlgOnOk = useRef<(dlgInput: string) => void>(() => { });
 
-  const execShellCommandImpl = (
-    command_line: string,
+  const execShellCommandImpl = async (
+    script_file_name: string,
     current_dir: string,
     selecting_item_name_ary: string[],
     dialog_input_string: string,
     opposite_dir: string,
     separator: separator,
   ) => {
+    const command_line = await invoke<String>("read_setting_file", { filename: script_file_name });
+
     const path_ary = selecting_item_name_ary
       .map(path => decoratePath(current_dir + separator + path))
       .join(',');
