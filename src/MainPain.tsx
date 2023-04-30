@@ -305,9 +305,11 @@ export const MainPanel = (
   }, []);
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
-    keyboard_event.preventDefault();
-
     const command_ary = keyBindInfo.filter(cmd => match(keyboard_event, cmd.key));
+
+    if (command_ary.length !== 0) {
+      keyboard_event.preventDefault();
+    }
 
     if (command_ary.length === 1) {
       execCommand(command_ary[0])
@@ -320,7 +322,7 @@ export const MainPanel = (
       return;
     }
 
-    if (keyboard_event.key.length === 1) {
+    if (!addressBarFunc.isFocus() && keyboard_event.key.length === 1) {
       incremantalSearch(keyboard_event.key)
       return;
     }
@@ -430,6 +432,7 @@ export const MainPanel = (
   return (
     <>
       <div
+        onKeyDown={handlekeyboardnavigation}
         css={css({
           display: 'grid',
           gridTemplateRows: 'auto 1fr',
@@ -442,7 +445,6 @@ export const MainPanel = (
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
           onDoubleClick={onDoubleClick}
-          onKeyDown={handlekeyboardnavigation}
           tabIndex={0}
           ref={myGrid}
         >
