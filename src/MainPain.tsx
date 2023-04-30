@@ -305,7 +305,11 @@ export const MainPanel = (
   }, []);
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
-    const command_ary = keyBindInfo.filter(cmd => match(keyboard_event, cmd.key));
+
+    const validKeyBindInfo = addressBarFunc.isFocus()
+      ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
+      : keyBindInfo;
+    const command_ary = validKeyBindInfo.filter(cmd => match(keyboard_event, cmd.key));
 
     if (command_ary.length !== 0) {
       keyboard_event.preventDefault();
