@@ -6,7 +6,7 @@
       key: 'ctrl+c',
       action: {
         type: 'power_shell',
-        command: 'Copy to clopboard.ps1',
+        command: 'script/Copy to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -15,7 +15,7 @@
       key: 'ctrl+x',
       action: {
         type: 'power_shell',
-        command: 'Cut to clopboard.ps1',
+        command: 'script/Cut to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -24,7 +24,7 @@
       key: 'ctrl+v',
       action: {
         type: 'power_shell',
-        command: 'Past from clopboard.ps1',
+        command: 'script/Past from clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -34,7 +34,7 @@
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'Create Copy.ps1',
+        command: 'script/Create Copy.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -44,7 +44,7 @@
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'Copy to opposite dirctory.ps1',
+        command: 'script/Copy to opposite dirctory.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -53,7 +53,7 @@
       key: 'ctrl+d',
       action: {
         type: 'power_shell',
-        command: 'Delete file.ps1',
+        command: 'script/Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -62,7 +62,7 @@
       key: 'delete',
       action: {
         type: 'power_shell',
-        command: 'Delete file.ps1',
+        command: 'script/Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -71,7 +71,7 @@
       key: 'ctrl+alt+c',
       action: {
         type: 'power_shell',
-        command: 'Copy file path.ps1',
+        command: 'script/Copy file path.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -81,7 +81,7 @@
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-        command: 'New File.ps1',
+        command: 'script/New File.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -91,7 +91,7 @@
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-        command: 'New Folder.ps1',
+        command: 'script/New Folder.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -101,7 +101,7 @@
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'Rename.ps1',
+        command: 'script/Rename.ps1',
       },
       valid_on_addressbar: true,
     },
