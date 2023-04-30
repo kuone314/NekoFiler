@@ -66,6 +66,12 @@ export async function readCommandsSetting(): Promise<CommandInfo[]> {
       .forEach(v1 => v1.valid_on_addressbar = false);
   }
 
+  if (setting_ary.version < CommandInfoVersiton.latest) {
+    const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: setting_ary.data }, null, 2);
+    await invoke<String>(
+      "write_setting_file", { filename: "key_bind.json5", content: data });
+  }
+
   return setting_ary.data;
 }
 
