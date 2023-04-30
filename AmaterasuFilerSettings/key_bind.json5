@@ -1,20 +1,12 @@
 {
-  version: 2,
+  version: 3,
   data: [
     {
       command_name: 'Copy to clopboard',
       key: 'ctrl+c',
       action: {
         type: 'power_shell',
-      command: '\
-Add-Type -AssemblyName System.Windows.Forms;\n\
-$dataObj = New-Object System.Windows.Forms.DataObject;\n\
-$dataObj.SetFileDropList($selecting_item_path_ary);\n\
-$byteStream = [byte[]](([System.Windows.Forms.DragDropEffects]::Copy -as [byte]), 0, 0, 0);\n\
-$memoryStream = [System.IO.MemoryStream]::new($byteStream);\n\
-$dataObj.SetData("Preferred DropEffect", $memoryStream);\n\
-[System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);\n\
-      ',
+        command: 'Copy to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -23,15 +15,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);\n\
       key: 'ctrl+x',
       action: {
         type: 'power_shell',
-      command: '\
-Add-Type -AssemblyName System.Windows.Forms;\n\
-$dataObj = New-Object System.Windows.Forms.DataObject;\n\
-$dataObj.SetFileDropList($selecting_item_path_ary);\n\
-$byteStream = [byte[]](([System.Windows.Forms.DragDropEffects]::Move -as [byte]), 0, 0, 0);\n\
-$memoryStream = [System.IO.MemoryStream]::new($byteStream);\n\
-$dataObj.SetData("Preferred DropEffect", $memoryStream);\n\
-[System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);\n\
-      ',
+        command: 'Cut to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -40,21 +24,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);\n\
       key: 'ctrl+v',
       action: {
         type: 'power_shell',
-      command: '\
-Add-Type -AssemblyName System.Windows.Forms;\n\
-\n\
-$files = [Windows.Forms.Clipboard]::GetFileDropList() ;\n\
-$data = [Windows.Forms.Clipboard]::GetDataObject();\n\
-$dropEffect = $data.GetData("Preferred DropEffect");\n\
-$flag = $dropEffect.ReadByte();\n\
-\n\
-if ($flag -band [Windows.Forms.DragDropEffects]::Copy) {\n\
-    Copy-Item $files $current_dir;\n\
-}\n\
-if ($flag -band [Windows.Forms.DragDropEffects]::Move) {\n\
-    Move-Item $files $current_dir;\n\
-}\n\
-      '
+        command: 'Past from clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -64,13 +34,7 @@ if ($flag -band [Windows.Forms.DragDropEffects]::Move) {\n\
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-      command: '\
-for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\n\
-  $selecting_item_path = $selecting_item_path_ary[$index];\n\
-  $dialog_input_str = $dialog_input_str_ary[$index];\n\
-  Copy-Item -Recurse -Path $selecting_item_path -Destination $dialog_input_str\n\
-}\n\
-      ',
+        command: 'Create Copy.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -80,9 +44,7 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\n\
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-      command: '\
-Copy-Item -Recurse -Path $selecting_item_path_ary -Destination $opposite_dir\n\
-      ',
+        command: 'Copy to opposite dirctory.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -91,9 +53,7 @@ Copy-Item -Recurse -Path $selecting_item_path_ary -Destination $opposite_dir\n\
       key: 'ctrl+d',
       action: {
         type: 'power_shell',
-      command: '\
-Remove-Item $selecting_item_path_ary -Recurse;\n\
-      '
+        command: 'Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -102,9 +62,7 @@ Remove-Item $selecting_item_path_ary -Recurse;\n\
       key: 'delete',
       action: {
         type: 'power_shell',
-      command: '\
-Remove-Item $selecting_item_path_ary -Recurse;\n\
-      '
+        command: 'Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -113,9 +71,7 @@ Remove-Item $selecting_item_path_ary -Recurse;\n\
       key: 'ctrl+alt+c',
       action: {
         type: 'power_shell',
-      command: '\
-Set-Clipboard $selecting_item_path_ary;\n\
-      '
+        command: 'Copy file path.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -125,9 +81,7 @@ Set-Clipboard $selecting_item_path_ary;\n\
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-      command: '\
-$dialog_input_str_ary | % { New-Item $_ -type file };\n\
-      '
+        command: 'New File.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -137,9 +91,7 @@ $dialog_input_str_ary | % { New-Item $_ -type file };\n\
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-      command: '\
-$dialog_input_str_ary | % { New-Item $_ -type Directory };\n\
-      '
+        command: 'New Folder.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -149,11 +101,7 @@ $dialog_input_str_ary | % { New-Item $_ -type Directory };\n\
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-      command: '\
-for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\n\
-  Rename-Item $selecting_item_path_ary[$index] $dialog_input_str_ary[$index]\n\
-}\n\
-      '
+        command: 'Rename.ps1',
       },
       valid_on_addressbar: true,
     },
