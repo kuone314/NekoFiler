@@ -61,7 +61,7 @@ export async function readCommandsSetting(): Promise<CommandInfo[]> {
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
   if (setting_ary.version > CommandInfoVersiton.latest) { return []; }
 
-  if (setting_ary.version === CommandInfoVersiton.first) {
+  if (setting_ary.version < CommandInfoVersiton.add_valid_on_addressbar) {
     setting_ary.data
       .forEach(v1 => v1.valid_on_addressbar = false);
   }
