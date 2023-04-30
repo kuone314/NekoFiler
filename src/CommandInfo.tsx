@@ -28,6 +28,7 @@ export type DialogType = typeof DIALOG_TYPE[keyof typeof DIALOG_TYPE];
 export type CommandInfo = {
   command_name: string,
   key: string,
+  valid_on_addressbar: boolean,
   dialog_type: DialogType,
   action: {
     type: CommandType,
@@ -36,7 +37,7 @@ export type CommandInfo = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
+export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
   const key_ary = command_key.split('+').map(key => key.toLocaleLowerCase());
   if (key_ary.includes('ctrl') !== keyboard_event.ctrlKey) { return false; }
   if (key_ary.includes('alt') !== keyboard_event.altKey) { return false; }
@@ -49,16 +50,23 @@ function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key:
   return false;
 }
 
-async function readCommandsSetting(): Promise<CommandInfo[]> {
-  const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" });
-  const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
-  if (setting_ary.version !== 1) { return []; }
-  return setting_ary.data;
+class CommandInfoVersiton {
+  static first = 1;
+  static add_valid_on_addressbar = 2;
+  static latest = CommandInfoVersiton.add_valid_on_addressbar;
 }
 
-export async function matchingKeyEvent(keyboard_event: React.KeyboardEvent<HTMLDivElement>) {
-  const commands = await readCommandsSetting();
-  return commands.filter(cmd => match(keyboard_event, cmd.key));
+export async function readCommandsSetting(): Promise<CommandInfo[]> {
+  const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" });
+  const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
+  if (setting_ary.version > CommandInfoVersiton.latest) { return []; }
+
+  if (setting_ary.version === CommandInfoVersiton.first) {
+    setting_ary.data
+      .forEach(v1 => v1.valid_on_addressbar = false);
+  }
+
+  return setting_ary.data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
