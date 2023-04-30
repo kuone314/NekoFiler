@@ -36,7 +36,7 @@ export type CommandInfo = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
+export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
   const key_ary = command_key.split('+').map(key => key.toLocaleLowerCase());
   if (key_ary.includes('ctrl') !== keyboard_event.ctrlKey) { return false; }
   if (key_ary.includes('alt') !== keyboard_event.altKey) { return false; }
@@ -49,16 +49,11 @@ function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key:
   return false;
 }
 
-async function readCommandsSetting(): Promise<CommandInfo[]> {
+export async function readCommandsSetting(): Promise<CommandInfo[]> {
   const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" });
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
   if (setting_ary.version !== 1) { return []; }
   return setting_ary.data;
-}
-
-export async function matchingKeyEvent(keyboard_event: React.KeyboardEvent<HTMLDivElement>) {
-  const commands = await readCommandsSetting();
-  return commands.filter(cmd => match(keyboard_event, cmd.key));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

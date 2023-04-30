@@ -7,7 +7,7 @@ import { executeShellCommand } from './RustFuncs';
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
 
-import { CommandInfo, COMMAND_TYPE, matchingKeyEvent, commandExecuter } from './CommandInfo';
+import { CommandInfo, COMMAND_TYPE, match, readCommandsSetting, commandExecuter } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -295,26 +295,35 @@ export const MainPanel = (
       return
     }
   }
+
+  const [keyBindInfo, setKeyBindInfo] = useState<CommandInfo[]>([]);
+  useEffect(() => {
+    (async () => {
+      const seting = await readCommandsSetting();
+      setKeyBindInfo(seting);
+    })()
+  }, []);
+
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
     keyboard_event.preventDefault();
-    (async () => {
-      const command_ary = await matchingKeyEvent(keyboard_event);
-      if (command_ary.length === 1) {
-        execCommand(command_ary[0])
-        return;
-      }
 
-      if (command_ary.length >= 2) {
-        menuItemAry.current = command_ary;
-        setMenuOpen(true);
-        return;
-      }
+    const command_ary = keyBindInfo.filter(cmd => match(keyboard_event, cmd.key));
 
-      if (keyboard_event.key.length === 1) {
-        incremantalSearch(keyboard_event.key)
-        return;
-      }
-    })();
+    if (command_ary.length === 1) {
+      execCommand(command_ary[0])
+      return;
+    }
+
+    if (command_ary.length >= 2) {
+      menuItemAry.current = command_ary;
+      setMenuOpen(true);
+      return;
+    }
+
+    if (keyboard_event.key.length === 1) {
+      incremantalSearch(keyboard_event.key)
+      return;
+    }
   };
 
   type AdjustedAddressbarStr = {
