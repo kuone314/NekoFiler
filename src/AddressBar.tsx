@@ -9,6 +9,7 @@ import '@szhsin/react-menu/dist/transitions/slide.css';
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface AddressBarFunc {
   focus: () => void,
+  isFocus: () => boolean,
 };
 
 export function AddressBar(
@@ -23,6 +24,8 @@ export function AddressBar(
   useEffect(() => {
     setAddressbarStr(ApplySeparator(props.dirPath, props.separator));
   }, [props.dirPath, props.separator]);
+
+  const [isFocused, setIsFocused] = useState(false);
 
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -40,6 +43,7 @@ export function AddressBar(
   const inputBoxRef = React.createRef<HTMLInputElement>();
   const functions = {
     focus: () => inputBoxRef.current?.focus(),
+    isFocus: () => isFocused,
   }
 
   const element = <input
@@ -47,14 +51,14 @@ export function AddressBar(
     value={addressbarStr}
     onChange={e => setAddressbarStr(e.target.value)}
     onKeyDown={onKeyDown}
-    onFocus={e => inputBoxRef.current?.select()}
+    onFocus={e => { setIsFocused(true), inputBoxRef.current?.select() }}
     onPaste={e => {
       const str = e.clipboardData.getData('text');
       setAddressbarStr(str);
       props.confirmInput(str);
       props.onEndEdit();
     }}
-    onBlur={e => setAddressbarStr(props.dirPath)}
+    onBlur={e => { setIsFocused(false), setAddressbarStr(props.dirPath) }}
     ref={inputBoxRef}
   />
 
