@@ -76,10 +76,7 @@ export const MainPanel = (
     }
 
     const newEntries = await invoke<Entries>("get_entries", { path: newDir })
-      .catch(err => {
-        console.error(err);
-        return null;
-      });
+      .catch(err => { return null; });
 
     if (!newEntries) { return; }
     if (JSON.stringify(newEntries) === JSON.stringify(entries) && trgFile === "") {
