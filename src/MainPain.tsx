@@ -52,12 +52,19 @@ export const MainPanel = (
   }
 ) => {
   const [dir, setDir] = useState<string>(props.initPath);
-  const [entries, setEntries] = useState<Entries>([]);
+  const [entries, setEntries] = useState<Entries | null>(null);
   const [initSelectItemHint, setInitSelectItemHint] = useState<string>('');
 
 
   const accessDirectry = async (path: string) => {
-    const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path });
+    const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
+      .catch(error => {
+        setDir(path);
+        setEntries(null);
+        return null;
+      }
+      );
+    if (!adjusted) { return; }
     UpdateList(adjusted.dir, adjusted.filename);
   }
 
@@ -217,7 +224,7 @@ export const MainPanel = (
 
   const [fileList, FileListFunctions] = FileList(
     {
-      entries: entries,
+      entries: entries ?? [],
       initSelectItemHint: initSelectItemHint,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
@@ -260,7 +267,11 @@ export const MainPanel = (
           tabIndex={0}
           ref={myGrid}
         >
-          {fileList}
+          {
+            entries
+              ? fileList
+              : <div>Directry Unfound.</div>
+          }
           {merginForDoubleClick()}
         </div>
       </div>
