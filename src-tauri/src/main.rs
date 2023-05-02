@@ -136,7 +136,12 @@ fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String> {
         };
         return Ok(AdjustedAddressbarStr {
             dir: parent.as_os_str().to_str().unwrap_or_default().to_string(),
-            filename: path.file_name().unwrap().to_str().unwrap_or_default().to_string(),
+            filename: path
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap_or_default()
+                .to_string(),
         });
     }
 
