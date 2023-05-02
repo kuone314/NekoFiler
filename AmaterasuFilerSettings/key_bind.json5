@@ -68,6 +68,15 @@
       valid_on_addressbar: false,
     },
     {
+      command_name: '',
+      key: 'ctrl+d',
+      action: {
+        type: 'power_shell',
+        command: '',
+      },
+      valid_on_addressbar: false,
+    },
+    {
       command_name: 'Delete file',
       key: 'delete',
       action: {
