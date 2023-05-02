@@ -30,7 +30,7 @@
     },
     {
       command_name: 'Create Copy',
-      key: 'ctrl+shift+c',
+      key: 'ctrl+c',
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
@@ -40,7 +40,7 @@
     },
     {
       command_name: 'Copy to opposite dirctory',
-      key: 'ctrl+shift+c',
+      key: 'ctrl+c',
       dialog_type: 'none',
       action: {
         type: 'power_shell',
