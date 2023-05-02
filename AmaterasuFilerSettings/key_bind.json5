@@ -232,6 +232,24 @@
       valid_on_addressbar: true,
     },
     {
+      command_name: 'toPrevTab',
+      key: 'ctrl+shift+ArrowLeft',
+      action: {
+        type: 'build_in',
+        command: 'toPrevTab',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'toNextTab',
+      key: 'ctrl+Shift+ArrowRight',
+      action: {
+        type: 'build_in',
+        command: 'toNextTab',
+      },
+      valid_on_addressbar: true,
+    },
+    {
       command_name: 'accessCurrentItem',
       key: 'Enter',
       action: {
