@@ -32,6 +32,15 @@ export type Entry = {
 export type Entries = Array<Entry>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+const SORT_KEY = {
+  name: "name",
+  type: "type",
+  size: "size",
+  date: "date",
+} as const;
+type SortKey = typeof SORT_KEY[keyof typeof SORT_KEY];
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 interface FileNameColorSetting {
   color: string,
   matching: {
@@ -75,6 +84,7 @@ export function FileList(
     gridRef?: React.RefObject<HTMLDivElement>,
   }
 ): [JSX.Element, FileListFunc,] {
+  const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [initSelectItemHint, setInitSelectItemHint] = useState(props.initSelectItemHint);
@@ -84,9 +94,18 @@ export function FileList(
 
   const [entries, setEntries] = useState<Entries>(props.entries);
   useEffect(() => {
-    setEntries(props.entries);
-  }, [props.entries]);
+    const newEntries = [...props.entries];
+    newEntries.sort((entry_1, entry_2) => {
+      switch (sortKey) {
+        case 'name': return entry_1.name > entry_2.name ? 1 : -1;
+        case 'type': return entry_1.extension > entry_2.extension ? 1 : -1;
+        case 'size': return entry_1.size > entry_2.size ? 1 : -1;
+        case 'date': return entry_1.date > entry_2.date ? 1 : -1;
+      }
+    });
 
+    setEntries(newEntries);
+  }, [props.entries, sortKey]);
   useEffect(() => {
     const findRes = entries.findIndex(entry => entry.name === initSelectItemHint);
     if (findRes !== -1) { setCurrentIndex(findRes); }
@@ -325,10 +344,22 @@ export function FileList(
   >
     <thead css={[table_resizable, fix_table_header]} ref={table_header}>
       <tr>
-        <th css={[table_resizable, table_header_color]}>FIleName</th>
-        <th css={[table_resizable, table_header_color]}>type</th>
-        <th css={[table_resizable, table_header_color]}>size</th>
-        <th css={[table_resizable, table_header_color]}>date</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.name)}
+          css={[table_resizable, table_header_color]}
+        >FileName</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.type)}
+          css={[table_resizable, table_header_color]}
+        >type</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.size)}
+          css={[table_resizable, table_header_color]}
+        >size</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.date)}
+          css={[table_resizable, table_header_color]}
+        >date</th>
       </tr>
     </thead>
     {
