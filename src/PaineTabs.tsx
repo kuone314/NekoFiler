@@ -167,6 +167,7 @@ export const PaineTabs = (
                 onDoubleClick={() => togglePined(idx)}
                 onAuxClick={() => { removeTab(idx) }}
                 defaultValue={pathToTabName(tab)}
+                tabIndex={-1}
               >
                 {pathToTabName(tab)}
               </Button>
