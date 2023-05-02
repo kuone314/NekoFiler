@@ -76,10 +76,21 @@ export function FileList(
   }
 ): [JSX.Element, FileListFunc,] {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initSelectItemHint);
   useEffect(() => {
-    const findRes = props.entries.findIndex(entry => entry.name === props.initSelectItemHint);
+    setInitSelectItemHint(props.initSelectItemHint);
+  }, [props.initSelectItemHint]);
+
+  const [entries, setEntries] = useState<Entries>(props.entries);
+  useEffect(() => {
+    setEntries(props.entries);
+  }, [props.entries]);
+
+  useEffect(() => {
+    const findRes = entries.findIndex(entry => entry.name === initSelectItemHint);
     if (findRes !== -1) { setCurrentIndex(findRes); }
-  }, [props.entries, props.initSelectItemHint]);
+  }, [entries, initSelectItemHint]);
 
   const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
   const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
@@ -111,7 +122,7 @@ export function FileList(
   const setupCurrentIndex = (newIndex: number, select: boolean) => {
     if (currentIndex === newIndex) { return; }
     if (newIndex < 0) { return; }
-    if (newIndex >= props.entries.length) { return; }
+    if (newIndex >= entries.length) { return; }
 
     setCurrentIndex(newIndex)
     setincremantalSearchingStr('')
@@ -157,7 +168,7 @@ export function FileList(
   const [incremantalSearchingStr, setincremantalSearchingStr] = useState('');
   const incremantalSearch = (key: string) => {
     const nextSearchStr = incremantalSearchingStr + key;
-    const idx = props.entries.findIndex((entry) => {
+    const idx = entries.findIndex((entry) => {
       return entry.name.toLowerCase().startsWith(nextSearchStr)
     })
     if (idx === -1) { return }
@@ -185,7 +196,7 @@ export function FileList(
   };
 
   const accessItemByIdx = async (rowIdx: number) => {
-    const entry = props.entries[rowIdx];
+    const entry = entries[rowIdx];
     if (entry.is_dir) {
       props.accessDirectry(entry.name);
     } else {
@@ -197,12 +208,12 @@ export function FileList(
   }
 
   const selectingItemName = () => {
-    if (props.entries.length === 0) { return [''] }
+    if (entries.length === 0) { return [''] }
 
     let rowIdxAry = [...selectingIndexArray]
     if (rowIdxAry.length === 0) { rowIdxAry = [currentIndex]; }
 
-    return rowIdxAry.map(idx => props.entries[idx].name);
+    return rowIdxAry.map(idx => entries[idx].name);
   }
 
   const moveUp = () => { setupCurrentIndex(currentIndex - 1, false) }
@@ -211,14 +222,14 @@ export function FileList(
   const moveDownSelect = () => { setupCurrentIndex(currentIndex + 1, true) }
   const moveTop = () => { setupCurrentIndex(0, false) }
   const moveTopSelect = () => { setupCurrentIndex(0, true) }
-  const moveBottom = () => { setupCurrentIndex(props.entries.length - 1, false) }
-  const moveBottomSelect = () => { setupCurrentIndex(props.entries.length - 1, true) }
+  const moveBottom = () => { setupCurrentIndex(entries.length - 1, false) }
+  const moveBottomSelect = () => { setupCurrentIndex(entries.length - 1, true) }
   const selectAll = () => {
-    const isSelectAll = (selectingIndexArray.size === props.entries.length);
+    const isSelectAll = (selectingIndexArray.size === entries.length);
     if (isSelectAll) {
       setSelectingIndexArray(new Set());
     } else {
-      addSelectingIndexRange(0, props.entries.length - 1)
+      addSelectingIndexRange(0, entries.length - 1)
     }
   }
   const toggleSelection = () => {
@@ -244,7 +255,7 @@ export function FileList(
 
     const stringColor = () => {
       try {
-        const entry = props.entries[row_idx];
+        const entry = entries[row_idx];
         const found = colorSetting.find(setting => {
           if (setting.matching.isDirectory !== entry.is_dir) { return false; }
           const regExp = new RegExp(setting.matching.fileNameRegExp);
@@ -319,7 +330,7 @@ export function FileList(
       </tr>
     </thead>
     {
-      props.entries.map((entry, idx) => {
+      entries.map((entry, idx) => {
         return <>
           <tr
             ref={(idx === currentIndex) ? current_row : null}
