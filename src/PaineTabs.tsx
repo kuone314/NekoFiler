@@ -70,11 +70,11 @@ export const PaineTabs = (
     })()
   }, []);
 
-  const addNewTab = (newTabPath: string) => {
+  const addNewTab = (addPosIdx: number, newTabPath: string) => {
     let newTabAry = Array.from(tabAry);
-    newTabAry.splice(activeTabIdx + 1, 0, { path: newTabPath, pined: false });
+    newTabAry.splice(addPosIdx + 1, 0, { path: newTabPath, pined: false });
     setTabAry(newTabAry);
-    setActiveTabIdx(activeTabIdx + 1);
+    setActiveTabIdx(addPosIdx + 1);
   }
   const removeTab = (trgIdx: number) => {
     if (tabAry.length === 1) { return; }
@@ -178,7 +178,7 @@ export const PaineTabs = (
           initPath={tabAry[activeTabIdx].path}
           pined={tabAry[activeTabIdx].pined}
           onPathChanged={onPathChanged}
-          addNewTab={addNewTab}
+          addNewTab={(path) => addNewTab(activeTabIdx, path)}
           removeTab={() => removeTab(activeTabIdx)}
           changeTab={changeTab}
           getOppositePath={props.getOppositePath}
