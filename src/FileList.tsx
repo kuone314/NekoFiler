@@ -32,6 +32,15 @@ export type Entry = {
 export type Entries = Array<Entry>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+const SORT_KEY = {
+  name: "name",
+  type: "type",
+  size: "size",
+  date: "date",
+} as const;
+type SortKey = typeof SORT_KEY[keyof typeof SORT_KEY];
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 interface FileNameColorSetting {
   color: string,
   matching: {
@@ -75,11 +84,56 @@ export function FileList(
     gridRef?: React.RefObject<HTMLDivElement>,
   }
 ): [JSX.Element, FileListFunc,] {
+  const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initSelectItemHint);
   useEffect(() => {
-    const findRes = props.entries.findIndex(entry => entry.name === props.initSelectItemHint);
-    if (findRes !== -1) { setCurrentIndex(findRes); }
-  }, [props.entries, props.initSelectItemHint]);
+    setInitSelectItemHint(props.initSelectItemHint);
+  }, [props.initSelectItemHint]);
+  useEffect(() => {
+    setInitSelectItemHint("");
+  }, [currentIndex]);
+
+  const [entries, setEntries] = useState<Entries>(props.entries);
+  useEffect(() => {
+    const newEntries = [...props.entries];
+    newEntries.sort((entry_1, entry_2) => {
+      switch (sortKey) {
+        case 'name': return entry_1.name > entry_2.name ? 1 : -1;
+        case 'type': return entry_1.extension > entry_2.extension ? 1 : -1;
+        case 'size': return entry_1.size > entry_2.size ? 1 : -1;
+        case 'date': return entry_1.date > entry_2.date ? 1 : -1;
+      }
+    });
+
+    const newIdxAry = [...selectingIndexArray]
+      .map(idx => entries[idx].name)
+      .map(name => newEntries.findIndex(entry => entry.name === name))
+      .filter(idx => idx != -1);
+
+
+    const selectTrg = (initSelectItemHint !== "")
+      ? initSelectItemHint
+      : currentItemName();
+    const findResult = newEntries.findIndex(entry => entry.name === selectTrg);
+    const newIndex = (() => {
+      if (findResult !== -1) { return findResult; }
+      if (currentIndex >= newEntries.length) {
+        return Math.max(newEntries.length - 1, 0);
+      }
+      return currentIndex;
+    })();
+
+    setEntries(newEntries);
+    setSelectingIndexArray(new Set([...newIdxAry]));
+    setCurrentIndex(newIndex);
+  }, [props.entries, sortKey, initSelectItemHint]);
+
+  const currentItemName = () => {
+    if (currentIndex < 0 || entries.length <= currentIndex) { return null; }
+    return entries[currentIndex].name;
+  }
 
   const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
   const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
@@ -111,7 +165,7 @@ export function FileList(
   const setupCurrentIndex = (newIndex: number, select: boolean) => {
     if (currentIndex === newIndex) { return; }
     if (newIndex < 0) { return; }
-    if (newIndex >= props.entries.length) { return; }
+    if (newIndex >= entries.length) { return; }
 
     setCurrentIndex(newIndex)
     setincremantalSearchingStr('')
@@ -157,7 +211,7 @@ export function FileList(
   const [incremantalSearchingStr, setincremantalSearchingStr] = useState('');
   const incremantalSearch = (key: string) => {
     const nextSearchStr = incremantalSearchingStr + key;
-    const idx = props.entries.findIndex((entry) => {
+    const idx = entries.findIndex((entry) => {
       return entry.name.toLowerCase().startsWith(nextSearchStr)
     })
     if (idx === -1) { return }
@@ -185,7 +239,7 @@ export function FileList(
   };
 
   const accessItemByIdx = async (rowIdx: number) => {
-    const entry = props.entries[rowIdx];
+    const entry = entries[rowIdx];
     if (entry.is_dir) {
       props.accessDirectry(entry.name);
     } else {
@@ -197,12 +251,14 @@ export function FileList(
   }
 
   const selectingItemName = () => {
-    if (props.entries.length === 0) { return [''] }
+    if (entries.length === 0) { return [''] }
 
     let rowIdxAry = [...selectingIndexArray]
     if (rowIdxAry.length === 0) { rowIdxAry = [currentIndex]; }
 
-    return rowIdxAry.map(idx => props.entries[idx].name);
+    return rowIdxAry
+      .filter(idx => 0 <= idx && idx < entries.length)
+      .map(idx => entries[idx].name);
   }
 
   const moveUp = () => { setupCurrentIndex(currentIndex - 1, false) }
@@ -211,14 +267,14 @@ export function FileList(
   const moveDownSelect = () => { setupCurrentIndex(currentIndex + 1, true) }
   const moveTop = () => { setupCurrentIndex(0, false) }
   const moveTopSelect = () => { setupCurrentIndex(0, true) }
-  const moveBottom = () => { setupCurrentIndex(props.entries.length - 1, false) }
-  const moveBottomSelect = () => { setupCurrentIndex(props.entries.length - 1, true) }
+  const moveBottom = () => { setupCurrentIndex(entries.length - 1, false) }
+  const moveBottomSelect = () => { setupCurrentIndex(entries.length - 1, true) }
   const selectAll = () => {
-    const isSelectAll = (selectingIndexArray.size === props.entries.length);
+    const isSelectAll = (selectingIndexArray.size === entries.length);
     if (isSelectAll) {
       setSelectingIndexArray(new Set());
     } else {
-      addSelectingIndexRange(0, props.entries.length - 1)
+      addSelectingIndexRange(0, entries.length - 1)
     }
   }
   const toggleSelection = () => {
@@ -244,7 +300,7 @@ export function FileList(
 
     const stringColor = () => {
       try {
-        const entry = props.entries[row_idx];
+        const entry = entries[row_idx];
         const found = colorSetting.find(setting => {
           if (setting.matching.isDirectory !== entry.is_dir) { return false; }
           const regExp = new RegExp(setting.matching.fileNameRegExp);
@@ -312,14 +368,26 @@ export function FileList(
   >
     <thead css={[table_resizable, fix_table_header]} ref={table_header}>
       <tr>
-        <th css={[table_resizable, table_header_color]}>FIleName</th>
-        <th css={[table_resizable, table_header_color]}>type</th>
-        <th css={[table_resizable, table_header_color]}>size</th>
-        <th css={[table_resizable, table_header_color]}>date</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.name)}
+          css={[table_resizable, table_header_color]}
+        >FileName</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.type)}
+          css={[table_resizable, table_header_color]}
+        >type</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.size)}
+          css={[table_resizable, table_header_color]}
+        >size</th>
+        <th
+          onClick={() => setSortKey(SORT_KEY.date)}
+          css={[table_resizable, table_header_color]}
+        >date</th>
       </tr>
     </thead>
     {
-      props.entries.map((entry, idx) => {
+      entries.map((entry, idx) => {
         return <>
           <tr
             ref={(idx === currentIndex) ? current_row : null}
