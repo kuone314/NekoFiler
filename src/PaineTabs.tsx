@@ -173,6 +173,15 @@ export const PaineTabs = (
               </Button>
             })
           }
+          <Button
+            css={[
+              css({
+                height: '20pt',
+                minWidth: '5pt',
+              }),
+            ]}
+            onClick={() => { addNewTab(tabAry.length - 1, tabAry[activeTabIdx].path) }}
+          >+</Button>
         </div >
         <MainPanel
           initPath={tabAry[activeTabIdx].path}
