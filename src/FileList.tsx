@@ -91,6 +91,9 @@ export function FileList(
   useEffect(() => {
     setInitSelectItemHint(props.initSelectItemHint);
   }, [props.initSelectItemHint]);
+  useEffect(() => {
+    setInitSelectItemHint("");
+  }, [currentIndex]);
 
   const [entries, setEntries] = useState<Entries>(props.entries);
   useEffect(() => {
@@ -109,13 +112,28 @@ export function FileList(
       .map(name => newEntries.findIndex(entry => entry.name === name))
       .filter(idx => idx != -1);
 
+
+    const selectTrg = (initSelectItemHint !== "")
+      ? initSelectItemHint
+      : currentItemName();
+    const findResult = newEntries.findIndex(entry => entry.name === selectTrg);
+    const newIndex = (() => {
+      if (findResult !== -1) { return findResult; }
+      if (currentIndex >= newEntries.length) {
+        return Math.max(newEntries.length - 1, 0);
+      }
+      return currentIndex;
+    })();
+
     setEntries(newEntries);
     setSelectingIndexArray(new Set([...newIdxAry]));
-  }, [props.entries, sortKey]);
-  useEffect(() => {
-    const findRes = entries.findIndex(entry => entry.name === initSelectItemHint);
-    if (findRes !== -1) { setCurrentIndex(findRes); }
-  }, [entries, initSelectItemHint]);
+    setCurrentIndex(newIndex);
+  }, [props.entries, sortKey, initSelectItemHint]);
+
+  const currentItemName = () => {
+    if (currentIndex < 0 || entries.length <= currentIndex) { return null; }
+    return entries[currentIndex].name;
+  }
 
   const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
   const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
