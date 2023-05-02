@@ -104,7 +104,13 @@ export function FileList(
       }
     });
 
+    const newIdxAry = [...selectingIndexArray]
+      .map(idx => entries[idx].name)
+      .map(name => newEntries.findIndex(entry => entry.name === name))
+      .filter(idx => idx != -1);
+
     setEntries(newEntries);
+    setSelectingIndexArray(new Set([...newIdxAry]));
   }, [props.entries, sortKey]);
   useEffect(() => {
     const findRes = entries.findIndex(entry => entry.name === initSelectItemHint);
