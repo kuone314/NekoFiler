@@ -30,7 +30,7 @@
     },
     {
       command_name: 'Create Copy',
-      key: 'ctrl+shift+c',
+      key: 'ctrl+c',
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
@@ -40,11 +40,21 @@
     },
     {
       command_name: 'Copy to opposite dirctory',
-      key: 'ctrl+shift+c',
+      key: 'ctrl+c',
       dialog_type: 'none',
       action: {
         type: 'power_shell',
         command: 'script/Copy to opposite dirctory.ps1',
+      },
+      valid_on_addressbar: false,
+    },
+    {
+      command_name: 'Move to opposite dirctory',
+      key: 'ctrl+x',
+      dialog_type: 'none',
+      action: {
+        type: 'power_shell',
+        command: 'script/Move to opposite dirctory.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -54,6 +64,15 @@
       action: {
         type: 'power_shell',
         command: 'script/Delete file.ps1',
+      },
+      valid_on_addressbar: false,
+    },
+    {
+      command_name: '',
+      key: 'ctrl+d',
+      action: {
+        type: 'power_shell',
+        command: '',
       },
       valid_on_addressbar: false,
     },
@@ -225,6 +244,24 @@
     {
       command_name: 'toNextTab',
       key: 'ctrl+tab',
+      action: {
+        type: 'build_in',
+        command: 'toNextTab',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'toPrevTab',
+      key: 'ctrl+shift+ArrowLeft',
+      action: {
+        type: 'build_in',
+        command: 'toPrevTab',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'toNextTab',
+      key: 'ctrl+Shift+ArrowRight',
       action: {
         type: 'build_in',
         command: 'toNextTab',
