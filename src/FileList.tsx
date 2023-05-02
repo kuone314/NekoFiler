@@ -213,7 +213,9 @@ export function FileList(
     let rowIdxAry = [...selectingIndexArray]
     if (rowIdxAry.length === 0) { rowIdxAry = [currentIndex]; }
 
-    return rowIdxAry.map(idx => entries[idx].name);
+    return rowIdxAry
+      .filter(idx => 0 <= idx && idx < entries.length)
+      .map(idx => entries[idx].name);
   }
 
   const moveUp = () => { setupCurrentIndex(currentIndex - 1, false) }
