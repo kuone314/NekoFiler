@@ -49,6 +49,16 @@
       valid_on_addressbar: false,
     },
     {
+      command_name: 'Move to opposite dirctory',
+      key: 'ctrl+x',
+      dialog_type: 'none',
+      action: {
+        type: 'power_shell',
+        command: 'script/Move to opposite dirctory.ps1',
+      },
+      valid_on_addressbar: false,
+    },
+    {
       command_name: 'Delete file',
       key: 'ctrl+d',
       action: {
