@@ -46,7 +46,9 @@ fn read_setting_file(filename: &str) -> Option<String> {
 
 #[tauri::command]
 fn write_setting_file(filename: &str, content: &str) -> Option<()> {
-    let mut file = fs::File::create(setting_dir()?.join(filename)).ok()?;
+    let file_path = setting_dir()?.join(filename);
+    let _ = std::fs::create_dir_all(file_path.parent()?);
+    let mut file = fs::File::create(file_path).ok()?;
     file.write_all(content.as_bytes()).ok()
 }
 
