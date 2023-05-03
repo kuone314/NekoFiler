@@ -17,7 +17,6 @@ import '@szhsin/react-menu/dist/transitions/slide.css';
 
 import useInterval from 'use-interval';
 
-import JSON5 from 'json5'
 import { basename, normalize } from '@tauri-apps/api/path';
 
 

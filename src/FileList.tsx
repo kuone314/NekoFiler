@@ -1,24 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api';
 import React from 'react';
 
 
-
-import { executeShellCommand } from './RustFuncs';
-import { separator, ApplySeparator } from './FilePathSeparator';
-import { CommandInfo, COMMAND_TYPE, commandExecuter } from './CommandInfo';
-
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { MenuItem, ControlledMenu } from '@szhsin/react-menu';
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 
-import useInterval from 'use-interval';
 
 import JSON5 from 'json5'
-import { basename, normalize } from '@tauri-apps/api/path';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
