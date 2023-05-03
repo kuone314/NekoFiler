@@ -10,11 +10,7 @@ import { SEPARATOR, separator, ApplySeparator } from './FilePathSeparator';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import '@szhsin/react-menu/dist/index.css';
-import '@szhsin/react-menu/dist/transitions/slide.css';
-
-
-import JSON5 from 'json5'
+import { TabColorSetting, readTabColorSetting } from './TabColorSetting';
 
 import { MainPanel } from './MainPain';
 
@@ -31,21 +27,6 @@ export function IsValid(tabInfo: TabInfo) {
 export interface TabsInfo {
   pathAry: TabInfo[],
   activeTabIndex: number,
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-interface TabColorSetting {
-  color: {
-    backGround: string,
-    string: string,
-  },
-  pathRegExp: string,
-}
-
-async function readTabColorSetting(): Promise<TabColorSetting[]> {
-  const result = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' });
-  const read = JSON5.parse(result.toString()) as { version: number, data: TabColorSetting[] };
-  return read.data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,19 +181,4 @@ export const PaineTabs = (
       </div>
     </>
   )
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-interface FileNameColorSetting {
-  color: string,
-  matching: {
-    isDirectory: boolean,
-    fileNameRegExp: string,
-  },
-}
-
-async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
-  const result = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
-  const read = JSON5.parse(result.toString()) as { version: number, data: FileNameColorSetting[] };
-  return read.data;
 }

@@ -12,29 +12,11 @@ import { CommandInfo, COMMAND_TYPE, match, readCommandsSetting, commandExecuter 
 import { css } from '@emotion/react'
 
 import { MenuItem, ControlledMenu } from '@szhsin/react-menu';
-import '@szhsin/react-menu/dist/index.css';
-import '@szhsin/react-menu/dist/transitions/slide.css';
 
 import useInterval from 'use-interval';
 
-import JSON5 from 'json5'
 import { basename, normalize } from '@tauri-apps/api/path';
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-interface FileNameColorSetting {
-  color: string,
-  matching: {
-    isDirectory: boolean,
-    fileNameRegExp: string,
-  },
-}
-
-async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
-  const result = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
-  const read = JSON5.parse(result.toString()) as { version: number, data: FileNameColorSetting[] };
-  return read.data;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
