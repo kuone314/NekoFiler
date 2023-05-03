@@ -12,8 +12,6 @@ import { CommandInfo, COMMAND_TYPE, match, readCommandsSetting, commandExecuter 
 import { css } from '@emotion/react'
 
 import { MenuItem, ControlledMenu } from '@szhsin/react-menu';
-import '@szhsin/react-menu/dist/index.css';
-import '@szhsin/react-menu/dist/transitions/slide.css';
 
 import useInterval from 'use-interval';
 

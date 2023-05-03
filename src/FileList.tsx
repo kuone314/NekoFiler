@@ -6,10 +6,6 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import '@szhsin/react-menu/dist/index.css';
-import '@szhsin/react-menu/dist/transitions/slide.css';
-
-
 import JSON5 from 'json5'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,10 +2,6 @@ import { useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api';
 import React from 'react';
 
-
-import 'jqwidgets-scripts/jqwidgets/styles/jqx.base.css';
-import 'jqwidgets-scripts/jqwidgets/styles/jqx.material-purple.css';
-
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
 import { IsValid, TabInfo, TabsInfo } from './PaineTabs';
