@@ -6,7 +6,7 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import JSON5 from 'json5'
+import { FileNameColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
@@ -27,21 +27,6 @@ const SORT_KEY = {
   date: "date",
 } as const;
 type SortKey = typeof SORT_KEY[keyof typeof SORT_KEY];
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-interface FileNameColorSetting {
-  color: string,
-  matching: {
-    isDirectory: boolean,
-    fileNameRegExp: string,
-  },
-}
-
-async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
-  const result = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
-  const read = JSON5.parse(result.toString()) as { version: number, data: FileNameColorSetting[] };
-  return read.data;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileListFunc {
