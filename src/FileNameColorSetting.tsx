@@ -12,7 +12,7 @@ export interface FileNameColorSetting {
 }
 
 export async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
-  const result = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
-  const read = JSON5.parse(result.toString()) as { version: number, data: FileNameColorSetting[] };
-  return read.data;
+  const settingStr = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' });
+  const result = JSON5.parse(settingStr.toString()) as { version: number, data: FileNameColorSetting[] };
+  return result.data;
 }

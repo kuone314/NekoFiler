@@ -12,7 +12,7 @@ export interface TabColorSetting {
 }
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
-  const result = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' });
-  const read = JSON5.parse(result.toString()) as { version: number, data: TabColorSetting[] };
-  return read.data;
+  const settingStr = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' });
+  const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
+  return result.data;
 }
