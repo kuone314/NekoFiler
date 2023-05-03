@@ -17,6 +17,7 @@ import useInterval from 'use-interval';
 
 import { basename, normalize } from '@tauri-apps/api/path';
 
+import { executeShellCommand } from './RustFuncs';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
@@ -209,7 +210,10 @@ export const MainPanel = (
       initSelectItemHint: initSelectItemHint,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
-      accessFile: (fileName: string) => { },//todo
+      accessFile: (fileName: string) => {
+        const decoretedPath = '&"./' + fileName + '"';
+        executeShellCommand(decoretedPath, dir);
+      },
       focusOppositePain: props.focusOppositePain,
       getOppositePath: props.getOppositePath,
       gridRef: myGrid,
