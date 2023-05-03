@@ -181,6 +181,7 @@ export const PaineTabs = (
               }),
             ]}
             onClick={() => { addNewTab(tabAry.length - 1, tabAry[activeTabIdx].path) }}
+            tabIndex={-1}
           >+</Button>
         </div >
         <MainPanel
