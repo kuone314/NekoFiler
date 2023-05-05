@@ -162,18 +162,21 @@ export function FileList(
     if (table_full_size == undefined) { return; }
 
     const diff = current_row_rect.y - table_full_size.y;
+    const row_height = current_row_rect.height;
 
     const upside_just_pos = (diff - header_height);
-    const outof_upside = (scroll_pos > upside_just_pos);
+    const upside_ajust_pos = upside_just_pos;
+    const outof_upside = (scroll_pos > upside_ajust_pos);
     if (outof_upside) {
-      myGrid.current?.scrollTo({ top: upside_just_pos });
+      myGrid.current?.scrollTo({ top: upside_ajust_pos });
       return;
     }
 
-    const downside_just_pos = (diff - scroll_area_height + current_row_rect.height);
-    const outof_downside = (downside_just_pos > scroll_pos);
+    const downside_just_pos = (diff - scroll_area_height + row_height);
+    const downside_ajust_pos = downside_just_pos;
+    const outof_downside = (downside_ajust_pos > scroll_pos);
     if (outof_downside) {
-      myGrid.current?.scrollTo({ top: downside_just_pos });
+      myGrid.current?.scrollTo({ top: downside_ajust_pos });
       return;
     }
   }
