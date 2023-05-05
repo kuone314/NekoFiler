@@ -37,7 +37,6 @@ fn get_exe_dir() -> Option<String> {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-use std::env;
 use std::io::Write;
 #[tauri::command]
 fn read_setting_file(filename: &str) -> Option<String> {
