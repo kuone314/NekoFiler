@@ -165,7 +165,7 @@ export function FileList(
     const row_height = current_row_rect.height;
 
     const upside_just_pos = (diff - header_height);
-    const upside_ajust_pos = upside_just_pos;
+    const upside_ajust_pos = upside_just_pos - 2 * row_height;
     const outof_upside = (scroll_pos > upside_ajust_pos);
     if (outof_upside) {
       myGrid.current?.scrollTo({ top: upside_ajust_pos });
@@ -173,7 +173,7 @@ export function FileList(
     }
 
     const downside_just_pos = (diff - scroll_area_height + row_height);
-    const downside_ajust_pos = downside_just_pos;
+    const downside_ajust_pos = downside_just_pos + 2 * row_height;
     const outof_downside = (downside_ajust_pos > scroll_pos);
     if (outof_downside) {
       myGrid.current?.scrollTo({ top: downside_ajust_pos });
