@@ -100,6 +100,7 @@ export function FileList(
 
     setEntries(newEntries);
     setSelectingIndexArray(new Set([...newIdxAry]));
+    setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
   }, [props.entries, sortKey, initSelectItemHint]);
 
@@ -140,6 +141,7 @@ export function FileList(
     if (newIndex < 0) { return; }
     if (newIndex >= entries.length) { return; }
 
+    setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex)
     setincremantalSearchingStr('')
 
@@ -148,6 +150,8 @@ export function FileList(
     addSelectingIndexRange(currentIndex, newIndex);
   }
 
+  const defaultAdjustMargin = 2;
+  const [adjustMargin, setAdjustMargin] = useState(defaultAdjustMargin);
   const adjustScroll = () => {
     const scroll_pos = myGrid.current?.scrollTop;
     const scroll_area_height = myGrid.current?.clientHeight;
@@ -165,7 +169,7 @@ export function FileList(
     const row_height = current_row_rect.height;
 
     const upside_just_pos = (diff - header_height);
-    const upside_ajust_pos = upside_just_pos - 2 * row_height;
+    const upside_ajust_pos = upside_just_pos - adjustMargin * row_height;
     const outof_upside = (scroll_pos > upside_ajust_pos);
     if (outof_upside) {
       myGrid.current?.scrollTo({ top: upside_ajust_pos });
@@ -173,7 +177,7 @@ export function FileList(
     }
 
     const downside_just_pos = (diff - scroll_area_height + row_height);
-    const downside_ajust_pos = downside_just_pos + 2 * row_height;
+    const downside_ajust_pos = downside_just_pos + adjustMargin * row_height;
     const outof_downside = (downside_ajust_pos > scroll_pos);
     if (outof_downside) {
       myGrid.current?.scrollTo({ top: downside_ajust_pos });
@@ -192,6 +196,7 @@ export function FileList(
     })
     if (idx === -1) { return }
 
+    setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(idx)
     setincremantalSearchingStr(nextSearchStr)
   }
@@ -204,6 +209,7 @@ export function FileList(
     } else {
       setSelectingIndexArray(new Set([row_idx]));
     }
+    setAdjustMargin(0);
     setCurrentIndex(row_idx);
     setincremantalSearchingStr('')
     myGrid.current?.focus()
