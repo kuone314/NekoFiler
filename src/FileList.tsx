@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api';
+import { event, invoke } from '@tauri-apps/api';
 import React from 'react';
 
 
@@ -195,19 +195,46 @@ export function FileList(
     setincremantalSearchingStr(nextSearchStr)
   }
 
-  const onRowclick = (row_idx: number, event: React.MouseEvent<Element>) => {
-    if (event.shiftKey) {
-      addSelectingIndexRange(currentIndex, row_idx);
-    } else if (event.ctrlKey) {
-      addSelectingIndexRange(row_idx, row_idx);
+  interface MouseSelectInfo {
+    startIndex: number,
+    shiftKey: boolean,
+    ctrlKey: boolean,
+  }
+  const [mouseSelectInfo, setMouseSelectInfo] = useState<MouseSelectInfo | null>(null);
+  const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
+    if (event.buttons !== 1) { return; }
+    setincremantalSearchingStr('');
+    const info = {
+      startIndex: row_idx,
+      shiftKey: event.shiftKey,
+      ctrlKey: event.ctrlKey,
+    };
+    setMouseSelectInfo(info);
+    updateMouseSelection(info, row_idx);
+  }
+  const onMouseMove = (row_idx: number, event: React.MouseEvent<Element>) => {
+    if (event.buttons !== 1) { return; }
+    if (mouseSelectInfo === null) { return; }
+    updateMouseSelection(mouseSelectInfo, row_idx);
+  }
+  const updateMouseSelection = (start: MouseSelectInfo, newIdx: number) => {
+    if (start.shiftKey) {
+      addSelectingIndexRange(currentIndex, newIdx); // for Shift+click
+    } else if (start.ctrlKey) {
+      addSelectingIndexRange(start.startIndex, newIdx);
     } else {
-      setSelectingIndexArray(new Set([row_idx]));
+      setSelectingIndexArray(SequenceAry(start.startIndex, newIdx));
     }
+    const isDrag = (start.startIndex !== newIdx);
+    setAdjustMargin(isDrag ? 1 : 0);
+    setCurrentIndex(newIdx);
+  }
+  const onMouseUp = (row_idx: number) => {
+    setMouseSelectInfo(null);
     setAdjustMargin(0);
     setCurrentIndex(row_idx);
-    setincremantalSearchingStr('')
-    myGrid.current?.focus()
-  };
+  }
+
 
   const onRowdoubleclick = (row_idx: number, event: React.MouseEvent<Element>) => {
     accessItemByIdx(row_idx);
@@ -367,7 +394,9 @@ export function FileList(
         return <>
           <tr
             ref={(idx === currentIndex) ? current_row : null}
-            onClick={(event) => onRowclick(idx, event)}
+            onMouseDown={(event) => { onMouseDown(idx, event) }}
+            onMouseMove={(event) => { onMouseMove(idx, event) }}
+            onMouseUp={(event) => { onMouseUp(idx) }}
             onDoubleClick={(event) => onRowdoubleclick(idx, event)}
             css={table_color(idx)}
           >
