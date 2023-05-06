@@ -339,6 +339,11 @@ export function FileList(
     background: '#f2f2f2',
     border: '1pt solid #000000',
   });
+  const table_header_font = (sortType: SortKey) => {
+    return css({
+      fontWeight: (sortKey === sortType) ? 'bold' : 'normal',
+    });
+  }
 
   const functions = {
     selectingItemName: selectingItemName,
@@ -373,19 +378,19 @@ export function FileList(
       <tr>
         <th
           onClick={() => setSortKey(SORT_KEY.name)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.name),]}
         >FileName</th>
         <th
           onClick={() => setSortKey(SORT_KEY.type)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.type),]}
         >type</th>
         <th
           onClick={() => setSortKey(SORT_KEY.size)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.size),]}
         >size</th>
         <th
           onClick={() => setSortKey(SORT_KEY.date)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.date),]}
         >date</th>
       </tr>
     </thead>
