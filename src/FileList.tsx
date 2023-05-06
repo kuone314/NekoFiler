@@ -111,13 +111,7 @@ export function FileList(
 
   const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
   const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
-    const sttIdx = Math.min(rangeTerm1, rangeTerm2);
-    const endIdx = Math.max(rangeTerm1, rangeTerm2);
-
-    let new_ary = new Set([...selectingIndexArray]);
-    for (let idx = sttIdx; idx <= endIdx; idx++) {
-      new_ary.add(idx);
-    }
+    let new_ary = new Set([...selectingIndexArray, ...SequenceAry(rangeTerm1, rangeTerm2)]);
     setSelectingIndexArray(new_ary);
   }
 
@@ -388,4 +382,16 @@ export function FileList(
   </table>
 
   return [element, functions];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function SequenceAry(rangeTerm1: number, rangeTerm2: number) {
+  const sttIdx = Math.min(rangeTerm1, rangeTerm2);
+  const endIdx = Math.max(rangeTerm1, rangeTerm2);
+
+  let new_ary = new Set<number>();
+  for (let idx = sttIdx; idx <= endIdx; idx++) {
+    new_ary.add(idx);
+  }
+  return new_ary;
 }
