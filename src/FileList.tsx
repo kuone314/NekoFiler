@@ -406,7 +406,7 @@ export function FileList(
             css={table_color(idx)}
           >
             <td css={table_border}>{entry.name}</td>
-            <td css={table_border}>{entry.is_dir ? 'folder' : entry.extension.length === 0 ? '-' : entry.extension}</td>
+            <td css={table_border}>{ToTypeName(entry)}</td>
             <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
             <td css={table_border}>{entry.date}</td>
           </tr>
@@ -428,4 +428,12 @@ function SequenceAry(rangeTerm1: number, rangeTerm2: number) {
     new_ary.add(idx);
   }
   return new_ary;
+}
+
+function ToTypeName(entry: Entry) {
+  return entry.is_dir
+    ? 'folder'
+    : entry.extension.length === 0
+      ? '-'
+      : entry.extension
 }
