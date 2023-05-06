@@ -74,7 +74,7 @@ export function FileList(
     newEntries.sort((entry_1, entry_2) => {
       switch (sortKey) {
         case 'name': return entry_1.name > entry_2.name ? 1 : -1;
-        case 'type': return entry_1.extension > entry_2.extension ? 1 : -1;
+        case 'type': return ToTypeName(entry_1) > ToTypeName(entry_2) ? 1 : -1;
         case 'size': return entry_1.size > entry_2.size ? 1 : -1;
         case 'date': return entry_1.date > entry_2.date ? 1 : -1;
       }
@@ -339,6 +339,11 @@ export function FileList(
     background: '#f2f2f2',
     border: '1pt solid #000000',
   });
+  const table_header_font = (sortType: SortKey) => {
+    return css({
+      fontWeight: (sortKey === sortType) ? 'bold' : 'normal',
+    });
+  }
 
   const functions = {
     selectingItemName: selectingItemName,
@@ -373,19 +378,19 @@ export function FileList(
       <tr>
         <th
           onClick={() => setSortKey(SORT_KEY.name)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.name),]}
         >FileName</th>
         <th
           onClick={() => setSortKey(SORT_KEY.type)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.type),]}
         >type</th>
         <th
           onClick={() => setSortKey(SORT_KEY.size)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.size),]}
         >size</th>
         <th
           onClick={() => setSortKey(SORT_KEY.date)}
-          css={[table_resizable, table_header_color]}
+          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.date),]}
         >date</th>
       </tr>
     </thead>
@@ -401,7 +406,7 @@ export function FileList(
             css={table_color(idx)}
           >
             <td css={table_border}>{entry.name}</td>
-            <td css={table_border}>{entry.is_dir ? 'folder' : entry.extension.length === 0 ? '-' : entry.extension}</td>
+            <td css={table_border}>{ToTypeName(entry)}</td>
             <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
             <td css={table_border}>{entry.date}</td>
           </tr>
@@ -423,4 +428,12 @@ function SequenceAry(rangeTerm1: number, rangeTerm2: number) {
     new_ary.add(idx);
   }
   return new_ary;
+}
+
+function ToTypeName(entry: Entry) {
+  return entry.is_dir
+    ? 'folder'
+    : entry.extension.length === 0
+      ? '-'
+      : entry.extension
 }
