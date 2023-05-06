@@ -185,9 +185,8 @@ export function FileList(
   const [incremantalSearchingStr, setincremantalSearchingStr] = useState('');
   const incremantalSearch = (key: string) => {
     const nextSearchStr = incremantalSearchingStr + key;
-    const idx = entries.findIndex((entry) => {
-      return entry.name.toLowerCase().startsWith(nextSearchStr)
-    })
+
+    const idx = IncremantalSearch(entries, nextSearchStr);
     if (idx === -1) { return }
 
     setAdjustMargin(defaultAdjustMargin);
@@ -430,10 +429,61 @@ function SequenceAry(rangeTerm1: number, rangeTerm2: number) {
   return new_ary;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function ToTypeName(entry: Entry) {
   return entry.is_dir
     ? 'folder'
     : entry.extension.length === 0
       ? '-'
       : entry.extension
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function IncremantalSearch(
+  entries: Entries,
+  incremantalSearchingStr: string
+): number {
+  interface SortInfo {
+    orgIdx: number,
+    matchIdxAry: number[],
+  }
+  function MatchIndexAry(
+    filename: string,
+    incremantalSearchingStr: string
+  ): number[] {
+    let result: number[] = [];
+    for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
+      const str = incremantalSearchingStr[idx];
+      const searchStartIdx = result.at(-1) ?? 0;
+      const searchStr = filename.slice(searchStartIdx);
+      const foundIdx = searchStr.indexOf(str);
+      if (foundIdx === -1) { return []; }
+      result.push(searchStartIdx + 1 + foundIdx);
+    }
+    return result;
+  }
+
+  const matchIdxArys = entries
+    .map((entry, idx) => {
+      return {
+        orgIdx: idx,
+        matchIdxAry: MatchIndexAry(entry.name, incremantalSearchingStr)
+      };
+    })
+    .filter(item => item.matchIdxAry.length !== 0);
+  if (matchIdxArys.length === 0) { return -1; }
+
+  matchIdxArys.sort((info_1, info_2) => {
+    for (let idx = 0; idx < info_1.matchIdxAry.length; idx++) {
+      const matchIdx_1 = info_1.matchIdxAry[idx];
+      const matchIdx_2 = info_2.matchIdxAry[idx];
+      if (matchIdx_1 === matchIdx_2) { continue; }
+
+      if (matchIdx_1 < matchIdx_2) { return -1; }
+      if (matchIdx_1 > matchIdx_2) { return +1; }
+    }
+    return 0;
+  });
+
+  return matchIdxArys[0].orgIdx;
 }
