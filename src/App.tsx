@@ -82,50 +82,65 @@ const App = () => {
 
   const [separator, setSeparator] = useState<separator>('\\');
   return (
-    <div
-      css={css({
-        display: 'grid',
-        gridTemplateRows: 'auto 0.5fr 0.5fr auto',
-        width: '95%',
-        height: '95vh',
-      })}
-    >
-      <button
+    <>
+      <div
         css={css({
-          width: '85pt',
-          padding: '10px',
+          display: 'grid',
+          gridTemplateColumns: '0.8fr 0.2fr',
+          width: '100%',
+          height: '95vh',
         })}
-        onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
-        separator:{separator}
-      </button>
-      {
-        tabsPathAry.current.map((pathAry, idx) => {
-          return <>
-            <div
-              style={
-                {
-                  border: (idx === currentPainIndex) ? '2px solid #ff0000' : '',
-                  overflow: 'auto',
-                }
-              }
-              onFocus={() => { setCurrentPainIndex(idx); }}
-            >
-              <PaineTabs
-                pathAry={pathAry}
-                onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
-                getOppositePath={getOppositePath}
-                separator={separator}
-                gridRef={grid[idx]}
-                focusOppositePain={() => { grid[(idx + 1) % 2].current?.focus(); }}
-              />
-            </div>
-          </>
-        })
-      }
-      <CommandBar
-        path={getPath}
-      />
-    </div >
+      >
+        <div
+          css={css({
+            display: 'grid',
+            gridTemplateRows: '0.5fr 0.5fr auto',
+            height: '100%',
+          })}
+        >
+          {
+            tabsPathAry.current.map((pathAry, idx) => {
+              return <>
+                <div
+                  style={
+                    {
+                      border: (idx === currentPainIndex) ? '2px solid #ff0000' : '',
+                      overflow: 'auto',
+                    }
+                  }
+                  onFocus={() => { setCurrentPainIndex(idx); }}
+                >
+                  <PaineTabs
+                    pathAry={pathAry}
+                    onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                    getOppositePath={getOppositePath}
+                    separator={separator}
+                    gridRef={grid[idx]}
+                    focusOppositePain={() => { grid[(idx + 1) % 2].current?.focus(); }}
+                  />
+                </div>
+              </>
+            })
+          }
+          <CommandBar
+            path={getPath}
+          />
+        </div>
+        <div
+            css={css({
+              height: '100%',
+            })}>
+          <button
+            css={css({
+              width: '85pt',
+              padding: '10px',
+            })}
+            onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
+            separator:{separator}
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
