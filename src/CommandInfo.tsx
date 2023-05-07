@@ -144,7 +144,9 @@ export function commandExecuter(
     const command_strs = [path_ary_def, name_ary_def, current_dir_def, opposite_dir_def, dialog_input_def, command_line,];
     const replaced_command_line = command_strs.join('\n');
     console.log(replaced_command_line)
-    executeShellCommand(replaced_command_line, current_dir);
+    executeShellCommand(replaced_command_line, current_dir).then(
+      result => addLogMessage(result.toString())
+    );
   }
   const execShellCommand = (
     command: CommandInfo,
@@ -154,6 +156,8 @@ export function commandExecuter(
     separator: separator,
   ) => {
     const fn = (dialog_input_string: string) => {
+      addLogMessage('---');
+      addLogMessage(command.command_name)
       execShellCommandImpl(
         command.action.command,
         ApplySeparator(current_dir, separator),

@@ -16,11 +16,11 @@ const CommandBar = (props: {
   const [str, setStr] = useState<string>("");
 
   const onEnterDown = async () => {
-    const result = await executeShellCommand(str, props.path());
-    if (result.length !== 0) {
-      alert(result);
-    }
-
+    props.addLogMessage('---');
+    props.addLogMessage(str);
+    executeShellCommand(str, props.path()).then(
+      result => props.addLogMessage(result.toString())
+    );
     setStr("");
   }
   const onEscapeDown = () => {
