@@ -84,6 +84,9 @@ const App = () => {
   const [separator, setSeparator] = useState<separator>('\\');
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein();
+  const addLogMessage = (message: string) => {
+    logMessagePeinFunc.addMessage(message);
+  };
 
   return (
     <>
@@ -118,6 +121,7 @@ const App = () => {
                     pathAry={pathAry}
                     onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
                     getOppositePath={getOppositePath}
+                    addLogMessage={addLogMessage}
                     separator={separator}
                     gridRef={grid[idx]}
                     focusOppositePain={() => { grid[(idx + 1) % 2].current?.focus(); }}
@@ -128,6 +132,7 @@ const App = () => {
           }
           <CommandBar
             path={getPath}
+            addLogMessage={addLogMessage}
           />
         </div>
         <div

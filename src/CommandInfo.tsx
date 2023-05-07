@@ -60,7 +60,7 @@ class CommandInfoVersiton {
 export async function readCommandsSetting(): Promise<CommandInfo[]> {
   const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" })
     .catch(_ => "");
-  if (!setting_str ||setting_str === "") { return GenerateDefaultCommandSeting(); }
+  if (!setting_str || setting_str === "") { return GenerateDefaultCommandSeting(); }
 
 
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
@@ -107,6 +107,7 @@ type ExecShellCommand = (
 
 export function commandExecuter(
   onDialogClose: () => void,
+  addLogMessage: (message: string) => void,
 ): [JSX.Element, ExecShellCommand,] {
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const [title, setTitle] = useState<string>('');

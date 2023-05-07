@@ -9,7 +9,10 @@ type Entry = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const CommandBar = (props: { path: () => string }) => {
+const CommandBar = (props: {
+  path: () => string
+  addLogMessage: (message: string) => void,
+}) => {
   const [str, setStr] = useState<string>("");
 
   const onEnterDown = async () => {

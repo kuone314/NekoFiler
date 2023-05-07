@@ -29,6 +29,7 @@ export const MainPanel = (
     removeTab: () => void,
     changeTab: (offset: number) => void,
     getOppositePath: () => string,
+    addLogMessage: (message: string) => void,
     separator: separator,
     focusOppositePain: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
@@ -182,6 +183,7 @@ export const MainPanel = (
 
   const [dialog, execShellCommand] = commandExecuter(
     () => { myGrid.current?.focus() },
+    props.addLogMessage,
   );
 
   const [isMenuOpen, setMenuOpen] = useState(false);
