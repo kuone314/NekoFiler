@@ -68,7 +68,8 @@ fn execute_shell_command(dir: &str, command: &str) -> Option<String> {
         .ok()?;
 
     let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
-    Some(std_out.to_string())
+    let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
+    Some(std_out.to_string() + &std_err.to_string())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
