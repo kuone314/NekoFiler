@@ -11,6 +11,7 @@ import { PaineTabs } from './PaineTabs';
 import { css } from '@emotion/react'
 
 import JSON5 from 'json5'
+import { LogMessagePein } from './LogMessagePein';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +82,9 @@ const App = () => {
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
 
   const [separator, setSeparator] = useState<separator>('\\');
+
+  const [logMessagePein, logMessagePeinFunc] = LogMessagePein();
+
   return (
     <>
       <div
@@ -127,9 +131,12 @@ const App = () => {
           />
         </div>
         <div
-            css={css({
-              height: '100%',
-            })}>
+          css={css({
+            display: 'grid',
+            gridTemplateRows: '0.1fr auto',
+            height: '100%',
+          })}
+        >
           <button
             css={css({
               width: '85pt',
@@ -138,6 +145,7 @@ const App = () => {
             onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
             separator:{separator}
           </button>
+          {logMessagePein}
         </div>
       </div>
     </>
