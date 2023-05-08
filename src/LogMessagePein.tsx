@@ -24,8 +24,8 @@ export function LogMessagePein()
   const textareaRef = React.createRef<HTMLTextAreaElement>();
   useEffect(() => {
     textareaRef.current?.scrollTo(
-      textareaRef.current?.scrollWidth??0,
-      textareaRef.current?.scrollHeight??0)
+      textareaRef.current?.scrollWidth ?? 0,
+      textareaRef.current?.scrollHeight ?? 0)
   }, [logStr]);
 
   const functions = {
@@ -37,6 +37,7 @@ export function LogMessagePein()
         height: '100%',
       })}
       value={logStr}
+      disabled={true}
       ref={textareaRef}
     />
   return [element, functions];
