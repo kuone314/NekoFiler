@@ -9,13 +9,6 @@ extern crate serde;
 use std::fs;
 
 fn main() {
-    std::thread::spawn(|| {
-        let init_shell_count = 3;
-        for _ in 0..init_shell_count {
-            stock_power_shell();
-        }
-    });
-
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             get_entries,
@@ -63,56 +56,20 @@ fn setting_dir() -> Option<std::path::PathBuf> {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-use once_cell::sync::Lazy;
-use std::collections::VecDeque;
-use std::process::{Child, Command, Stdio};
-use std::sync::Mutex;
-
-fn startup_power_shell() -> Option<Box<Child>> {
-    Some(Box::new(
-        Command::new("powershell")
-            .args(["-WindowStyle", "Hidden"])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .spawn()
-            .ok()?,
-    ))
-}
-
-fn get_shell() -> Option<Box<Child>> {
-    let result = (|| Some(SHELL_ARY.lock().ok()?.pop_front()?))();
-    if !result.is_some() {
-        return startup_power_shell();
-    }
-
-    stock_power_shell();
-    return result;
-}
-
-fn stock_power_shell() -> Option<()> {
-    Some(SHELL_ARY.lock().ok()?.push_back(startup_power_shell()?))
-}
-
-static SHELL_ARY: Lazy<Mutex<VecDeque<Box<Child>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
+use std::process::Command;
 
 #[tauri::command]
 fn execute_shell_command(dir: &str, command: &str) -> Option<String> {
-    let mut shell = get_shell()?;
+    let output = Command::new("Powershell")
+        .args(["-WindowStyle", "Hidden"])
+        .args(["-Command", &command])
+        .current_dir(dir)
+        .output()
+        .ok()?;
 
-    let command = "cd ".to_owned() + dir + ";\n" + command + "\n";
-    use encoding_rs;
-    let (command, _, _) = encoding_rs::SHIFT_JIS.encode(&command);
-
-    let stdin = shell.stdin.as_mut().expect("Failed to open stdin");
-    stdin.write_all(command.as_ref()).ok()?;
-
-    let _ = shell.wait();
-
-    use std::io::{BufRead, BufReader, Write};
-    let mut reader = BufReader::new(shell.stdout.as_mut()?);
-    let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&reader.fill_buf().ok()?);
-
-    return Some(std_out.to_string());
+    let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
+    let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
+    Some(std_out.to_string() + &std_err.to_string())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
