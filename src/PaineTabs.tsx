@@ -35,6 +35,7 @@ export const PaineTabs = (
     pathAry: TabsInfo,
     onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
     getOppositePath: () => string,
+    addLogMessage: (message: string) => void,
     separator: separator,
     focusOppositePain: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
@@ -173,6 +174,7 @@ export const PaineTabs = (
           removeTab={() => removeTab(activeTabIdx)}
           changeTab={changeTab}
           getOppositePath={props.getOppositePath}
+          addLogMessage={props.addLogMessage}
           separator={props.separator}
           focusOppositePain={props.focusOppositePain}
           gridRef={props.gridRef}

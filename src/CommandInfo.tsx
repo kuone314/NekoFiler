@@ -60,7 +60,7 @@ class CommandInfoVersiton {
 export async function readCommandsSetting(): Promise<CommandInfo[]> {
   const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" })
     .catch(_ => "");
-  if (!setting_str ||setting_str === "") { return GenerateDefaultCommandSeting(); }
+  if (!setting_str || setting_str === "") { return GenerateDefaultCommandSeting(); }
 
 
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
@@ -107,6 +107,7 @@ type ExecShellCommand = (
 
 export function commandExecuter(
   onDialogClose: () => void,
+  addLogMessage: (message: string) => void,
 ): [JSX.Element, ExecShellCommand,] {
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const [title, setTitle] = useState<string>('');
@@ -143,7 +144,9 @@ export function commandExecuter(
     const command_strs = [path_ary_def, name_ary_def, current_dir_def, opposite_dir_def, dialog_input_def, command_line,];
     const replaced_command_line = command_strs.join('\n');
     console.log(replaced_command_line)
-    executeShellCommand(replaced_command_line, current_dir);
+    executeShellCommand(replaced_command_line, current_dir).then(
+      result => addLogMessage(result.toString())
+    );
   }
   const execShellCommand = (
     command: CommandInfo,
@@ -153,6 +156,8 @@ export function commandExecuter(
     separator: separator,
   ) => {
     const fn = (dialog_input_string: string) => {
+      addLogMessage('---');
+      addLogMessage(command.command_name)
       execShellCommandImpl(
         command.action.command,
         ApplySeparator(current_dir, separator),
