@@ -73,7 +73,7 @@ export function FileList(
     const newEntries = [...props.entries];
     newEntries.sort((entry_1, entry_2) => {
       switch (sortKey) {
-        case 'name': return entry_1.name > entry_2.name ? 1 : -1;
+        case 'name': return entry_1.name.toLowerCase() > entry_2.name.toLowerCase() ? 1 : -1;
         case 'type': return ToTypeName(entry_1) > ToTypeName(entry_2) ? 1 : -1;
         case 'size': return entry_1.size > entry_2.size ? 1 : -1;
         case 'date': return entry_1.date > entry_2.date ? 1 : -1;
@@ -467,7 +467,7 @@ function IncremantalSearch(
     .map((entry, idx) => {
       return {
         orgIdx: idx,
-        matchIdxAry: MatchIndexAry(entry.name, incremantalSearchingStr)
+        matchIdxAry: MatchIndexAry(entry.name.toLowerCase(), incremantalSearchingStr.toLowerCase())
       };
     })
     .filter(item => item.matchIdxAry.length !== 0);
