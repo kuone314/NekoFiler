@@ -467,7 +467,7 @@ function IncremantalSearch(
     .map((entry, idx) => {
       return {
         orgIdx: idx,
-        matchIdxAry: MatchIndexAry(entry.name, incremantalSearchingStr)
+        matchIdxAry: MatchIndexAry(entry.name.toLowerCase(), incremantalSearchingStr.toLowerCase())
       };
     })
     .filter(item => item.matchIdxAry.length !== 0);
