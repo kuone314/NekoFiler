@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import React from "react";
+import { UnlistenFn, listen } from "@tauri-apps/api/event";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +21,18 @@ export function LogMessagePein()
     setLogStr((prevLogStr) => prevLogStr + '\n' + message);
 
   };
+
+  useEffect(() => {
+    let unlisten: UnlistenFn | null;
+    (async () => {
+      unlisten = await listen('LogMessageEvent', event => {
+        addMessage(event.payload as string);
+      });
+    })()
+    return () => {
+      if (unlisten) { unlisten(); }
+    }
+  }, [])
 
   const textareaRef = React.createRef<HTMLTextAreaElement>();
   useEffect(() => {

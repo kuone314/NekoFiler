@@ -8,6 +8,14 @@ extern crate serde;
 
 use std::fs;
 
+use once_cell::sync::Lazy;
+use std::collections::VecDeque;
+use std::sync::Mutex;
+use tauri::Manager;
+static LOG_STACK: Lazy<Mutex<VecDeque<Box<String>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
+
+use std::time::Duration;
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -18,6 +26,16 @@ fn main() {
             write_setting_file,
             get_exe_dir,
         ])
+        .setup(|app| {
+            let app_handle = app.app_handle();
+            std::thread::spawn(move || loop {
+                std::thread::sleep(Duration::from_secs(1));
+                let Ok(mut log_stack) = LOG_STACK.lock() else {continue;};
+                let Some(message) = log_stack.pop_front() else {continue;};
+                let _ = app_handle.emit_all("LogMessageEvent", message);
+            });
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -59,7 +77,17 @@ fn setting_dir() -> Option<std::path::PathBuf> {
 use std::process::Command;
 
 #[tauri::command]
-fn execute_shell_command(dir: &str, command: &str) -> Option<String> {
+fn execute_shell_command(dir: &str, command: &str) -> () {
+    let dir = dir.to_owned();
+    let command = command.to_owned();
+    std::thread::spawn(move || {
+        let Some(output) = execute_shell_command_impl(&dir, &command) else{return;};
+        let Ok(mut log_stack) = LOG_STACK.lock() else {return;};
+        log_stack.push_back(Box::new(output));
+    });
+}
+
+fn execute_shell_command_impl(dir: &str, command: &str) -> Option<String> {
     let output = Command::new("Powershell")
         .args(["-WindowStyle", "Hidden"])
         .args(["-Command", &command])
