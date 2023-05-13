@@ -59,7 +59,15 @@ fn setting_dir() -> Option<std::path::PathBuf> {
 use std::process::Command;
 
 #[tauri::command]
-fn execute_shell_command(dir: &str, command: &str) -> Option<String> {
+fn execute_shell_command(dir: &str, command: &str) -> () {
+    let dir = dir.to_owned();
+    let command = command.to_owned();
+    std::thread::spawn(move || {
+        execute_shell_command_impl(&dir, &command);
+    });
+}
+
+fn execute_shell_command_impl(dir: &str, command: &str) -> Option<String> {
     let output = Command::new("Powershell")
         .args(["-WindowStyle", "Hidden"])
         .args(["-Command", &command])
