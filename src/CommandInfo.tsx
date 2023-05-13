@@ -144,9 +144,7 @@ export function commandExecuter(
     const command_strs = [path_ary_def, name_ary_def, current_dir_def, opposite_dir_def, dialog_input_def, command_line,];
     const replaced_command_line = command_strs.join('\n');
     console.log(replaced_command_line)
-    executeShellCommand(replaced_command_line, current_dir).then(
-      result => addLogMessage(result.toString())
-    );
+    executeShellCommand(replaced_command_line, current_dir);
   }
   const execShellCommand = (
     command: CommandInfo,

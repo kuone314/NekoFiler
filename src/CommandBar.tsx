@@ -18,9 +18,7 @@ const CommandBar = (props: {
   const onEnterDown = async () => {
     props.addLogMessage('---');
     props.addLogMessage(str);
-    executeShellCommand(str, props.path()).then(
-      result => props.addLogMessage(result.toString())
-    );
+    executeShellCommand(str, props.path());
     setStr("");
   }
   const onEscapeDown = () => {
