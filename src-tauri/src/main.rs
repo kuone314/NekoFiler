@@ -30,9 +30,7 @@ fn main() {
             let app_handle = app.app_handle();
             std::thread::spawn(move || loop {
                 std::thread::sleep(Duration::from_secs(1));
-                let Ok(mut log_stack) = LOG_STACK.lock() else {continue;};
-                let Some(message) = log_stack.pop_front() else {continue;};
-                let _ = app_handle.emit_all("LogMessageEvent", message);
+                push_log_message(&app_handle);
             });
             Ok(())
         })
@@ -98,6 +96,12 @@ fn execute_shell_command_impl(dir: &str, command: &str) -> Option<String> {
     let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
     let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
     Some(std_out.to_string() + &std_err.to_string())
+}
+
+fn push_log_message(app_handle: &tauri::AppHandle) {
+    let Ok(mut log_stack) = LOG_STACK.lock() else {return;};
+    let Some(message) = log_stack.pop_front() else {return;};
+    let _ = app_handle.emit_all("LogMessageEvent", message);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
