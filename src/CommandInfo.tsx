@@ -756,11 +756,33 @@ $data = [Windows.Forms.Clipboard]::GetDataObject();
 $dropEffect = $data.GetData("Preferred DropEffect");
 $flag = $dropEffect.ReadByte();
 
-if ($flag -band [Windows.Forms.DragDropEffects]::Copy) {
-    Copy-Item $files $current_dir;
+function GenNewFileName ($fileName) {
+  $result = Join-Path $current_dir $fileName;
+  if (-not(Test-Path $result)) {
+    return $result;
+  }
+
+  $extension = [System.IO.Path]::GetExtension($fileName) ;
+  $baseName = $fileName.Substring(0, $fileName.Length - $extension.Length);
+  for ($idx = 2; $true ; $idx++) {
+    $newFileName = $baseName + "(" + $idx + ")" + $extension;
+    $result = Join-Path $current_dir $newFileName;
+    if (-not(Test-Path $result)) {
+      return $result;
+    }
+  }
 }
-if ($flag -band [Windows.Forms.DragDropEffects]::Move) {
-    Move-Item $files $current_dir;
+
+
+foreach ($filePath in $files) {
+  $fileName = [System.IO.Path]::GetFileName($filePath);
+  $trg = GenNewFileName($fileName);
+  if ($flag -band [Windows.Forms.DragDropEffects]::Copy) {
+    Copy-Item $filePath $trg;
+  }
+  if ($flag -band [Windows.Forms.DragDropEffects]::Move) {
+    Move-Item $filePath $trg;
+  }
 }
 `;
     await invoke<void>("write_setting_file", {
