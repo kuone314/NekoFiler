@@ -88,6 +88,11 @@ const App = () => {
     logMessagePeinFunc.addMessage(message);
   };
 
+  const Update = () => {
+    invoke<void>("update_filer", {}).catch(
+      message => addLogMessage(message))
+  }
+
   return (
     <>
       <div
@@ -138,7 +143,7 @@ const App = () => {
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.1fr auto',
+            gridTemplateRows: '0.1fr 0.1fr auto',
             height: '100%',
           })}
         >
@@ -149,6 +154,14 @@ const App = () => {
             })}
             onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
             separator:{separator}
+          </button>
+          <button
+            css={css({
+              width: '85pt',
+              padding: '10px',
+            })}
+            onClick={() => Update()}>
+            Update
           </button>
           {logMessagePein}
         </div>

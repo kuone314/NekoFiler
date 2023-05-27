@@ -26,6 +26,9 @@ mod execute_shell_command;
 use execute_shell_command::execute_shell_command;
 use execute_shell_command::push_log_message;
 
+mod update_filer;
+use update_filer::update_filer;
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -35,6 +38,7 @@ fn main() {
             read_setting_file,
             write_setting_file,
             get_exe_dir,
+            update_filer,
         ])
         .setup(|app| {
             let app_handle = app.app_handle();
