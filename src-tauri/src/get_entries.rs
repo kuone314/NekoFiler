@@ -1,5 +1,5 @@
-
-use std::fs;
+use std::fs::{self, Metadata};
+use chrono::prelude::*;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Deserialize)]
@@ -10,6 +10,7 @@ pub struct FileInfo {
     size: u64,
     date: String,
 }
+
 
 use std::os::windows::prelude::MetadataExt;
 #[tauri::command]
@@ -30,11 +31,7 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
                 .to_string_lossy()
                 .to_string();
 
-            let date = file_time_to_system_time(md.last_write_time());
-            let date = match date {
-                Some(date) => to_str(date),
-                None => "".to_owned(),
-            };
+            let date = get_date_str(&md).unwrap_or_default();
 
             Some(FileInfo {
                 name,
@@ -49,35 +46,9 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
     Ok(res)
 }
 
-fn to_str(val: winapi::um::minwinbase::SYSTEMTIME) -> String {
-    format!(
-        "{year:4}/{month:2}/{day:2} {hour:2}:{minute:2}:{second:2}",
-        year = val.wYear,
-        month = val.wMonth,
-        day = val.wDay,
-        hour = val.wHour,
-        minute = val.wMinute,
-        second = val.wSecond,
-    )
-}
+fn get_date_str(file_data: &Metadata) -> Option<String> {
+    let modified_time = file_data.modified().ok()?;
 
-fn file_time_to_system_time(date: u64) -> Option<winapi::um::minwinbase::SYSTEMTIME> {
-    let mut st = winapi::um::minwinbase::SYSTEMTIME {
-        wYear: 0,
-        wMonth: 0,
-        wDayOfWeek: 0,
-        wDay: 0,
-        wHour: 0,
-        wMinute: 0,
-        wSecond: 0,
-        wMilliseconds: 0,
-    };
-    unsafe {
-        let success =
-            winapi::um::timezoneapi::FileTimeToSystemTime((&date as *const u64).cast(), &mut st);
-        if success != winapi::shared::minwindef::TRUE {
-            return None;
-        }
-    }
-    Some(st)
+    let local_time: DateTime<Local> = modified_time.into();
+    Some(local_time.format("%Y/%m/%d %H:%M:%S").to_string())
 }
