@@ -111,6 +111,13 @@ export function FileList(
   }
 
   const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
+  useEffect(() => {
+    const fixedSelections = [...selectingIndexArray].filter(idx => 0 <= idx && idx < entries.length);
+    const fixedSelectionSet = new Set([...fixedSelections]);
+    if (selectingIndexArray.size != fixedSelectionSet.size) {
+      setSelectingIndexArray(fixedSelectionSet);
+    }
+  }, [selectingIndexArray]);
   const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
     let new_ary = new Set([...selectingIndexArray, ...SequenceAry(rangeTerm1, rangeTerm2)]);
     setSelectingIndexArray(new_ary);
@@ -225,14 +232,18 @@ export function FileList(
     } else {
       setSelectingIndexArray(SequenceAry(start.startIndex, newIdx));
     }
-    const isDrag = (start.startIndex !== newIdx);
-    setAdjustMargin(isDrag ? 1 : 0);
-    setCurrentIndex(newIdx);
+    if (newIdx < entries.length) {
+      const isDrag = (start.startIndex !== newIdx);
+      setAdjustMargin(isDrag ? 1 : 0);
+      setCurrentIndex(newIdx);
+    }
   }
   const onMouseUp = (row_idx: number) => {
     setMouseSelectInfo(null);
-    setAdjustMargin(0);
-    setCurrentIndex(row_idx);
+    if (row_idx < entries.length) {
+      setAdjustMargin(0);
+      setCurrentIndex(row_idx);
+    }
   }
 
 
