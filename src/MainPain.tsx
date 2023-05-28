@@ -232,10 +232,6 @@ export const MainPanel = (
     }
   );
 
-  const merginForDoubleClick = () => {
-    return <div style={{ height: 50, }}>. </div>
-  }
-
   return (
     <>
       <div
@@ -260,7 +256,6 @@ export const MainPanel = (
               ? fileList
               : <div>Directry Unfound.</div>
           }
-          {merginForDoubleClick()}
         </div>
       </div>
       {dialog}

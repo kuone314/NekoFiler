@@ -111,6 +111,13 @@ export function FileList(
   }
 
   const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
+  useEffect(() => {
+    const fixedSelections = [...selectingIndexArray].filter(idx => 0 <= idx && idx < entries.length);
+    const fixedSelectionSet = new Set([...fixedSelections]);
+    if (selectingIndexArray.size != fixedSelectionSet.size) {
+      setSelectingIndexArray(fixedSelectionSet);
+    }
+  }, [selectingIndexArray]);
   const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
     let new_ary = new Set([...selectingIndexArray, ...SequenceAry(rangeTerm1, rangeTerm2)]);
     setSelectingIndexArray(new_ary);
@@ -225,14 +232,18 @@ export function FileList(
     } else {
       setSelectingIndexArray(SequenceAry(start.startIndex, newIdx));
     }
-    const isDrag = (start.startIndex !== newIdx);
-    setAdjustMargin(isDrag ? 1 : 0);
-    setCurrentIndex(newIdx);
+    if (newIdx < entries.length) {
+      const isDrag = (start.startIndex !== newIdx);
+      setAdjustMargin(isDrag ? 1 : 0);
+      setCurrentIndex(newIdx);
+    }
   }
   const onMouseUp = (row_idx: number) => {
     setMouseSelectInfo(null);
-    setAdjustMargin(0);
-    setCurrentIndex(row_idx);
+    if (row_idx < entries.length) {
+      setAdjustMargin(0);
+      setCurrentIndex(row_idx);
+    }
   }
 
 
@@ -365,59 +376,67 @@ export function FileList(
     toggleSelection: toggleSelection,
   }
 
-  const element = <table
-    css={
-      {
-        borderCollapse: 'collapse',
-        resize: 'horizontal',
-        height: 10, // table全体の最小サイズを指定。これが無いと、行数が少ない時に縦長になってしまう…。
-        width: '95%',
-        userSelect: 'none',
-        fontSize: '13px',
-        lineHeight: '13pt'
+  const element = <div>
+    <table
+      css={
+        {
+          borderCollapse: 'collapse',
+          resize: 'horizontal',
+          height: 10, // table全体の最小サイズを指定。これが無いと、行数が少ない時に縦長になってしまう…。
+          width: '95%',
+          userSelect: 'none',
+          fontSize: '13px',
+          lineHeight: '13pt'
+        }
       }
-    }
-  >
-    <thead css={[table_resizable, fix_table_header]} ref={table_header}>
-      <tr>
-        <th
-          onClick={() => setSortKey(SORT_KEY.name)}
-          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.name),]}
-        >FileName</th>
-        <th
-          onClick={() => setSortKey(SORT_KEY.type)}
-          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.type),]}
-        >type</th>
-        <th
-          onClick={() => setSortKey(SORT_KEY.size)}
-          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.size),]}
-        >size</th>
-        <th
-          onClick={() => setSortKey(SORT_KEY.date)}
-          css={[table_resizable, table_header_color, table_header_font(SORT_KEY.date),]}
-        >date</th>
-      </tr>
-    </thead>
-    {
-      entries.map((entry, idx) => {
-        return <>
-          <tr
-            ref={(idx === currentIndex) ? current_row : null}
-            onMouseDown={(event) => { onMouseDown(idx, event) }}
-            onMouseMove={(event) => { onMouseMove(idx, event) }}
-            onMouseUp={(event) => { onMouseUp(idx) }}
-            onDoubleClick={(event) => onRowdoubleclick(idx, event)}
-            css={table_color(idx)}
-          >
-            <td css={table_border}>{entry.name}</td>
-            <td css={table_border}>{ToTypeName(entry)}</td>
-            <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
-            <td css={table_border}>{entry.date}</td>
-          </tr>
-        </>
-      })
-    }
-  </table>
+    >
+      <thead css={[table_resizable, fix_table_header]} ref={table_header}>
+        <tr>
+          <th
+            onClick={() => setSortKey(SORT_KEY.name)}
+            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.name),]}
+          >FileName</th>
+          <th
+            onClick={() => setSortKey(SORT_KEY.type)}
+            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.type),]}
+          >type</th>
+          <th
+            onClick={() => setSortKey(SORT_KEY.size)}
+            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.size),]}
+          >size</th>
+          <th
+            onClick={() => setSortKey(SORT_KEY.date)}
+            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.date),]}
+          >date</th>
+        </tr>
+      </thead>
+      {
+        entries.map((entry, idx) => {
+          return <>
+            <tr
+              ref={(idx === currentIndex) ? current_row : null}
+              onMouseDown={(event) => { onMouseDown(idx, event) }}
+              onMouseMove={(event) => { onMouseMove(idx, event) }}
+              onMouseUp={(event) => { onMouseUp(idx) }}
+              onDoubleClick={(event) => onRowdoubleclick(idx, event)}
+              css={table_color(idx)}
+            >
+              <td css={table_border}>{entry.name}</td>
+              <td css={table_border}>{ToTypeName(entry)}</td>
+              <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
+              <td css={table_border}>{entry.date}</td>
+            </tr>
+          </>
+        })
+      }
+    </table>
+    <div
+      style={{ height: 50, userSelect: 'none', }}
+      onMouseDown={(event) => { onMouseDown(entries.length, event) }}
+      onMouseUp={(event) => { onMouseUp(entries.length) }}
+      onMouseMove={(event) => { onMouseMove(entries.length, event) }}
+    >. </div>
+  </div>
 
   return [element, functions];
 }
