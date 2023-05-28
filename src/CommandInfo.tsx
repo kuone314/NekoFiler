@@ -525,6 +525,16 @@ function GenerateDefaultCommandSeting(): CommandInfo[] {
       valid_on_addressbar: false,
     },
     {
+      command_name: 'clearSelection',
+      key: 'Escape',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'clearSelection',
+      },
+      valid_on_addressbar: false,
+    },
+    {
       command_name: 'toggleSelection',
       key: 'Space',
       dialog_type: 'none',
