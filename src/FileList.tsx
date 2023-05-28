@@ -42,6 +42,7 @@ export interface FileListFunc {
   moveBottom: () => void,
   moveBottomSelect: () => void,
   selectAll: () => void,
+  clearSelection: () => void,
   toggleSelection: () => void,
 };
 
@@ -274,10 +275,13 @@ export function FileList(
   const selectAll = () => {
     const isSelectAll = (selectingIndexArray.size === entries.length);
     if (isSelectAll) {
-      setSelectingIndexArray(new Set());
+      clearSelection();
     } else {
       addSelectingIndexRange(0, entries.length - 1)
     }
+  }
+  const clearSelection = () => {
+    setSelectingIndexArray(new Set());
   }
   const toggleSelection = () => {
     let new_ary = new Set([...selectingIndexArray]);
@@ -357,6 +361,7 @@ export function FileList(
     moveBottom: moveBottom,
     moveBottomSelect: moveBottomSelect,
     selectAll: selectAll,
+    clearSelection: clearSelection,
     toggleSelection: toggleSelection,
   }
 

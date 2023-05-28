@@ -106,6 +106,7 @@ export const MainPanel = (
       case 'moveBottom': FileListFunctions.moveBottom(); return;
       case 'moveBottomSelect': FileListFunctions.moveBottomSelect(); return;
       case 'selectAll': FileListFunctions.selectAll(); return;
+      case 'clearSelection': FileListFunctions.clearSelection(); return;
       case 'toggleSelection': FileListFunctions.toggleSelection(); return;
       case 'addNewTab': addNewTab(); return;
       case 'removeTab': removeTab(); return;
