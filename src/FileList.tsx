@@ -420,7 +420,7 @@ export function FileList(
       }
     </table>
     <div
-      style={{ height: 50, }}
+      style={{ height: 50, userSelect: 'none', }}
     >. </div>
   </div>
 
