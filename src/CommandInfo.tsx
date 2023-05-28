@@ -642,9 +642,9 @@ function GenerateDefaultCommandSeting(): CommandInfo[] {
   })();
 
   (async () => {
-    const script = '\
-Set-Clipboard $selecting_item_path_ary;\
-';
+    const script = `\
+Set-Clipboard $selecting_item_path_ary;
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Copy file path.ps1",
       content: script
@@ -652,15 +652,15 @@ Set-Clipboard $selecting_item_path_ary;\
   })();
 
   (async () => {
-    const script = '\
-Add-Type -AssemblyName System.Windows.Forms;\
-$dataObj = New-Object System.Windows.Forms.DataObject;\
-$dataObj.SetFileDropList($selecting_item_path_ary);\
-$byteStream = [byte[]](([System.Windows.Forms.DragDropEffects]::Copy -as [byte]), 0, 0, 0);\
-$memoryStream = [System.IO.MemoryStream]::new($byteStream);\
-$dataObj.SetData("Preferred DropEffect", $memoryStream);\
-[System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);\
-';
+    const script = `
+Add-Type -AssemblyName System.Windows.Forms;
+$dataObj = New-Object System.Windows.Forms.DataObject;
+$dataObj.SetFileDropList($selecting_item_path_ary);
+$byteStream = [byte[]](([System.Windows.Forms.DragDropEffects]::Copy -as [byte]), 0, 0, 0);
+$memoryStream = [System.IO.MemoryStream]::new($byteStream);
+$dataObj.SetData("Preferred DropEffect", $memoryStream);
+[System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Copy to clopboard.ps1",
       content: script
@@ -668,9 +668,9 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);\
   })();
 
   (async () => {
-    const script = '\
+    const script = `\
 Copy-Item -Recurse -Path $selecting_item_path_ary -Destination $opposite_dir\
-';
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Copy to opposite dirctory.ps1",
       content: script
@@ -678,13 +678,13 @@ Copy-Item -Recurse -Path $selecting_item_path_ary -Destination $opposite_dir\
   })();
 
   (async () => {
-    const script = '\
-for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\
-  $selecting_item_path = $selecting_item_path_ary[$index];\
-  $dialog_input_str = $dialog_input_str_ary[$index];\
-  Copy-Item -Recurse -Path $selecting_item_path -Destination $dialog_input_str\
+    const script = `
+for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
+  $selecting_item_path = $selecting_item_path_ary[$index];
+  $dialog_input_str = $dialog_input_str_ary[$index];
+  Copy-Item -Recurse -Path $selecting_item_path -Destination $dialog_input_str
 }\
-';
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Create Copy.ps1",
       content: script
@@ -692,15 +692,15 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\
   })();
 
   (async () => {
-    const script = '\
-Add-Type -AssemblyName System.Windows.Forms;\
-$dataObj = New-Object System.Windows.Forms.DataObject;\
-$dataObj.SetFileDropList($selecting_item_path_ary);\
-$byteStream = [byte[]](([System.Windows.Forms.DragDropEffects]::Move -as [byte]), 0, 0, 0);\
-$memoryStream = [System.IO.MemoryStream]::new($byteStream);\
-$dataObj.SetData("Preferred DropEffect", $memoryStream);\
-[System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);\
-';
+    const script = `
+Add-Type -AssemblyName System.Windows.Forms;
+$dataObj = New-Object System.Windows.Forms.DataObject;
+$dataObj.SetFileDropList($selecting_item_path_ary);
+$byteStream = [byte[]](([System.Windows.Forms.DragDropEffects]::Move -as [byte]), 0, 0, 0);
+$memoryStream = [System.IO.MemoryStream]::new($byteStream);
+$dataObj.SetData("Preferred DropEffect", $memoryStream);
+[System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Cut to clopboard.ps1",
       content: script
@@ -708,9 +708,9 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);\
   })();
 
   (async () => {
-    const script = '\
-Remove-Item $selecting_item_path_ary -Recurse;\
-';
+    const script = `
+Remove-Item $selecting_item_path_ary -Recurse;
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Delete file.ps1",
       content: script
@@ -718,9 +718,9 @@ Remove-Item $selecting_item_path_ary -Recurse;\
   })();
 
   (async () => {
-    const script = '\
-Move-Item -Path $selecting_item_path_ary -Destination $opposite_dir\
-';
+    const script = `
+Move-Item -Path $selecting_item_path_ary -Destination $opposite_dir
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Move to opposite dirctory.ps1",
       content: script
@@ -728,9 +728,9 @@ Move-Item -Path $selecting_item_path_ary -Destination $opposite_dir\
   })();
 
   (async () => {
-    const script = '\
-$dialog_input_str_ary | % { New-Item $_ -type file };\
-';
+    const script = `
+$dialog_input_str_ary | % { New-Item $_ -type file };
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/New File.ps1",
       content: script
@@ -738,9 +738,9 @@ $dialog_input_str_ary | % { New-Item $_ -type file };\
   })();
 
   (async () => {
-    const script = '\
-$dialog_input_str_ary | % { New-Item $_ -type Directory };\
-';
+    const script = `
+$dialog_input_str_ary | % { New-Item $_ -type Directory };
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/New Folder.ps1",
       content: script
@@ -748,21 +748,43 @@ $dialog_input_str_ary | % { New-Item $_ -type Directory };\
   })();
 
   (async () => {
-    const script = '\
-Add-Type -AssemblyName System.Windows.Forms;\
-\
-$files = [Windows.Forms.Clipboard]::GetFileDropList() ;\
-$data = [Windows.Forms.Clipboard]::GetDataObject();\
-$dropEffect = $data.GetData("Preferred DropEffect");\
-$flag = $dropEffect.ReadByte();\
-\
-if ($flag -band [Windows.Forms.DragDropEffects]::Copy) {\
-    Copy-Item $files $current_dir;\
-}\
-if ($flag -band [Windows.Forms.DragDropEffects]::Move) {\
-    Move-Item $files $current_dir;\
-}\
-';
+    const script = `
+Add-Type -AssemblyName System.Windows.Forms;
+
+$files = [Windows.Forms.Clipboard]::GetFileDropList() ;
+$data = [Windows.Forms.Clipboard]::GetDataObject();
+$dropEffect = $data.GetData("Preferred DropEffect");
+$flag = $dropEffect.ReadByte();
+
+function GenNewFileName ($fileName) {
+  $result = Join-Path $current_dir $fileName;
+  if (-not(Test-Path $result)) {
+    return $result;
+  }
+
+  $extension = [System.IO.Path]::GetExtension($fileName) ;
+  $baseName = $fileName.Substring(0, $fileName.Length - $extension.Length);
+  for ($idx = 2; $true ; $idx++) {
+    $newFileName = $baseName + "(" + $idx + ")" + $extension;
+    $result = Join-Path $current_dir $newFileName;
+    if (-not(Test-Path $result)) {
+      return $result;
+    }
+  }
+}
+
+
+foreach ($filePath in $files) {
+  $fileName = [System.IO.Path]::GetFileName($filePath);
+  $trg = GenNewFileName($fileName);
+  if ($flag -band [Windows.Forms.DragDropEffects]::Copy) {
+    Copy-Item $filePath $trg;
+  }
+  if ($flag -band [Windows.Forms.DragDropEffects]::Move) {
+    Move-Item $filePath $trg;
+  }
+}
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Past from clopboard.ps1",
       content: script
@@ -770,11 +792,11 @@ if ($flag -band [Windows.Forms.DragDropEffects]::Move) {\
   })();
 
   (async () => {
-    const script = '\
-for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){\
-  Rename-Item $selecting_item_path_ary[$index] $dialog_input_str_ary[$index]\
-}\
-';
+    const script = `
+for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
+  Rename-Item $selecting_item_path_ary[$index] $dialog_input_str_ary[$index]
+}
+`;
     await invoke<void>("write_setting_file", {
       filename: "script/Rename.ps1",
       content: script
