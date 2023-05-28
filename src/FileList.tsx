@@ -421,6 +421,9 @@ export function FileList(
     </table>
     <div
       style={{ height: 50, userSelect: 'none', }}
+      onMouseDown={(event) => { onMouseDown(entries.length, event) }}
+      onMouseUp={(event) => { onMouseUp(entries.length) }}
+      onMouseMove={(event) => { onMouseMove(entries.length, event) }}
     >. </div>
   </div>
 
