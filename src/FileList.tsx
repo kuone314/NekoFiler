@@ -50,6 +50,7 @@ export function FileList(
   props: {
     entries: Entries,
     initSelectItemHint: string,
+    onSelectItemNumChanged: (newSelectItemNum: number) => void,
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
     accessFile: (fileName: string) => void,
@@ -132,6 +133,9 @@ export function FileList(
   }, []);
 
 
+  useEffect(() => {
+    props.onSelectItemNumChanged(selectingIndexArray.size);
+  }, [selectingIndexArray]);
 
   useEffect(() => {
     myGrid.current?.focus();
