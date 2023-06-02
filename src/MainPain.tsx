@@ -25,6 +25,8 @@ export const MainPanel = (
     initPath: string,
     pined: boolean,
     onPathChanged: (newPath: string) => void
+    onItemNumChanged: (newItemNum: number) => void,
+    onSelectItemNumChanged: (newSelectItemNum: number) => void,
     addNewTab: (newTabPath: string) => void,
     removeTab: () => void,
     changeTab: (offset: number) => void,
@@ -73,6 +75,10 @@ export const MainPanel = (
     setDir(newDir);
     setInitSelectItemHint(trgFile);
   }
+
+  useEffect(() => {
+    props.onItemNumChanged(entries?.length ?? 0);
+  }, [entries]);
 
   useEffect(() => {
     UpdateList(dir, "");
@@ -211,6 +217,7 @@ export const MainPanel = (
     {
       entries: entries ?? [],
       initSelectItemHint: initSelectItemHint,
+      onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
       accessFile: (fileName: string) => {

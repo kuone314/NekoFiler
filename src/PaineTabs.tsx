@@ -34,6 +34,8 @@ export const PaineTabs = (
   props: {
     pathAry: TabsInfo,
     onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
+    onItemNumChanged: (newItemNum: number) => void,
+    onSelectItemNumChanged: (newSelectItemNum: number) => void,
     getOppositePath: () => string,
     addLogMessage: (message: string) => void,
     separator: separator,
@@ -170,6 +172,8 @@ export const PaineTabs = (
           initPath={tabAry[activeTabIdx].path}
           pined={tabAry[activeTabIdx].pined}
           onPathChanged={onPathChanged}
+          onItemNumChanged={props.onItemNumChanged}
+          onSelectItemNumChanged={props.onSelectItemNumChanged}
           addNewTab={(path) => addNewTab(activeTabIdx, path)}
           removeTab={() => removeTab(activeTabIdx)}
           changeTab={changeTab}

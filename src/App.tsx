@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api';
 import React from 'react';
 
@@ -79,6 +79,28 @@ const App = () => {
     return GetActive(tabsPathAry.current[oppositeIndex]).path;
   }
 
+  const [itemNums, setItemNums] = useState<number[]>([0, 0]);
+  const setItemNum = (value: number, idx: number) => {
+    setItemNums(cur => {
+      let newVals = [...cur];
+      newVals[idx] = value;
+      return newVals;
+    });
+  }
+  const [selectItemNums, setSelectItemNums] = useState<number[]>([0, 0]);
+  const setSelectItemNum = (value: number, idx: number) => {
+    setSelectItemNums(cur => {
+      let newVals = [...cur];
+      newVals[idx] = value;
+      return newVals;
+    });
+  }
+  const [statasBarStr, setStatasBarStr] = useState("");
+  useEffect(() => {
+    setStatasBarStr(`Item:${itemNums[currentPainIndex]}  Select:${selectItemNums[currentPainIndex]}`);
+  }, [itemNums, selectItemNums, currentPainIndex]);
+
+
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
 
   const [separator, setSeparator] = useState<separator>('\\');
@@ -125,6 +147,8 @@ const App = () => {
                   <PaineTabs
                     pathAry={pathAry}
                     onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                    onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
+                    onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
                     getOppositePath={getOppositePath}
                     addLogMessage={addLogMessage}
                     separator={separator}
@@ -165,6 +189,13 @@ const App = () => {
           </button>
           {logMessagePein}
         </div>
+      </div>
+      <div
+        css={css({
+          textAlign: 'right',
+        })}
+      >
+        {statasBarStr}
       </div>
     </>
   );
