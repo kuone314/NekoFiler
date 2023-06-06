@@ -49,7 +49,7 @@ export interface FileListFunc {
 export function FileList(
   props: {
     entries: Entries,
-    initSelectItemHint: string,
+    initCurrentItemHint: string,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
@@ -62,10 +62,10 @@ export function FileList(
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initSelectItemHint);
+  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initCurrentItemHint);
   useEffect(() => {
-    setInitSelectItemHint(props.initSelectItemHint);
-  }, [props.initSelectItemHint]);
+    setInitSelectItemHint(props.initCurrentItemHint);
+  }, [props.initCurrentItemHint]);
   useEffect(() => {
     setInitSelectItemHint("");
   }, [currentIndex]);

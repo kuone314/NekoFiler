@@ -39,7 +39,7 @@ export const MainPanel = (
 ) => {
   const [dir, setDir] = useState<string>(props.initPath);
   const [entries, setEntries] = useState<Entries | null>(null);
-  const [initSelectItemHint, setInitSelectItemHint] = useState<string>('');
+  const [initCurrentItemHint, setInitSelectItemHint] = useState<string>('');
 
 
   const accessDirectry = async (path: string) => {
@@ -216,7 +216,7 @@ export const MainPanel = (
   const [fileList, FileListFunctions] = FileList(
     {
       entries: entries ?? [],
-      initSelectItemHint: initSelectItemHint,
+      initCurrentItemHint: initCurrentItemHint,
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
