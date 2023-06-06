@@ -64,14 +64,7 @@ export const MainPanel = (
     const newEntries = await invoke<Entries>("get_entries", { path: newDir })
       .catch(err => { return null; });
 
-    if (JSON.stringify(newEntries) === JSON.stringify(entries) && trgFile === "") {
-      return;
-    }
-
     setEntries(newEntries);
-
-    if (!newEntries) { return; }
-
     setDir(newDir);
     setInitSelectItemHint(trgFile);
   }
