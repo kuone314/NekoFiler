@@ -51,9 +51,30 @@ export const MainPanel = (
       }
       );
     if (!adjusted) { return; }
-    UpdateList(adjusted.dir, adjusted.filename);
+    AccessDirectory(adjusted.dir, adjusted.filename);
   }
 
+
+  const AccessDirectory = async (newDir: string, trgFile: string) => {
+    if (props.pined && dir !== newDir) {
+      props.addNewTab(newDir);
+      return;
+    }
+
+    const newEntries = await invoke<Entries>("get_entries", { path: newDir })
+      .catch(err => { return null; });
+
+    if (JSON.stringify(newEntries) === JSON.stringify(entries) && trgFile === "") {
+      return;
+    }
+
+    setEntries(newEntries);
+
+    if (!newEntries) { return; }
+
+    setDir(newDir);
+    setInitSelectItemHint(trgFile);
+  }
 
   const UpdateList = async (newDir: string, trgFile: string) => {
     if (props.pined && dir !== newDir) {
@@ -81,7 +102,7 @@ export const MainPanel = (
   }, [entries]);
 
   useEffect(() => {
-    UpdateList(dir, "");
+    AccessDirectory(dir, "");
     props.onPathChanged(dir);
   }, [dir]);
 
@@ -179,7 +200,7 @@ export const MainPanel = (
   const accessParentDir = async () => {
     const parentDir = await normalize(dir + props.separator + '..');
     const dirName = await basename(dir);
-    UpdateList(parentDir, dirName);
+    AccessDirectory(parentDir, dirName);
   };
 
   const onDoubleClick = () => {
