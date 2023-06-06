@@ -76,25 +76,15 @@ export const MainPanel = (
     setInitSelectItemHint(trgFile);
   }
 
-  const UpdateList = async (newDir: string, trgFile: string) => {
-    if (props.pined && dir !== newDir) {
-      props.addNewTab(newDir);
-      return;
-    }
-
-    const newEntries = await invoke<Entries>("get_entries", { path: newDir })
+  const UpdateList = async () => {
+    const newEntries = await invoke<Entries>("get_entries", { path: dir })
       .catch(err => { return null; });
 
-    if (JSON.stringify(newEntries) === JSON.stringify(entries) && trgFile === "") {
+    if (JSON.stringify(newEntries) === JSON.stringify(entries) ) {
       return;
     }
 
     setEntries(newEntries);
-
-    if (!newEntries) { return; }
-
-    setDir(newDir);
-    setInitSelectItemHint(trgFile);
   }
 
   useEffect(() => {
@@ -107,7 +97,7 @@ export const MainPanel = (
   }, [dir]);
 
   useInterval(
-    () => UpdateList(dir, ""),
+    () => UpdateList(),
     1500
   );
 
