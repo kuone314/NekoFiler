@@ -33,6 +33,7 @@ export interface FileListFunc {
   selectingItemName: () => string[],
   incremantalSearch: (searchStr: string) => void,
   accessCurrentItem: () => void,
+  updateEntries: (newEntries: Entries) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -49,7 +50,7 @@ export interface FileListFunc {
 export function FileList(
   props: {
     entries: Entries,
-    initSelectItemHint: string,
+    initCurrentItemHint: string,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
@@ -62,10 +63,10 @@ export function FileList(
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initSelectItemHint);
+  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initCurrentItemHint);
   useEffect(() => {
-    setInitSelectItemHint(props.initSelectItemHint);
-  }, [props.initSelectItemHint]);
+    setInitSelectItemHint(props.initCurrentItemHint);
+  }, [props.initCurrentItemHint]);
   useEffect(() => {
     setInitSelectItemHint("");
   }, [currentIndex]);
@@ -82,29 +83,44 @@ export function FileList(
       }
     });
 
-    const newIdxAry = [...selectingIndexArray]
-      .map(idx => entries[idx].name)
-      .map(name => newEntries.findIndex(entry => entry.name === name))
-      .filter(idx => idx != -1);
+    const newIdxAry = CalcNewSelectIndexAry(
+      selectingIndexArray,
+      entries,
+      newEntries);
 
 
     const selectTrg = (initSelectItemHint !== "")
       ? initSelectItemHint
       : currentItemName();
-    const findResult = newEntries.findIndex(entry => entry.name === selectTrg);
-    const newIndex = (() => {
-      if (findResult !== -1) { return findResult; }
-      if (currentIndex >= newEntries.length) {
-        return Math.max(newEntries.length - 1, 0);
-      }
-      return currentIndex;
-    })();
+    const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
+
 
     setEntries(newEntries);
     setSelectingIndexArray(new Set([...newIdxAry]));
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
   }, [props.entries, sortKey, initSelectItemHint]);
+
+  const updateEntries = (newEntries: Entries) => {
+    const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
+    const newEntriesNormalized = newEntries.map(entry => JSON.stringify(entry)).sort();
+
+    const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
+    if (!modified) { return; }
+
+    const inherit = newEntries.filter(newEntry => entries.some(entry => newEntry.name == entry.name));
+    const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.name == entry.name));
+
+    const newIndex = CalcNewCurrentIndex(newEntries, currentItemName(), currentIndex);
+    setCurrentIndex(newIndex);
+
+    const newIdxAry = (added.length != 0)
+      ? SequenceAry(inherit.length, inherit.length + added.length - 1)
+      : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntries);
+    setSelectingIndexArray(new Set([...newIdxAry]));
+
+    setEntries([...inherit, ...added]);
+  }
 
   const currentItemName = () => {
     if (currentIndex < 0 || entries.length <= currentIndex) { return null; }
@@ -367,6 +383,7 @@ export function FileList(
     selectingItemName: selectingItemName,
     incremantalSearch: incremantalSearch,
     accessCurrentItem: accessCurrentItem,
+    updateEntries: updateEntries,
     moveUp: moveUp,
     moveUpSelect: moveUpSelect,
     moveDown: moveDown,
@@ -514,4 +531,30 @@ function IncremantalSearch(
   });
 
   return matchIdxArys[0].orgIdx;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function CalcNewSelectIndexAry(
+  selectingIndexArray: Set<number>,
+  entries: Entries,
+  newEntries: Entries
+) {
+  const newIdxAry = [...selectingIndexArray]
+    .map(idx => entries[idx].name)
+    .map(name => newEntries.findIndex(entry => entry.name === name))
+    .filter(idx => idx != -1);
+  return new Set([...newIdxAry])
+}
+
+function CalcNewCurrentIndex(
+  newEntries: Entries,
+  newCurrentItem: string | null,
+  currentIndex: number,
+): number {
+  const findResult = newEntries.findIndex(entry => entry.name === newCurrentItem);
+  if (findResult !== -1) { return findResult; }
+  if (currentIndex >= newEntries.length) {
+    return Math.max(newEntries.length - 1, 0);
+  }
+  return currentIndex;
 }

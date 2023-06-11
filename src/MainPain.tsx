@@ -39,7 +39,7 @@ export const MainPanel = (
 ) => {
   const [dir, setDir] = useState<string>(props.initPath);
   const [entries, setEntries] = useState<Entries | null>(null);
-  const [initSelectItemHint, setInitSelectItemHint] = useState<string>('');
+  const [initCurrentItemHint, setInitSelectItemHint] = useState<string>('');
 
 
   const accessDirectry = async (path: string) => {
@@ -51,11 +51,11 @@ export const MainPanel = (
       }
       );
     if (!adjusted) { return; }
-    UpdateList(adjusted.dir, adjusted.filename);
+    AccessDirectory(adjusted.dir, adjusted.filename);
   }
 
 
-  const UpdateList = async (newDir: string, trgFile: string) => {
+  const AccessDirectory = async (newDir: string, trgFile: string) => {
     if (props.pined && dir !== newDir) {
       props.addNewTab(newDir);
       return;
@@ -64,16 +64,20 @@ export const MainPanel = (
     const newEntries = await invoke<Entries>("get_entries", { path: newDir })
       .catch(err => { return null; });
 
-    if (JSON.stringify(newEntries) === JSON.stringify(entries) && trgFile === "") {
-      return;
-    }
-
     setEntries(newEntries);
-
-    if (!newEntries) { return; }
-
     setDir(newDir);
     setInitSelectItemHint(trgFile);
+  }
+
+  const UpdateList = async () => {
+    const newEntries = await invoke<Entries>("get_entries", { path: dir })
+      .catch(err => { return null; });
+
+    if (!newEntries) {
+      setEntries(null);
+    } else {
+      FileListFunctions.updateEntries(newEntries);
+    }
   }
 
   useEffect(() => {
@@ -81,12 +85,12 @@ export const MainPanel = (
   }, [entries]);
 
   useEffect(() => {
-    UpdateList(dir, "");
+    AccessDirectory(dir, "");
     props.onPathChanged(dir);
   }, [dir]);
 
   useInterval(
-    () => UpdateList(dir, ""),
+    () => UpdateList(),
     1500
   );
 
@@ -179,7 +183,7 @@ export const MainPanel = (
   const accessParentDir = async () => {
     const parentDir = await normalize(dir + props.separator + '..');
     const dirName = await basename(dir);
-    UpdateList(parentDir, dirName);
+    AccessDirectory(parentDir, dirName);
   };
 
   const onDoubleClick = () => {
@@ -216,7 +220,7 @@ export const MainPanel = (
   const [fileList, FileListFunctions] = FileList(
     {
       entries: entries ?? [],
-      initSelectItemHint: initSelectItemHint,
+      initCurrentItemHint: initCurrentItemHint,
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
