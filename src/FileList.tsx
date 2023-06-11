@@ -33,6 +33,7 @@ export interface FileListFunc {
   selectingItemName: () => string[],
   incremantalSearch: (searchStr: string) => void,
   accessCurrentItem: () => void,
+  updateEntries: (newEntries: Entries) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -99,6 +100,27 @@ export function FileList(
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
   }, [props.entries, sortKey, initSelectItemHint]);
+
+  const updateEntries = (newEntries: Entries) => {
+    const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
+    const newEntriesNormalized = newEntries.map(entry => JSON.stringify(entry)).sort();
+
+    const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
+    if (!modified) { return; }
+
+    const inherit = newEntries.filter(newEntry => entries.some(entry => newEntry.name == entry.name));
+    const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.name == entry.name));
+
+    const newIndex = CalcNewCurrentIndex(newEntries, currentItemName(), currentIndex);
+    setCurrentIndex(newIndex);
+
+    const newIdxAry = (added.length != 0)
+      ? SequenceAry(inherit.length, inherit.length + added.length - 1)
+      : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntries);
+    setSelectingIndexArray(new Set([...newIdxAry]));
+
+    setEntries([...inherit, ...added]);
+  }
 
   const currentItemName = () => {
     if (currentIndex < 0 || entries.length <= currentIndex) { return null; }
@@ -361,6 +383,7 @@ export function FileList(
     selectingItemName: selectingItemName,
     incremantalSearch: incremantalSearch,
     accessCurrentItem: accessCurrentItem,
+    updateEntries: updateEntries,
     moveUp: moveUp,
     moveUpSelect: moveUpSelect,
     moveDown: moveDown,

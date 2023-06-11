@@ -73,11 +73,11 @@ export const MainPanel = (
     const newEntries = await invoke<Entries>("get_entries", { path: dir })
       .catch(err => { return null; });
 
-    if (JSON.stringify(newEntries) === JSON.stringify(entries) ) {
-      return;
+    if (!newEntries) {
+      setEntries(null);
+    } else {
+      FileListFunctions.updateEntries(newEntries);
     }
-
-    setEntries(newEntries);
   }
 
   useEffect(() => {
