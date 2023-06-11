@@ -82,23 +82,17 @@ export function FileList(
       }
     });
 
-    const newIdxAry = [...selectingIndexArray]
-      .map(idx => entries[idx].name)
-      .map(name => newEntries.findIndex(entry => entry.name === name))
-      .filter(idx => idx != -1);
+    const newIdxAry = CalcNewSelectIndexAry(
+      selectingIndexArray,
+      entries,
+      newEntries);
 
 
     const selectTrg = (initSelectItemHint !== "")
       ? initSelectItemHint
       : currentItemName();
-    const findResult = newEntries.findIndex(entry => entry.name === selectTrg);
-    const newIndex = (() => {
-      if (findResult !== -1) { return findResult; }
-      if (currentIndex >= newEntries.length) {
-        return Math.max(newEntries.length - 1, 0);
-      }
-      return currentIndex;
-    })();
+    const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
+
 
     setEntries(newEntries);
     setSelectingIndexArray(new Set([...newIdxAry]));
@@ -514,4 +508,30 @@ function IncremantalSearch(
   });
 
   return matchIdxArys[0].orgIdx;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function CalcNewSelectIndexAry(
+  selectingIndexArray: Set<number>,
+  entries: Entries,
+  newEntries: Entries
+) {
+  const newIdxAry = [...selectingIndexArray]
+    .map(idx => entries[idx].name)
+    .map(name => newEntries.findIndex(entry => entry.name === name))
+    .filter(idx => idx != -1);
+  return new Set([...newIdxAry])
+}
+
+function CalcNewCurrentIndex(
+  newEntries: Entries,
+  newCurrentItem: string | null,
+  currentIndex: number,
+): number {
+  const findResult = newEntries.findIndex(entry => entry.name === newCurrentItem);
+  if (findResult !== -1) { return findResult; }
+  if (currentIndex >= newEntries.length) {
+    return Math.max(newEntries.length - 1, 0);
+  }
+  return currentIndex;
 }
