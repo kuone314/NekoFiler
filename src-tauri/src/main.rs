@@ -38,7 +38,7 @@ fn main() {
             read_setting_file,
             write_setting_file,
             get_exe_dir,
-            update_filer,
+            update_file,
         ])
         .setup(|app| {
             let app_handle = app.app_handle();
