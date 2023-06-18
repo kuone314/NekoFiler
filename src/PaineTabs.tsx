@@ -32,6 +32,7 @@ export interface TabsInfo {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const PaineTabs = (
   props: {
+    height: number,
     pathAry: TabsInfo,
     onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
     onItemNumChanged: (newItemNum: number) => void,
@@ -129,7 +130,7 @@ export const PaineTabs = (
           gridTemplateRows: 'auto 1fr',
           overflow: 'auto',
           width: '100%',
-          height: '100%',
+          height: props.height,
         })}
       >
         <div css={css({ textTransform: 'none' })}>

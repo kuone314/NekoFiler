@@ -115,26 +115,36 @@ const App = () => {
       message => addLogMessage(message))
   }
 
+  const [aplHeight, setAplHeight] = useState(document.documentElement.clientHeight);
+  const commandBarHeight = 60; // とりあえず固定で。
+  const [paineHeight, setPaineHeight] = useState((document.documentElement.clientHeight - commandBarHeight) / 2);
+  window.addEventListener('resize', (event) => {
+    setAplHeight(document.documentElement.clientHeight);
+    setPaineHeight((document.documentElement.clientHeight - commandBarHeight) / 2);
+  })
+
   return (
     <>
       <body
         css={css({
           width: '100%',
-          height: '95vh',
+          height: 'aplHeight',
+          overflow: 'hidden',
         })}
       >
         <div
           css={css({
             display: 'grid',
             gridTemplateColumns: '0.8fr 0.2fr', // pains options
-            height: '100%',
+            height: 'aplHeight',
+            overflow: 'auto',
           })}
         >
           <div
             css={css({
               display: 'grid',
-              gridTemplateRows: '0.5fr 0.5fr auto', // Paine Paine commandBar
-              height: '100%',
+              gridTemplateRows: 'auto auto auto', // Paine Paine commandBar
+              height: 'aplHeight',
             })}
           >
             {
@@ -150,6 +160,7 @@ const App = () => {
                     onFocus={() => { setCurrentPainIndex(idx); }}
                   >
                     <PaineTabs
+                      height={paineHeight}
                       pathAry={pathAry}
                       onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
                       onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
