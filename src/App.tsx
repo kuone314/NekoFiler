@@ -117,10 +117,8 @@ const App = () => {
 
   return (
     <>
-      <div
+      <body
         css={css({
-          display: 'grid',
-          gridTemplateColumns: '0.8fr 0.2fr',
           width: '100%',
           height: '95vh',
         })}
@@ -128,75 +126,83 @@ const App = () => {
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.5fr 0.5fr auto',
+            gridTemplateColumns: '0.8fr 0.2fr', // pains options
             height: '100%',
           })}
         >
-          {
-            tabsPathAry.current.map((pathAry, idx) => {
-              return <>
-                <div
-                  style={
-                    {
-                      border: (idx === currentPainIndex) ? '2px solid #ff0000' : '',
-                      overflow: 'auto',
+          <div
+            css={css({
+              display: 'grid',
+              gridTemplateRows: '0.5fr 0.5fr auto', // Paine Paine commandBar
+              height: '100%',
+            })}
+          >
+            {
+              tabsPathAry.current.map((pathAry, idx) => {
+                return <>
+                  <div
+                    style={
+                      {
+                        border: (idx === currentPainIndex) ? '2px solid #ff0000' : '',
+                        overflow: 'auto',
+                      }
                     }
-                  }
-                  onFocus={() => { setCurrentPainIndex(idx); }}
-                >
-                  <PaineTabs
-                    pathAry={pathAry}
-                    onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
-                    onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
-                    onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
-                    getOppositePath={getOppositePath}
-                    addLogMessage={addLogMessage}
-                    separator={separator}
-                    gridRef={grid[idx]}
-                    focusOppositePain={() => { grid[(idx + 1) % 2].current?.focus(); }}
-                  />
-                </div>
-              </>
-            })
-          }
-          <CommandBar
-            path={getPath}
-            addLogMessage={addLogMessage}
-          />
-        </div>
-        <div
-          css={css({
-            display: 'grid',
-            gridTemplateRows: '0.1fr 0.1fr auto',
-            height: '100%',
-          })}
-        >
-          <button
+                    onFocus={() => { setCurrentPainIndex(idx); }}
+                  >
+                    <PaineTabs
+                      pathAry={pathAry}
+                      onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                      onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
+                      onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
+                      getOppositePath={getOppositePath}
+                      addLogMessage={addLogMessage}
+                      separator={separator}
+                      gridRef={grid[idx]}
+                      focusOppositePain={() => { grid[(idx + 1) % 2].current?.focus(); }}
+                    />
+                  </div>
+                </>
+              })
+            }
+            <CommandBar
+              path={getPath}
+              addLogMessage={addLogMessage}
+            />
+          </div>
+          <div
             css={css({
-              width: '85pt',
-              padding: '10px',
+              display: 'grid',
+              gridTemplateRows: '0.1fr 0.1fr auto 0.1fr', // button button logPaine statusBar
+              height: '100%',
             })}
-            onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
-            separator:{separator}
-          </button>
-          <button
-            css={css({
-              width: '85pt',
-              padding: '10px',
-            })}
-            onClick={() => Update()}>
-            Update
-          </button>
-          {logMessagePein}
+          >
+            <button
+              css={css({
+                width: '85pt',
+                padding: '10px',
+              })}
+              onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
+              separator:{separator}
+            </button>
+            <button
+              css={css({
+                width: '85pt',
+                padding: '10px',
+              })}
+              onClick={() => Update()}>
+              Update
+            </button>
+            {logMessagePein}
+            <div // statas bar
+              css={css({
+                textAlign: 'right',
+              })}
+            >
+              {statasBarStr}
+            </div>
+          </div>
         </div>
-      </div>
-      <div
-        css={css({
-          textAlign: 'right',
-        })}
-      >
-        {statasBarStr}
-      </div>
+      </body>
     </>
   );
 }
