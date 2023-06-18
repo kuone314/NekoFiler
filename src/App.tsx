@@ -4,14 +4,14 @@ import React from 'react';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { IsValid, TabInfo, TabsInfo } from './PaineTabs';
-import { PaineTabs } from './PaineTabs';
+import { IsValid, TabInfo, TabsInfo } from './PaneTabs';
+import { PaneTabs } from './PaneTabs';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
 import JSON5 from 'json5'
-import { LogMessagePein } from './LogMessagePein';
+import { LogMessagePein } from './LogMessagePane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,17 +56,17 @@ function GetActive(tab_info: TabsInfo) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const App = () => {
   const getPath = () => {
-    return GetActive(tabsPathAry.current[currentPainIndex]).path;
+    return GetActive(tabsPathAry.current[currentPaneIndex]).path;
   }
 
-  const [currentPainIndex, setCurrentPainIndex] = useState(0);
+  const [currentPaneIndex, setCurrentPaneIndex] = useState(0);
   const tabsPathAry = useRef<TabsInfo[]>(getInitTab());
 
-  const onTabsChanged = (newTabs: TabInfo[], newTabIdx: number, painIndex: number) => {
-    setCurrentPainIndex(painIndex);
+  const onTabsChanged = (newTabs: TabInfo[], newTabIdx: number, paneIndex: number) => {
+    setCurrentPaneIndex(paneIndex);
 
-    tabsPathAry.current[painIndex].pathAry = newTabs;
-    tabsPathAry.current[painIndex].activeTabIndex = newTabIdx;
+    tabsPathAry.current[paneIndex].pathAry = newTabs;
+    tabsPathAry.current[paneIndex].activeTabIndex = newTabIdx;
 
     const data = JSON5.stringify({ version: last_opend_setting_current_version, data: tabsPathAry.current }, null, 2);
     (async () => {
@@ -75,7 +75,7 @@ const App = () => {
   }
 
   const getOppositePath = () => {
-    const oppositeIndex = (currentPainIndex + 1) % 2;
+    const oppositeIndex = (currentPaneIndex + 1) % 2;
     return GetActive(tabsPathAry.current[oppositeIndex]).path;
   }
 
@@ -97,8 +97,8 @@ const App = () => {
   }
   const [statasBarStr, setStatasBarStr] = useState("");
   useEffect(() => {
-    setStatasBarStr(`Item:${itemNums[currentPainIndex]}  Select:${selectItemNums[currentPainIndex]}`);
-  }, [itemNums, selectItemNums, currentPainIndex]);
+    setStatasBarStr(`Item:${itemNums[currentPaneIndex]}  Select:${selectItemNums[currentPaneIndex]}`);
+  }, [itemNums, selectItemNums, currentPaneIndex]);
 
 
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
@@ -117,10 +117,10 @@ const App = () => {
 
   const [aplHeight, setAplHeight] = useState(document.documentElement.clientHeight);
   const commandBarHeight = 60; // とりあえず固定で。
-  const [paineHeight, setPaineHeight] = useState((document.documentElement.clientHeight - commandBarHeight) / 2);
+  const [paneHeight, setPaneHeight] = useState((document.documentElement.clientHeight - commandBarHeight) / 2);
   window.addEventListener('resize', (event) => {
     setAplHeight(document.documentElement.clientHeight);
-    setPaineHeight((document.documentElement.clientHeight - commandBarHeight) / 2);
+    setPaneHeight((document.documentElement.clientHeight - commandBarHeight) / 2);
   })
 
   return (
@@ -135,7 +135,7 @@ const App = () => {
         <div
           css={css({
             display: 'grid',
-            gridTemplateColumns: '0.8fr 0.2fr', // pains options
+            gridTemplateColumns: '0.8fr 0.2fr', // panes options
             height: 'aplHeight',
             overflow: 'auto',
           })}
@@ -143,7 +143,7 @@ const App = () => {
           <div
             css={css({
               display: 'grid',
-              gridTemplateRows: 'auto auto auto', // Paine Paine commandBar
+              gridTemplateRows: 'auto auto auto', // Pane Pane commandBar
               height: 'aplHeight',
             })}
           >
@@ -153,14 +153,14 @@ const App = () => {
                   <div
                     style={
                       {
-                        border: (idx === currentPainIndex) ? '2px solid #ff0000' : '',
+                        border: (idx === currentPaneIndex) ? '2px solid #ff0000' : '',
                         overflow: 'auto',
                       }
                     }
-                    onFocus={() => { setCurrentPainIndex(idx); }}
+                    onFocus={() => { setCurrentPaneIndex(idx); }}
                   >
-                    <PaineTabs
-                      height={paineHeight}
+                    <PaneTabs
+                      height={paneHeight}
                       pathAry={pathAry}
                       onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
                       onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
@@ -169,7 +169,7 @@ const App = () => {
                       addLogMessage={addLogMessage}
                       separator={separator}
                       gridRef={grid[idx]}
-                      focusOppositePain={() => { grid[(idx + 1) % 2].current?.focus(); }}
+                      focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
                     />
                   </div>
                 </>
@@ -183,7 +183,7 @@ const App = () => {
           <div
             css={css({
               display: 'grid',
-              gridTemplateRows: '0.1fr 0.1fr auto 0.1fr', // button button logPaine statusBar
+              gridTemplateRows: '0.1fr 0.1fr auto 0.1fr', // button button logPane statusBar
               height: '100%',
             })}
           >
