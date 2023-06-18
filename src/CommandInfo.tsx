@@ -635,12 +635,12 @@ function GenerateDefaultCommandSeting(): CommandInfo[] {
       valid_on_addressbar: false,
     },
     {
-      command_name: 'focusOppositePain',
+      command_name: 'focusOppositePane',
       key: 'tab',
       dialog_type: 'none',
       action: {
         type: 'build_in',
-        command: 'focusOppositePain',
+        command: 'focusOppositePane',
       },
       valid_on_addressbar: true,
     },

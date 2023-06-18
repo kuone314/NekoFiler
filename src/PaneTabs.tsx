@@ -12,7 +12,7 @@ import { css } from '@emotion/react'
 
 import { TabColorSetting, readTabColorSetting } from './TabColorSetting';
 
-import { MainPanel } from './MainPain';
+import { MainPanel } from './MainPane';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabInfo {
@@ -30,7 +30,7 @@ export interface TabsInfo {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export const PaineTabs = (
+export const PaneTabs = (
   props: {
     height: number,
     pathAry: TabsInfo,
@@ -40,7 +40,7 @@ export const PaineTabs = (
     getOppositePath: () => string,
     addLogMessage: (message: string) => void,
     separator: separator,
-    focusOppositePain: () => void,
+    focusOppositePane: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
   },
 ) => {
@@ -181,7 +181,7 @@ export const PaineTabs = (
           getOppositePath={props.getOppositePath}
           addLogMessage={props.addLogMessage}
           separator={props.separator}
-          focusOppositePain={props.focusOppositePain}
+          focusOppositePane={props.focusOppositePane}
           gridRef={props.gridRef}
           key={activeTabIdx}
         />

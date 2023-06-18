@@ -55,7 +55,7 @@ export function FileList(
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
     accessFile: (fileName: string) => void,
-    focusOppositePain: () => void,
+    focusOppositePane: () => void,
     getOppositePath: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
   }

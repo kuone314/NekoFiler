@@ -33,7 +33,7 @@ export const MainPanel = (
     getOppositePath: () => string,
     addLogMessage: (message: string) => void,
     separator: separator,
-    focusOppositePain: () => void,
+    focusOppositePane: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
   }
 ) => {
@@ -123,7 +123,7 @@ export const MainPanel = (
       case 'toPrevTab': toPrevTab(); return;
       case 'toNextTab': toNextTab(); return;
       case 'focusAddoressBar': focusAddoressBar(); return;
-      case 'focusOppositePain': props.focusOppositePain(); return;
+      case 'focusOppositePane': props.focusOppositePane(); return;
     }
   }
 
@@ -228,7 +228,7 @@ export const MainPanel = (
         const decoretedPath = '&"./' + fileName + '"';
         executeShellCommand(decoretedPath, dir);
       },
-      focusOppositePain: props.focusOppositePain,
+      focusOppositePane: props.focusOppositePane,
       getOppositePath: props.getOppositePath,
       gridRef: myGrid,
     }
