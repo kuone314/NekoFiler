@@ -111,7 +111,9 @@ export function FileList(
     const inherit = newEntries.filter(newEntry => entries.some(entry => newEntry.name == entry.name));
     const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.name == entry.name));
 
-    const newIndex = CalcNewCurrentIndex(newEntries, currentItemName(), currentIndex);
+    const newIndex = (added.length == 0)
+      ? CalcNewCurrentIndex(newEntries, currentItemName(), currentIndex)
+      : inherit.length;
     setCurrentIndex(newIndex);
 
     const newIdxAry = (added.length != 0)
