@@ -412,7 +412,6 @@ export function FileList(
           resize: 'horizontal',
           height: 10, // table全体の最小サイズを指定。これが無いと、行数が少ない時に縦長になってしまう…。
           width: '95%',
-          userSelect: 'none',
           fontSize: '13px',
           lineHeight: '13pt'
         }
@@ -459,7 +458,7 @@ export function FileList(
       }
     </table>
     <div
-      style={{ height: 50, userSelect: 'none', }}
+      style={{ height: 50, }}
       onMouseDown={(event) => { onMouseDown(entries.length, event) }}
       onMouseUp={(event) => { onMouseUp(entries.length) }}
       onMouseMove={(event) => { onMouseMove(entries.length, event) }}

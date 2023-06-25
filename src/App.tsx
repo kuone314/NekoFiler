@@ -130,6 +130,7 @@ const App = () => {
           width: '100%',
           height: 'aplHeight',
           overflow: 'hidden',
+          userSelect: 'none',
         })}
       >
         <div
