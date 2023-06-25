@@ -45,6 +45,7 @@ export interface FileListFunc {
   selectAll: () => void,
   clearSelection: () => void,
   toggleSelection: () => void,
+  selectCurrentOnly: () => void,
 };
 
 export function FileList(
@@ -325,6 +326,9 @@ export function FileList(
     }
     setSelectingIndexArray(new_ary)
   }
+  const selectCurrentOnly = () => {
+    setSelectingIndexArray(new Set([currentIndex]));
+  }
 
 
   const myGrid = props.gridRef ?? React.createRef<HTMLDivElement>();
@@ -397,6 +401,7 @@ export function FileList(
     selectAll: selectAll,
     clearSelection: clearSelection,
     toggleSelection: toggleSelection,
+    selectCurrentOnly,
   }
 
   const element = <div>

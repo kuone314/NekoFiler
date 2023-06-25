@@ -545,6 +545,16 @@ function GenerateDefaultCommandSeting(): CommandInfo[] {
       valid_on_addressbar: false,
     },
     {
+      command_name: 'selectCurrentOnly',
+      key: 'shift+Space',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'selectCurrentOnly',
+      },
+      valid_on_addressbar: false,
+    },
+    {
       command_name: 'addNewTab',
       key: 'ctrl+t',
       dialog_type: 'none',
