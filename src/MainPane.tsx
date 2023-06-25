@@ -118,6 +118,7 @@ export const MainPanel = (
       case 'selectAll': FileListFunctions.selectAll(); return;
       case 'clearSelection': FileListFunctions.clearSelection(); return;
       case 'toggleSelection': FileListFunctions.toggleSelection(); return;
+      case 'selectCurrentOnly': FileListFunctions.selectCurrentOnly(); return;
       case 'addNewTab': addNewTab(); return;
       case 'removeTab': removeTab(); return;
       case 'toPrevTab': toPrevTab(); return;
