@@ -109,20 +109,24 @@ export function FileList(
     const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
     if (!modified) { return; }
 
-    const inherit = newEntries.filter(newEntry => entries.some(entry => newEntry.name == entry.name));
+    const inherit = entries
+      .map(entry => newEntries.find(newEntry => newEntry.name == entry.name))
+      .filter(opt => opt)
+      .map(opt => opt as Entry);
     const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.name == entry.name));
 
+    const newEntriesOrderKeeped = [...inherit, ...added];
     const newIndex = (added.length == 0)
-      ? CalcNewCurrentIndex(newEntries, currentItemName(), currentIndex)
+      ? CalcNewCurrentIndex(newEntriesOrderKeeped, currentItemName(), currentIndex)
       : inherit.length;
     setCurrentIndex(newIndex);
 
     const newIdxAry = (added.length != 0)
       ? SequenceAry(inherit.length, inherit.length + added.length - 1)
-      : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntries);
+      : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntriesOrderKeeped);
     setSelectingIndexArray(new Set([...newIdxAry]));
 
-    setEntries([...inherit, ...added]);
+    setEntries(newEntriesOrderKeeped);
   }
 
   const currentItemName = () => {
