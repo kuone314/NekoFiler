@@ -73,8 +73,8 @@ export function FileList(
   }, [currentIndex]);
 
   const [entries, setEntries] = useState<Entries>(props.entries);
-  useEffect(() => {
-    const newEntries = [...props.entries];
+  const setupEntries = (srcEntries: Entries) => {
+    const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
       switch (sortKey) {
         case 'name': return entry_1.name.toLowerCase() > entry_2.name.toLowerCase() ? 1 : -1;
@@ -100,7 +100,14 @@ export function FileList(
     setSelectingIndexArray(new Set([...newIdxAry]));
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
-  }, [props.entries, sortKey, initSelectItemHint]);
+  }
+  useEffect(() => {
+    setupEntries(entries);
+  }, [sortKey]);
+
+  useEffect(() => {
+    setupEntries(props.entries);
+  }, [props.entries, initSelectItemHint]);
 
   const updateEntries = (newEntries: Entries) => {
     const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
@@ -109,20 +116,24 @@ export function FileList(
     const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
     if (!modified) { return; }
 
-    const inherit = newEntries.filter(newEntry => entries.some(entry => newEntry.name == entry.name));
+    const inherit = entries
+      .map(entry => newEntries.find(newEntry => newEntry.name == entry.name))
+      .filter(opt => opt)
+      .map(opt => opt as Entry);
     const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.name == entry.name));
 
+    const newEntriesOrderKeeped = [...inherit, ...added];
     const newIndex = (added.length == 0)
-      ? CalcNewCurrentIndex(newEntries, currentItemName(), currentIndex)
+      ? CalcNewCurrentIndex(newEntriesOrderKeeped, currentItemName(), currentIndex)
       : inherit.length;
     setCurrentIndex(newIndex);
 
     const newIdxAry = (added.length != 0)
       ? SequenceAry(inherit.length, inherit.length + added.length - 1)
-      : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntries);
+      : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntriesOrderKeeped);
     setSelectingIndexArray(new Set([...newIdxAry]));
 
-    setEntries([...inherit, ...added]);
+    setEntries(newEntriesOrderKeeped);
   }
 
   const currentItemName = () => {
