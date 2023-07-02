@@ -510,7 +510,7 @@ foreach ($filePath in $files) {
   $fileName = [System.IO.Path]::GetFileName($filePath);
   $trg = GenNewFileName($fileName);
   if ($flag -band [Windows.Forms.DragDropEffects]::Copy) {
-    Copy-Item $filePath $trg;
+    Copy-Item -Recurse $filePath $trg;
   }
   if ($flag -band [Windows.Forms.DragDropEffects]::Move) {
     Move-Item $filePath $trg;
