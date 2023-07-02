@@ -203,7 +203,7 @@ export const MainPanel = (
   const commandSelectMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}
-      onClose={() => setMenuOpen(false)}
+      onClose={() => {setMenuOpen(false);myGrid?.current?.focus();}}
       anchorPoint={{ x: 400, y: 1000 }} // 適当…。
     >
       {
