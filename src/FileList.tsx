@@ -73,8 +73,8 @@ export function FileList(
   }, [currentIndex]);
 
   const [entries, setEntries] = useState<Entries>(props.entries);
-  useEffect(() => {
-    const newEntries = [...props.entries];
+  const setupEntries = (srcEntries: Entries) => {
+    const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
       switch (sortKey) {
         case 'name': return entry_1.name.toLowerCase() > entry_2.name.toLowerCase() ? 1 : -1;
@@ -100,7 +100,14 @@ export function FileList(
     setSelectingIndexArray(new Set([...newIdxAry]));
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
-  }, [props.entries, sortKey, initSelectItemHint]);
+  }
+  useEffect(() => {
+    setupEntries(entries);
+  }, [sortKey]);
+
+  useEffect(() => {
+    setupEntries(props.entries);
+  }, [props.entries, initSelectItemHint]);
 
   const updateEntries = (newEntries: Entries) => {
     const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
