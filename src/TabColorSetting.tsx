@@ -9,12 +9,22 @@ export interface TabColorSetting {
     backGround: string,
     string: string,
   },
-  pathRegExp: string,
+  match: {
+    type: string,
+    string: string,
+  }
 }
+
+export const TabColorMatchingType = {
+  regexp: "regexp",
+  start_with: "start_with",
+} as const;
+export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabColorMatchingType];
 
 class TabColorSettingVersiton {
   static first = 1;
-  static latest = TabColorSettingVersiton.first;
+  static add_start_with = 2;
+  static latest = TabColorSettingVersiton.add_start_with;
 }
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
@@ -27,13 +37,21 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
 }
 
 function MatchImpl(setting: TabColorSetting, path: string): boolean {
-  try {
-    const pathRegExp = new RegExp(setting.pathRegExp, 'i');
-    return pathRegExp.test(path);
-  } catch {
-    // 設定ミスによる、正規表現として不正な文字列が与えられたケースへの対処
-    return false;
+  switch (setting.match.type) {
+    case TabColorMatchingType.regexp: {
+      try {
+        const pathRegExp = new RegExp(setting.match.string, 'i');
+        return pathRegExp.test(path);
+      } catch {
+        // 設定ミスによる、正規表現として不正な文字列が与えられたケースへの対処
+        return false;
+      }
+    }
+    case TabColorMatchingType.start_with: {
+      return path.toLowerCase().startsWith(setting.match.string.toLowerCase());
+    }
   }
+  return false;
 }
 
 export function Match(setting: TabColorSetting, path: string): boolean {
@@ -50,14 +68,20 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
         backGround: '#ffff00',
         string: '#000000',
       },
-      pathRegExp: '^C:/',
+      match: {
+        type: TabColorMatchingType.start_with,
+        string: 'C:/',
+      },
     },
     {
       color: {
         backGround: '#00ff00',
         string: '#000000',
       },
-      pathRegExp: '^D:/',
+      match: {
+        type: TabColorMatchingType.start_with,
+        string: 'D:/',
+      },
     },
   ];
 
