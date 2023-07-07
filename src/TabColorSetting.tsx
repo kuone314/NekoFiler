@@ -28,12 +28,33 @@ class TabColorSettingVersiton {
 }
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
-  const settingStr = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' })
-    .catch(_ => "");
-  if (!settingStr || settingStr === "") { return GenerateDefaultCommandSeting(); }
+  try {
+    const settingStr = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' })
+      .catch(_ => "");
+    if (!settingStr || settingStr === "") { return GenerateDefaultCommandSeting(); }
 
-  const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
-  return result.data;
+    const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
+    if (result.version > TabColorSettingVersiton.latest) { return []; }
+
+    if (result.version < TabColorSettingVersiton.add_start_with) {
+      result.data.forEach(setting => {
+        setting.match = {
+          type: TabColorMatchingType.regexp,
+          string: (setting as any).pathRegExp,
+        };
+        delete (setting as any).pathRegExp;
+      });
+    }
+
+    if (result.version < TabColorSettingVersiton.latest) {
+      const data = JSON5.stringify({ version: TabColorSettingVersiton.latest, data: result.data }, null, 2);
+      await invoke<String>(
+        "write_setting_file", { filename: "tab_color.json5", content: data });
+    }
+    return result.data;
+  } catch {
+    return GenerateDefaultCommandSeting();
+  }
 }
 
 function MatchImpl(setting: TabColorSetting, path: string): boolean {
