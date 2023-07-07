@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 
 import JSON5 from 'json5'
+import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabColorSetting {
@@ -19,10 +20,23 @@ class TabColorSettingVersiton {
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
   const settingStr = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' })
     .catch(_ => "");
-  if (!settingStr ||settingStr === "") { return GenerateDefaultCommandSeting(); }
+  if (!settingStr || settingStr === "") { return GenerateDefaultCommandSeting(); }
 
   const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
   return result.data;
+}
+
+export function Match(setting: TabColorSetting, path: string): boolean {
+  try {
+    const pathRegExp = new RegExp(setting.pathRegExp, 'i');
+    const path_ary = Object.values(SEPARATOR)
+      .map(separator => ApplySeparator(path, separator) + separator);
+    return !!path_ary.find(path => pathRegExp.test(path));
+  } catch {
+    // 設定ミスによる、正規表現として不正な文字列が与えられたケースへの対処
+    return false;
+  }
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
