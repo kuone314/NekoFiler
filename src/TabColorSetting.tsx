@@ -26,17 +26,20 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
   return result.data;
 }
 
-export function Match(setting: TabColorSetting, path: string): boolean {
+function MatchImpl(setting: TabColorSetting, path: string): boolean {
   try {
     const pathRegExp = new RegExp(setting.pathRegExp, 'i');
-    const path_ary = Object.values(SEPARATOR)
-      .map(separator => ApplySeparator(path, separator) + separator);
-    return !!path_ary.find(path => pathRegExp.test(path));
+    return pathRegExp.test(path);
   } catch {
     // 設定ミスによる、正規表現として不正な文字列が与えられたケースへの対処
     return false;
   }
+}
 
+export function Match(setting: TabColorSetting, path: string): boolean {
+  const path_ary = Object.values(SEPARATOR)
+    .map(separator => ApplySeparator(path, separator) + separator);
+  return !!path_ary.find(path => MatchImpl(setting, path));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
