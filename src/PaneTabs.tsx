@@ -10,7 +10,7 @@ import { SEPARATOR, separator, ApplySeparator } from './FilePathSeparator';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { TabColorSetting, readTabColorSetting } from './TabColorSetting';
+import { Match, TabColorSetting, readTabColorSetting } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 
@@ -104,22 +104,12 @@ export const PaneTabs = (
   }
 
   const tabColor = (path: string) => {
-    try {
-      const match = (setting: TabColorSetting): boolean => {
-        const pathRegExp = new RegExp(setting.pathRegExp, 'i');
-        const path_ary = Object.values(SEPARATOR)
-          .map(separator => ApplySeparator(path, separator) + separator);
-        return !!path_ary.find(path => pathRegExp.test(path));
-      }
-      const setting = colorSetting.find(s => match(s));
-      if (!setting) { return ``; }
-      return css({
-        background: setting.color.backGround,
-        color: setting.color.string,
-      })
-    } catch {
-      return '';
-    }
+    const setting = colorSetting.find(setting => Match(setting, path));
+    if (!setting) { return ``; }
+    return css({
+      background: setting.color.backGround,
+      color: setting.color.string,
+    })
   };
 
   return (
