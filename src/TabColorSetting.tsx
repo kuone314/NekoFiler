@@ -5,6 +5,7 @@ import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabColorSetting {
+  name: string,
   color: {
     backGround: string,
     string: string,
@@ -24,7 +25,8 @@ export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabC
 class TabColorSettingVersiton {
   static first = 1;
   static add_start_with = 2;
-  static latest = TabColorSettingVersiton.add_start_with;
+  static add_setting_name = 3;
+  static latest = TabColorSettingVersiton.add_setting_name;
 }
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
@@ -43,6 +45,12 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
           string: (setting as any).pathRegExp,
         };
         delete (setting as any).pathRegExp;
+      });
+    }
+
+    if (result.version < TabColorSettingVersiton.add_setting_name) {
+      result.data.forEach((setting, idx) => {
+        setting.name = "Setting " + idx.toString();
       });
     }
 
@@ -85,6 +93,7 @@ export function Match(setting: TabColorSetting, path: string): boolean {
 function GenerateDefaultCommandSeting(): TabColorSetting[] {
   const result: TabColorSetting[] = [
     {
+      name:'Drive C:',
       color: {
         backGround: '#ffff00',
         string: '#000000',
@@ -95,6 +104,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
       },
     },
     {
+      name:'Drive D:',
       color: {
         backGround: '#00ff00',
         string: '#000000',
