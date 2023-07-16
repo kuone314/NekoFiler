@@ -27,6 +27,7 @@ export function MainModeView(
     height: number,
     tabsPathAry: TabsInfo[],
     tabColorSetting: TabColorSetting[],
+    setTabColor: () => void,
   }
 ) {
   const getPath = () => {
@@ -142,7 +143,7 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.1fr 0.1fr auto 0.1fr', // button button logPane statusBar
+            gridTemplateRows: '0.1fr 0.1fr 0.1fr auto 0.1fr', // button button button logPane statusBar
             height: '100%',
           })}
         >
@@ -153,6 +154,14 @@ export function MainModeView(
             })}
             onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
             separator:{separator}
+          </button>
+          <button
+            css={css({
+              width: '85pt',
+              padding: '10px',
+            })}
+            onClick={() => props.setTabColor()}>
+            Set Tab Color
           </button>
           <button
             css={css({

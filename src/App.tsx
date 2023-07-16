@@ -8,6 +8,8 @@ import { TabColorSetting, readTabColorSetting, writeTabColorSetting } from './Ta
 import { IsValid, TabsInfo } from './PaneTabs';
 import { invoke } from '@tauri-apps/api';
 
+import { TabColorSettingPane } from './TabColorSettingPane';
+
 import JSON5 from 'json5'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +54,16 @@ export function writeLastOpenedTabs(value: TabsInfo[]) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+const Mode = {
+  main: "main",
+  setTabColor: "setTabColor",
+} as const;
+type Mode = typeof Mode[keyof typeof Mode];
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 const App = () => {
+  const [mode, setMode] = useState<Mode>(Mode.main);
+
   const [aplHeight, setAplHeight] = useState(document.documentElement.clientHeight);
   window.addEventListener('resize', (event) => {
     setAplHeight(document.documentElement.clientHeight);
@@ -69,11 +80,18 @@ const App = () => {
   const tabsPathAry = useRef<TabsInfo[]>(getInitTab());
 
   const viewImpl = () => {
-    return <MainModeView
-      height={aplHeight}
-      tabsPathAry={tabsPathAry.current}
-      tabColorSetting={tabColorSetting}
-    />
+    switch (mode) {
+      case Mode.main:
+        return <MainModeView
+          height={aplHeight}
+          tabsPathAry={tabsPathAry.current}
+          tabColorSetting={tabColorSetting}
+          setTabColor={() => setMode(Mode.setTabColor)}
+        />
+      case Mode.setTabColor:
+        return <TabColorSettingPane
+        />
+    }
   };
 
   return <body
