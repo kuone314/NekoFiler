@@ -10,7 +10,7 @@ export interface TabColorSetting {
     string: string,
   },
   match: {
-    type: string,
+    type: TabColorMatchingType,
     string: string,
   }
 }
