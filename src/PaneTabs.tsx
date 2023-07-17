@@ -34,6 +34,7 @@ export const PaneTabs = (
   props: {
     height: number,
     pathAry: TabsInfo,
+    tabColorSetting: TabColorSetting[]
     onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
     onItemNumChanged: (newItemNum: number) => void,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
@@ -46,14 +47,6 @@ export const PaneTabs = (
 ) => {
   const [tabAry, setTabAry] = useState<TabInfo[]>(props.pathAry.pathAry);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(props.pathAry.activeTabIndex);
-
-  const [colorSetting, setColorSetting] = useState<TabColorSetting[]>([]);
-  useEffect(() => {
-    (async () => {
-      const color_seting = await readTabColorSetting();
-      setColorSetting(color_seting);
-    })()
-  }, []);
 
   const addNewTab = (addPosIdx: number, newTabPath: string) => {
     let newTabAry = Array.from(tabAry);
@@ -104,7 +97,7 @@ export const PaneTabs = (
   }
 
   const tabColor = (path: string) => {
-    const setting = colorSetting.find(setting => Match(setting, path));
+    const setting = props.tabColorSetting.find(setting => Match(setting, path));
     if (!setting) { return ``; }
     return css({
       background: setting.color.backGround,

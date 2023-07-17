@@ -5,12 +5,13 @@ import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabColorSetting {
+  name: string,
   color: {
     backGround: string,
     string: string,
   },
   match: {
-    type: string,
+    type: TabColorMatchingType,
     string: string,
   }
 }
@@ -24,7 +25,14 @@ export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabC
 class TabColorSettingVersiton {
   static first = 1;
   static add_start_with = 2;
-  static latest = TabColorSettingVersiton.add_start_with;
+  static add_setting_name = 3;
+  static latest = TabColorSettingVersiton.add_setting_name;
+}
+
+export async function writeTabColorSetting(setting: TabColorSetting[]) {
+  const data = JSON5.stringify({ version: TabColorSettingVersiton.latest, data: setting }, null, 2);
+  await invoke<String>(
+    "write_setting_file", { filename: "tab_color.json5", content: data });
 }
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
@@ -46,10 +54,14 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
       });
     }
 
+    if (result.version < TabColorSettingVersiton.add_setting_name) {
+      result.data.forEach((setting, idx) => {
+        setting.name = "Setting " + idx.toString();
+      });
+    }
+
     if (result.version < TabColorSettingVersiton.latest) {
-      const data = JSON5.stringify({ version: TabColorSettingVersiton.latest, data: result.data }, null, 2);
-      await invoke<String>(
-        "write_setting_file", { filename: "tab_color.json5", content: data });
+      writeTabColorSetting(result.data);
     }
     return result.data;
   } catch {
@@ -85,6 +97,7 @@ export function Match(setting: TabColorSetting, path: string): boolean {
 function GenerateDefaultCommandSeting(): TabColorSetting[] {
   const result: TabColorSetting[] = [
     {
+      name: 'Drive C:',
       color: {
         backGround: '#ffff00',
         string: '#000000',
@@ -95,6 +108,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
       },
     },
     {
+      name: 'Drive D:',
       color: {
         backGround: '#00ff00',
         string: '#000000',
@@ -106,10 +120,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
     },
   ];
 
-  const data = JSON5.stringify({ version: TabColorSettingVersiton.latest, data: result }, null, 2);
-  (async () => {
-    await invoke<void>("write_setting_file", { filename: "tab_color.json5", content: data })
-  })();
+  writeTabColorSetting(result);
 
   return result;
 }
