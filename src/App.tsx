@@ -46,7 +46,7 @@ const getInitTab = () => {
   }
 }
 
-export function writeLastOpenedTabs(value: TabsInfo[]) {
+export function writeLastOpenedTabs(value:TabsInfo[]) {
   const data = JSON5.stringify({ version: last_opend_setting_current_version, data: value }, null, 2);
   (async () => {
     await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })
@@ -90,6 +90,13 @@ const App = () => {
         />
       case Mode.setTabColor:
         return <TabColorSettingPane
+          height={aplHeight}
+          tabColorSetting={tabColorSetting}
+          setTabColorSetting={(setting) => {
+            setTabColorSetting(setting);
+            writeTabColorSetting(setting);
+          }}
+          finishSetting={() => setMode(Mode.main)}
         />
     }
   };
