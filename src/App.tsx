@@ -48,6 +48,13 @@ const getInitTab = () => {
   }
 }
 
+export function writeLastOpenedTabs(value: TabsInfo[]) {
+  const data = JSON5.stringify({ version: last_opend_setting_current_version, data: value }, null, 2);
+  (async () => {
+    await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })
+  })()
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function GetActive(tab_info: TabsInfo) {
   return tab_info.pathAry[tab_info.activeTabIndex];
@@ -68,10 +75,7 @@ const App = () => {
     tabsPathAry.current[paneIndex].pathAry = newTabs;
     tabsPathAry.current[paneIndex].activeTabIndex = newTabIdx;
 
-    const data = JSON5.stringify({ version: last_opend_setting_current_version, data: tabsPathAry.current }, null, 2);
-    (async () => {
-      await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })
-    })()
+    writeLastOpenedTabs(tabsPathAry.current);
   }
 
   const getOppositePath = () => {
