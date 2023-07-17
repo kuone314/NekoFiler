@@ -4,6 +4,7 @@ import { MainModeView } from './MainModeView';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
+import { TabColorSetting, readTabColorSetting, writeTabColorSetting } from './TabColorSetting';
 import { IsValid, TabsInfo } from './PaneTabs';
 import { invoke } from '@tauri-apps/api';
 
@@ -57,12 +58,21 @@ const App = () => {
     setAplHeight(document.documentElement.clientHeight);
   })
 
+  const [tabColorSetting, setTabColorSetting] = useState<TabColorSetting[]>([]);
+  useEffect(() => {
+    (async () => {
+      const color_seting = await readTabColorSetting();
+      setTabColorSetting(color_seting);
+    })()
+  }, []);
+
   const tabsPathAry = useRef<TabsInfo[]>(getInitTab());
 
   const viewImpl = () => {
     return <MainModeView
       height={aplHeight}
       tabsPathAry={tabsPathAry.current}
+      tabColorSetting={tabColorSetting}
     />
   };
 

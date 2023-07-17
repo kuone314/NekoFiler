@@ -11,6 +11,7 @@ import { PaneTabs } from './PaneTabs';
 import { css } from '@emotion/react'
 
 import { LogMessagePein } from './LogMessagePane';
+import { TabColorSetting } from './TabColorSetting';
 
 import { writeLastOpenedTabs } from './App';
 
@@ -25,6 +26,7 @@ export function MainModeView(
   props: {
     height: number,
     tabsPathAry: TabsInfo[],
+    tabColorSetting: TabColorSetting[],
   }
 ) {
   const getPath = () => {
@@ -118,6 +120,7 @@ export function MainModeView(
                   <PaneTabs
                     height={paneHeight}
                     pathAry={pathAry}
+                    tabColorSetting={props.tabColorSetting}
                     onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
                     onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
                     onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
