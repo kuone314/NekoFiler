@@ -58,6 +58,9 @@ export function TabColorSettingPane(
       css={css({
         display: 'flex',
         flexDirection: 'column',
+        height: mainHeight,
+        background: setting.color.backGround,
+        color: setting.color.string,
       })}
     >
       <label>
