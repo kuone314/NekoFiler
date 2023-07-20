@@ -40,6 +40,34 @@ export function TabColorSettingPane(
     setTabColorSetting(newSetting)
   }
 
+
+  function MoveUp(trgIdx: number): void {
+    if (trgIdx == 0) { return }
+
+    const newSetting = [...tabColorSetting];
+    [newSetting[trgIdx], newSetting[trgIdx - 1]] = [newSetting[trgIdx - 1], newSetting[trgIdx]]
+    setTabColorSetting(newSetting)
+    setActiveIdx(trgIdx - 1);
+  }
+  function MoveDown(trgIdx: number): void {
+    if (trgIdx == tabColorSetting.length - 1) { return }
+
+    const newSetting = [...tabColorSetting];
+    [newSetting[trgIdx], newSetting[trgIdx + 1]] = [newSetting[trgIdx + 1], newSetting[trgIdx]]
+    setTabColorSetting(newSetting)
+    setActiveIdx(trgIdx + 1);
+  }
+
+  function DeleteSetting(trgIdx: number): void {
+    const newSetting = [...tabColorSetting];
+    newSetting.splice(trgIdx, 1);
+    setTabColorSetting(newSetting)
+
+    if (activeIdx >= newSetting.length) {
+      setActiveIdx(newSetting.length - 1);
+    }
+  }
+
   const Impl = () => {
     const idx = activeIdx;
     const setting = tabColorSetting[activeIdx];
@@ -129,6 +157,23 @@ export function TabColorSettingPane(
             setTabColorSetting([...newSetting])
           }}
         />
+      </div>
+      <div>
+        <button
+          onClick={() => MoveUp(idx)}
+        >
+          ↑
+        </button>
+        <button
+          onClick={() => MoveDown(idx)}
+        >
+          ↓
+        </button>
+        <button
+          onClick={() => DeleteSetting(idx)}
+        >
+          Delete
+        </button>
       </div>
     </div>
   }
