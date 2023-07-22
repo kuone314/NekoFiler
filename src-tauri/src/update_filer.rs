@@ -49,12 +49,12 @@ fn get_release_page_htlm() -> Option<String> {
 
 fn get_latest_version() -> Option<String> {
     let html = get_release_page_htlm()?;
-    let key_text_front = r#"<span data-view-component="true" class="f1 text-bold d-inline mr-3"><a href="/kuone314/AMATERASU-Filer/releases/tag/"#;
+    let key_text_front = r#"kuone314/AMATERASU-Filer/releases/tag/"#;
     let found = html.find(key_text_front)?;
 
     let remain = &html[found + key_text_front.len()..];
 
-    let key_text_back = r#"" data-view-component="true" class="Link--primary">"#;
+    let key_text_back = r#"""#;
     let found = remain.find(key_text_back)?;
     Some(remain[..found].to_owned())
 }
