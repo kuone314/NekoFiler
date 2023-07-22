@@ -140,7 +140,7 @@ export function TabColorSettingPane(
         </label>
         <Select
           options={Object.values(TabColorMatchingType).map(toComboItem)}
-          defaultValue={toComboItem(tabColorSetting[idx].match.type)}
+          value={toComboItem(setting.match.type)}
           onChange={(val) => {
             if (val === null) { return; }
             const newSetting = [...tabColorSetting]
