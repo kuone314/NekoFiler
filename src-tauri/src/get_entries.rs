@@ -1,5 +1,8 @@
-use std::fs::{self, Metadata};
 use chrono::prelude::*;
+use std::{
+    fs::{self, Metadata},
+    os::windows::fs::FileTypeExt,
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Deserialize)]
@@ -10,7 +13,6 @@ pub struct FileInfo {
     size: u64,
     date: String,
 }
-
 
 use std::os::windows::prelude::MetadataExt;
 #[tauri::command]
@@ -35,7 +37,7 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
 
             Some(FileInfo {
                 name,
-                is_dir: type_.is_dir(),
+                is_dir: type_.is_dir() || type_.is_symlink_dir(),
                 extension,
                 size: fsize,
                 date: date,
