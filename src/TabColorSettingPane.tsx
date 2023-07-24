@@ -69,7 +69,6 @@ export function TabColorSettingPane(
   }
 
   const Impl = () => {
-    const idx = activeIdx;
     const setting = tabColorSetting[activeIdx];
 
     const toComboItem = (type: TabColorMatchingType) => {
@@ -98,7 +97,7 @@ export function TabColorSettingPane(
           value={setting.name}
           onChange={e => {
             const newSetting = [...tabColorSetting]
-            newSetting[idx].name = e.target.value;
+            newSetting[activeIdx].name = e.target.value;
             setTabColorSetting([...newSetting])
           }}
         />
@@ -111,7 +110,7 @@ export function TabColorSettingPane(
           value={setting.color.backGround}
           onChange={e => {
             const newSetting = [...tabColorSetting]
-            newSetting[idx].color.backGround = e.target.value;
+            newSetting[activeIdx].color.backGround = e.target.value;
             setTabColorSetting([...newSetting])
           }}
         />
@@ -124,7 +123,7 @@ export function TabColorSettingPane(
           value={setting.color.string}
           onChange={e => {
             const newSetting = [...tabColorSetting]
-            newSetting[idx].color.string = e.target.value;
+            newSetting[activeIdx].color.string = e.target.value;
             setTabColorSetting([...newSetting])
           }}
         />
@@ -144,7 +143,7 @@ export function TabColorSettingPane(
           onChange={(val) => {
             if (val === null) { return; }
             const newSetting = [...tabColorSetting]
-            newSetting[idx].match.type = val.value;
+            newSetting[activeIdx].match.type = val.value;
             setTabColorSetting([...newSetting])
           }}
         />
@@ -153,24 +152,24 @@ export function TabColorSettingPane(
           value={setting.match.string}
           onChange={e => {
             const newSetting = [...tabColorSetting]
-            newSetting[idx].match.string = e.target.value;
+            newSetting[activeIdx].match.string = e.target.value;
             setTabColorSetting([...newSetting])
           }}
         />
       </div>
       <div>
         <button
-          onClick={() => MoveUp(idx)}
+          onClick={() => MoveUp(activeIdx)}
         >
           ↑
         </button>
         <button
-          onClick={() => MoveDown(idx)}
+          onClick={() => MoveDown(activeIdx)}
         >
           ↓
         </button>
         <button
-          onClick={() => DeleteSetting(idx)}
+          onClick={() => DeleteSetting(activeIdx)}
         >
           Delete
         </button>
