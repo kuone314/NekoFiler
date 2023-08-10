@@ -366,6 +366,26 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       },
       valid_on_addressbar: true,
     },
+    {
+      command_name: 'PowerShell',
+      key: 'ctrl+@',
+      dialog_type: 'none',
+      action: {
+        type: 'power_shell',
+        command: 'script/StartUpPowerShell.ps1',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'PowerShell(Admin)',
+      key: 'ctrl+@',
+      dialog_type: 'none',
+      action: {
+        type: 'power_shell',
+        command: 'script/StartUpAdminPowerShell.ps1',
+      },
+      valid_on_addressbar: true,
+    },
   ];
 
   const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: result }, null, 2);
@@ -531,6 +551,26 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
 `;
     await invoke<void>("write_setting_file", {
       filename: "script/Rename.ps1",
+      content: script
+    })
+  })();
+
+  (async () => {
+    const script = `
+ Start-Process PowerShell
+`;
+    await invoke<void>("write_setting_file", {
+      filename: "script/StartUpPowerShell.ps1",
+      content: script
+    })
+  })();
+
+  (async () => {
+    const script = `
+Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current_dir"
+ `;
+    await invoke<void>("write_setting_file", {
+      filename: "script/StartUpAdminPowerShell.ps1",
       content: script
     })
   })();
