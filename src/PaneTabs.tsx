@@ -96,10 +96,12 @@ export const PaneTabs = (
     return pinedPrefix + dirName;
   }
 
-  const tabColor = (path: string) => {
+  const tabColor = (isActive: boolean, path: string) => {
     const setting = props.tabColorSetting.find(setting => Match(setting, path));
     if (!setting) { return ``; }
+    const borderColor = (isActive) ? '#ff0000' : setting.color.backGround;
     return css({
+      border: '5px solid ' + borderColor,
       background: setting.color.backGround,
       color: setting.color.string,
     })
@@ -123,13 +125,12 @@ export const PaneTabs = (
                 css={[
                   css({
                     textTransform: 'none',
-                    border: (idx === activeTabIdx) ? '5px solid #ff0000' : '',
                     fontSize: '10pt',
                     height: '20pt',
                     margin: '1pt',
                     minWidth: '5pt'
                   }),
-                  tabColor(tab.path),
+                  tabColor(idx === activeTabIdx, tab.path),
                 ]}
                 onClick={() => { setActiveTabIdx(idx) }}
                 onDoubleClick={() => togglePined(idx)}

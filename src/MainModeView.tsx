@@ -112,7 +112,7 @@ export function MainModeView(
                 <div
                   style={
                     {
-                      border: (idx === currentPaneIndex) ? '2px solid #ff0000' : '',
+                      border: (idx === currentPaneIndex) ? '2px solid #ff0000' : '2px solid #ffffff',
                       overflow: 'auto',
                     }
                   }
