@@ -76,7 +76,11 @@ export const MainPanel = (
     if (!newEntries) {
       setEntries(null);
     } else {
-      FileListFunctions.updateEntries(newEntries);
+      if (!entries) {
+        setEntries(newEntries);
+      } else {
+        FileListFunctions.updateEntries(newEntries);
+      }
     }
   }
 
@@ -203,7 +207,7 @@ export const MainPanel = (
   const commandSelectMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}
-      onClose={() => {setMenuOpen(false);myGrid?.current?.focus();}}
+      onClose={() => { setMenuOpen(false); myGrid?.current?.focus(); }}
       anchorPoint={{ x: 400, y: 1000 }} // 適当…。
     >
       {
