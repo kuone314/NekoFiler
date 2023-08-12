@@ -27,7 +27,7 @@ function IsValid(tabInfo: TabInfo) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function getInitTab() {
+export function ReadLastOpenedTabs() {
   const defaultTabInfo = { pathAry: [{ path: defaultDir, pined: false }], activeTabIndex: 0 }
 
   try {
@@ -55,7 +55,7 @@ export function getInitTab() {
   }
 }
 
-export function writeLastOpenedTabs(value: TabsInfo[]) {
+export function WriteLastOpenedTabs(value: TabsInfo[]) {
   const data = JSON5.stringify({ version: last_opend_setting_current_version, data: value }, null, 2);
   (async () => {
     await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })

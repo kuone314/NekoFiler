@@ -12,7 +12,7 @@ import { css } from '@emotion/react'
 import { LogMessagePein } from './LogMessagePane';
 import { TabColorSetting } from './TabColorSetting';
 
-import {TabInfo, TabsInfo, writeLastOpenedTabs } from './TabsInfo';
+import {TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ export function MainModeView(
     props.tabsPathAry[paneIndex].pathAry = newTabs;
     props.tabsPathAry[paneIndex].activeTabIndex = newTabIdx;
 
-    writeLastOpenedTabs(props.tabsPathAry);
+    WriteLastOpenedTabs(props.tabsPathAry);
   }
 
   const getOppositePath = () => {

@@ -8,7 +8,7 @@ import { TabColorSetting, readTabColorSetting, writeTabColorSetting } from './Ta
 
 import { TabColorSettingPane } from './TabColorSettingPane';
 
-import { getInitTab, TabsInfo } from './TabsInfo';
+import { ReadLastOpenedTabs, TabsInfo } from './TabsInfo';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ const App = () => {
     })()
   }, []);
 
-  const tabsPathAry = useRef<TabsInfo[]>(getInitTab());
+  const tabsPathAry = useRef<TabsInfo[]>(ReadLastOpenedTabs());
 
   const viewImpl = () => {
     switch (mode) {
