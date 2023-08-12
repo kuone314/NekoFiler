@@ -13,21 +13,7 @@ import { css } from '@emotion/react'
 import { Match, TabColorSetting, readTabColorSetting } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-export interface TabInfo {
-  path: string,
-  pined: boolean,
-}
-export function IsValid(tabInfo: TabInfo) {
-  if (!tabInfo) { return false; }
-  if (!tabInfo.path) { return false; }
-  return true;
-}
-export interface TabsInfo {
-  pathAry: TabInfo[],
-  activeTabIndex: number,
-}
+import { TabInfo, TabsInfo } from './TabsInfo';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const PaneTabs = (
