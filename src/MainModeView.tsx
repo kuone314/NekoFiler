@@ -4,7 +4,6 @@ import React from 'react';
 
 import CommandBar from './CommandBar';
 import { separator } from './FilePathSeparator';
-import { TabInfo, TabsInfo } from './PaneTabs';
 import { PaneTabs } from './PaneTabs';
 
 /** @jsxImportSource @emotion/react */
@@ -13,7 +12,7 @@ import { css } from '@emotion/react'
 import { LogMessagePein } from './LogMessagePane';
 import { TabColorSetting } from './TabColorSetting';
 
-import { writeLastOpenedTabs } from './App';
+import {TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +41,7 @@ export function MainModeView(
     props.tabsPathAry[paneIndex].pathAry = newTabs;
     props.tabsPathAry[paneIndex].activeTabIndex = newTabIdx;
 
-    writeLastOpenedTabs(props.tabsPathAry);
+    WriteLastOpenedTabs(props.tabsPathAry);
   }
 
   const getOppositePath = () => {
