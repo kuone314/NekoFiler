@@ -123,6 +123,7 @@ export const PaneTabs = (
                 onAuxClick={() => { removeTab(idx) }}
                 defaultValue={pathToTabName(tab)}
                 tabIndex={-1}
+                key={'TabButton' + idx}
               >
                 {pathToTabName(tab)}
               </Button>

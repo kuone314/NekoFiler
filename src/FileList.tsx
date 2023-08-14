@@ -450,21 +450,20 @@ export function FileList(
       </thead>
       {
         entries.map((entry, idx) => {
-          return <>
-            <tr
-              ref={(idx === currentIndex) ? current_row : null}
-              onMouseDown={(event) => { onMouseDown(idx, event) }}
-              onMouseMove={(event) => { onMouseMove(idx, event) }}
-              onMouseUp={(event) => { onMouseUp(idx) }}
-              onDoubleClick={(event) => onRowdoubleclick(idx, event)}
-              css={table_color(idx)}
-            >
-              <td css={table_border}>{entry.name}</td>
-              <td css={table_border}>{ToTypeName(entry)}</td>
-              <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
-              <td css={table_border}>{entry.date}</td>
-            </tr>
-          </>
+          return <tr
+            ref={(idx === currentIndex) ? current_row : null}
+            onMouseDown={(event) => { onMouseDown(idx, event) }}
+            onMouseMove={(event) => { onMouseMove(idx, event) }}
+            onMouseUp={(event) => { onMouseUp(idx) }}
+            onDoubleClick={(event) => onRowdoubleclick(idx, event)}
+            css={table_color(idx)}
+            key={'LIst' + idx}
+          >
+            <td css={table_border}>{entry.name}</td>
+            <td css={table_border}>{ToTypeName(entry)}</td>
+            <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
+            <td css={table_border}>{entry.date}</td>
+          </tr>
         })
       }
     </table>
@@ -474,7 +473,7 @@ export function FileList(
       onMouseUp={(event) => { onMouseUp(entries.length) }}
       onMouseMove={(event) => { onMouseMove(entries.length, event) }}
     >. </div>
-  </div>
+  </div >
 
   return [element, functions];
 }
