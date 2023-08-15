@@ -211,9 +211,10 @@ export const MainPanel = (
       anchorPoint={{ x: 400, y: 1000 }} // 適当…。
     >
       {
-        menuItemAry.current.map(command => {
+        menuItemAry.current.map((command, idx) => {
           return <MenuItem
             onClick={e => execCommand(command)}
+            key={idx}
           >
             {command.command_name}
           </MenuItem>

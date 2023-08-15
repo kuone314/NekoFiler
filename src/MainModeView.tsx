@@ -12,7 +12,7 @@ import { css } from '@emotion/react'
 import { LogMessagePein } from './LogMessagePane';
 import { TabColorSetting } from './TabColorSetting';
 
-import {TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
+import { TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,31 +107,30 @@ export function MainModeView(
         >
           {
             props.tabsPathAry.map((pathAry, idx) => {
-              return <>
-                <div
-                  style={
-                    {
-                      border: (idx === currentPaneIndex) ? '2px solid #ff0000' : '2px solid #ffffff',
-                      overflow: 'auto',
-                    }
+              return <div
+                style={
+                  {
+                    border: (idx === currentPaneIndex) ? '2px solid #ff0000' : '2px solid #ffffff',
+                    overflow: 'auto',
                   }
-                  onFocus={() => { setCurrentPaneIndex(idx); }}
-                >
-                  <PaneTabs
-                    height={paneHeight}
-                    pathAry={pathAry}
-                    tabColorSetting={props.tabColorSetting}
-                    onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
-                    onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
-                    onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
-                    getOppositePath={getOppositePath}
-                    addLogMessage={addLogMessage}
-                    separator={separator}
-                    gridRef={grid[idx]}
-                    focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
-                  />
-                </div>
-              </>
+                }
+                onFocus={() => { setCurrentPaneIndex(idx); }}
+                key={'Tabs' + idx}
+              >
+                <PaneTabs
+                  height={paneHeight}
+                  pathAry={pathAry}
+                  tabColorSetting={props.tabColorSetting}
+                  onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                  onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
+                  onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
+                  getOppositePath={getOppositePath}
+                  addLogMessage={addLogMessage}
+                  separator={separator}
+                  gridRef={grid[idx]}
+                  focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
+                />
+              </div>
             })
           }
           <CommandBar

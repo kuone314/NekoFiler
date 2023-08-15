@@ -210,6 +210,7 @@ export function TabColorSettingPane(
                   color: setting.color.string,
                 }}
                 onClick={() => { setActiveIdx(idx) }}
+                key={'Setting' + idx}
               >
                 {setting.name}
               </Button>

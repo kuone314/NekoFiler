@@ -59,7 +59,7 @@ const App = () => {
     }
   };
 
-  return <body
+  return <div
     css={css({
       width: '100%',
       height: 'aplHeight',
@@ -68,7 +68,7 @@ const App = () => {
     })}
   >
     {viewImpl()}
-  </body >
+  </div >
 }
 
 export default App;

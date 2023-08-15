@@ -450,7 +450,7 @@ export function FileList(
       </thead>
       {
         entries.map((entry, idx) => {
-          return <>
+          return <tbody key={'LIst' + idx}>
             <tr
               ref={(idx === currentIndex) ? current_row : null}
               onMouseDown={(event) => { onMouseDown(idx, event) }}
@@ -464,7 +464,7 @@ export function FileList(
               <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
               <td css={table_border}>{entry.date}</td>
             </tr>
-          </>
+          </tbody>
         })
       }
     </table>
@@ -474,7 +474,7 @@ export function FileList(
       onMouseUp={(event) => { onMouseUp(entries.length) }}
       onMouseMove={(event) => { onMouseMove(entries.length, event) }}
     >. </div>
-  </div>
+  </div >
 
   return [element, functions];
 }
