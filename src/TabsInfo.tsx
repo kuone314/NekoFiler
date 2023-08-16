@@ -17,7 +17,6 @@ export interface TabsInfo {
 const last_opend_setting_file_name = "last_opend.json5";
 const last_opend_setting_current_version = 1;
 
-const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
 const defaultDir = await invoke<string>("get_exe_dir", {});
 
 function IsValid(tabInfo: TabInfo) {
@@ -27,10 +26,12 @@ function IsValid(tabInfo: TabInfo) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function ReadLastOpenedTabs() {
+export async function ReadLastOpenedTabs() {
   const defaultTabInfo = { pathAry: [{ path: defaultDir, pined: false }], activeTabIndex: 0 }
 
   try {
+    const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
+
     let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabsInfo[], };
     if (result.data.length !== 2) {
       return [{ ...defaultTabInfo }, { ...defaultTabInfo }];
