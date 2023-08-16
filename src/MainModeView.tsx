@@ -50,7 +50,7 @@ export function MainModeView(
     newTabsPathAry[paneIndex].activeTabIndex = newTabIdx;
 
     setTabsPathAry(newTabsPathAry);
-    WriteLastOpenedTabs(tabsPathAry);
+    WriteLastOpenedTabs(newTabsPathAry);
   }
 
   const getOppositePath = () => {
