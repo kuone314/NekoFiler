@@ -38,6 +38,7 @@ export const MainPanel = (
   }
 ) => {
   const [dir, setDir] = useState<string>(props.initPath);
+  useEffect(() => { setDir(props.initPath) }, [props.initPath]);
   const [entries, setEntries] = useState<Entries | null>(null);
   const [initCurrentItemHint, setInitSelectItemHint] = useState<string>('');
 
