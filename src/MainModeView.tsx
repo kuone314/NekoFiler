@@ -13,6 +13,7 @@ import { LogMessagePein } from './LogMessagePane';
 import { TabColorSetting } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
+import { BookMarkPane } from './BookMarkPane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +51,19 @@ export function MainModeView(
     newTabsPathAry[paneIndex].activeTabIndex = newTabIdx;
 
     setTabsPathAry(newTabsPathAry);
+    WriteLastOpenedTabs(newTabsPathAry);
+  }
+
+  const addTab = (dir: string) => {
+    const newTabsPathAry = [...tabsPathAry];
+
+    const tabsInfo = newTabsPathAry[currentPaneIndex];
+
+    const pathAry = tabsInfo.pathAry;
+    const tabIdx = tabsInfo.activeTabIndex;
+    pathAry.splice(tabIdx + 1, 0, { path: dir, pined: false });
+
+    setTabsPathAry(newTabsPathAry)
     WriteLastOpenedTabs(newTabsPathAry);
   }
 
@@ -103,11 +117,19 @@ export function MainModeView(
       <div
         css={css({
           display: 'grid',
-          gridTemplateColumns: '0.8fr 0.2fr', // panes options
+          gridTemplateColumns: '0.2fr 0.6fr 0.2fr', // bookmark panes options
           height: 'aplHeight',
           overflow: 'auto',
         })}
       >
+        <div>
+          <BookMarkPane
+            height={props.height}
+            colorSetting={props.tabColorSetting}
+            currendDir={getPath()}
+            accessDirectry={addTab}
+          />
+        </div>
         <div
           css={css({
             display: 'grid',
