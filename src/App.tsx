@@ -35,14 +35,11 @@ const App = () => {
     })()
   }, []);
 
-  const tabsPathAry = useRef<TabsInfo[]>(ReadLastOpenedTabs());
-
   const viewImpl = () => {
     switch (mode) {
       case Mode.main:
         return <MainModeView
           height={aplHeight}
-          tabsPathAry={tabsPathAry.current}
           tabColorSetting={tabColorSetting}
           setTabColor={() => setMode(Mode.setTabColor)}
         />

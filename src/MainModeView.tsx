@@ -12,7 +12,7 @@ import { css } from '@emotion/react'
 import { LogMessagePein } from './LogMessagePane';
 import { TabColorSetting } from './TabColorSetting';
 
-import { TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
+import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,13 +24,18 @@ function GetActive(tab_info: TabsInfo) {
 export function MainModeView(
   props: {
     height: number,
-    tabsPathAry: TabsInfo[],
     tabColorSetting: TabColorSetting[],
     setTabColor: () => void,
   }
 ) {
+  const [tabsPathAry, setTabsPathAry] = useState<TabsInfo[]>([]);
+  useEffect(() => {
+    (async () => { setTabsPathAry(await ReadLastOpenedTabs()) })()
+  }, []);
+
+
   const getPath = () => {
-    return GetActive(props.tabsPathAry[currentPaneIndex]).path;
+    return GetActive(tabsPathAry[currentPaneIndex]).path;
   }
 
   const [currentPaneIndex, setCurrentPaneIndex] = useState(0);
@@ -38,15 +43,18 @@ export function MainModeView(
   const onTabsChanged = (newTabs: TabInfo[], newTabIdx: number, paneIndex: number) => {
     setCurrentPaneIndex(paneIndex);
 
-    props.tabsPathAry[paneIndex].pathAry = newTabs;
-    props.tabsPathAry[paneIndex].activeTabIndex = newTabIdx;
+    const newTabsPathAry = [...tabsPathAry];
 
-    WriteLastOpenedTabs(props.tabsPathAry);
+    newTabsPathAry[paneIndex].pathAry = newTabs;
+    newTabsPathAry[paneIndex].activeTabIndex = newTabIdx;
+
+    setTabsPathAry(newTabsPathAry);
+    WriteLastOpenedTabs(tabsPathAry);
   }
 
   const getOppositePath = () => {
     const oppositeIndex = (currentPaneIndex + 1) % 2;
-    return GetActive(props.tabsPathAry[oppositeIndex]).path;
+    return GetActive(tabsPathAry[oppositeIndex]).path;
   }
 
   const [itemNums, setItemNums] = useState<number[]>([0, 0]);
@@ -106,7 +114,7 @@ export function MainModeView(
           })}
         >
           {
-            props.tabsPathAry.map((pathAry, idx) => {
+            tabsPathAry.map((pathAry, idx) => {
               return <div
                 style={
                   {
