@@ -78,6 +78,7 @@ export function BookMarkPane(
     return css({
       background: setting.color.backGround,
       color: setting.color.string,
+      border: '1px solid ' + setting.color.string,
     })
   };
 
@@ -88,7 +89,7 @@ export function BookMarkPane(
     >Add Current Dir</button>
     {
       bookMarkItemAry.map((bookMarkItem, idx) => {
-        return <tr
+        return <div
           css={[
             tabColor(bookMarkItem.path),
           ]}
@@ -96,7 +97,7 @@ export function BookMarkPane(
           key={'BookmarkItem' + idx}
         >
           {bookMarkItem.name}
-        </tr>
+        </div>
       })
     }
   </>
