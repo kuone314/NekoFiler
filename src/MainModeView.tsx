@@ -35,6 +35,7 @@ export function MainModeView(
 
 
   const getPath = () => {
+    if (tabsPathAry.length === 0) { return ''; }
     return GetActive(tabsPathAry[currentPaneIndex]).path;
   }
 
@@ -53,6 +54,7 @@ export function MainModeView(
   }
 
   const getOppositePath = () => {
+    if (tabsPathAry.length === 0) { return ''; }
     const oppositeIndex = (currentPaneIndex + 1) % 2;
     return GetActive(tabsPathAry[oppositeIndex]).path;
   }
