@@ -57,11 +57,14 @@ export function MainModeView(
   const addTab = (dir: string) => {
     const newTabsPathAry = [...tabsPathAry];
 
-    const tabsInfo = newTabsPathAry[currentPaneIndex];
+    const tabsInfo = { ...newTabsPathAry[currentPaneIndex] };
 
     const pathAry = tabsInfo.pathAry;
     const tabIdx = tabsInfo.activeTabIndex;
     pathAry.splice(tabIdx + 1, 0, { path: dir, pined: false });
+    tabsInfo.activeTabIndex = tabIdx + 1;
+
+    newTabsPathAry[currentPaneIndex] = tabsInfo
 
     setTabsPathAry(newTabsPathAry)
     WriteLastOpenedTabs(newTabsPathAry);
