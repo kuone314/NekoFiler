@@ -19,6 +19,8 @@ import { basename, normalize } from '@tauri-apps/api/path';
 
 import { executeShellCommand } from './RustFuncs';
 
+ const dummy: never[] = [];
+ 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
   props: {
@@ -226,7 +228,7 @@ export const MainPanel = (
 
   const [fileList, FileListFunctions] = FileList(
     {
-      entries: entries ?? [],
+      entries: entries ?? dummy,
       initCurrentItemHint: initCurrentItemHint,
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
