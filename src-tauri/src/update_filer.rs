@@ -9,7 +9,7 @@ use tempdir::TempDir;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
-pub fn update_filer() -> Result<(), String> {
+pub fn update_filer(version: &str) -> Result<(), String> {
     let work_dir = TempDir::new_in(
         &crate::setting_file::setting_dir().ok_or("Setting dir unfound.")?,
         "UpdateTemp",
@@ -18,7 +18,8 @@ pub fn update_filer() -> Result<(), String> {
     .ok_or("Fail temp dir create.")?;
     let work_dir_path = work_dir.path();
 
-    let downloaded_exe_path = download_latest(&work_dir_path).ok_or("Failed download latest.")?;
+    let downloaded_exe_path =
+        download_latest(&version, &work_dir_path).ok_or("Failed download latest.")?;
 
     kick_replace_shell_command(&work_dir_path, &downloaded_exe_path)?;
 
@@ -47,7 +48,8 @@ fn get_release_page_htlm() -> Option<String> {
     Some(String::from_utf8(data).ok()?)
 }
 
-fn get_latest_version() -> Option<String> {
+#[tauri::command]
+pub fn get_latest_version() -> Option<String> {
     let html = get_release_page_htlm()?;
     let key_text_front = r#"kuone314/AMATERASU-Filer/releases/tag/"#;
     let found = html.find(key_text_front)?;
@@ -59,9 +61,7 @@ fn get_latest_version() -> Option<String> {
     Some(remain[..found].to_owned())
 }
 
-fn download_latest(work_dir_path: &Path) -> Option<PathBuf> {
-    let latest_version = get_latest_version()?;
-
+fn download_latest(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf> {
     let download_command = format!(
         "{}{}{}",
         r#"curl.exe -sLJO https://github.com/kuone314/AMATERASU-Filer/releases/download/"#,

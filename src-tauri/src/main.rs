@@ -27,6 +27,7 @@ use execute_shell_command::execute_shell_command;
 use execute_shell_command::push_log_message;
 
 mod update_filer;
+use update_filer::get_latest_version;
 use update_filer::update_filer;
 
 fn main() {
@@ -38,6 +39,7 @@ fn main() {
             read_setting_file,
             write_setting_file,
             get_exe_dir,
+            get_latest_version,
             update_filer,
         ])
         .setup(|app| {

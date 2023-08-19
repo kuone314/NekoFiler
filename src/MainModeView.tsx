@@ -108,8 +108,12 @@ export function MainModeView(
   };
 
   const Update = () => {
-    invoke<void>("update_filer", {}).catch(
-      message => addLogMessage(message))
+    (async () => {
+      const version = await invoke<string>("get_latest_version", {})
+        .catch(() => "");
+      invoke<void>("update_filer", { version }).catch(
+        message => addLogMessage(message))
+    })()
   }
 
   const commandBarHeight = 60; // とりあえず固定で。
