@@ -31,14 +31,13 @@ export const PaneTabs = (
     gridRef?: React.RefObject<HTMLDivElement>,
   },
 ) => {
-  const [tabAry, setTabAry] = useState<TabInfo[]>(props.pathAry.pathAry);
-  const [activeTabIdx, setActiveTabIdx] = useState<number>(props.pathAry.activeTabIndex);
-
+  const tabAry = props.pathAry.pathAry;
+  const activeTabIdx = props.pathAry.activeTabIndex;
+  
   const addNewTab = (addPosIdx: number, newTabPath: string) => {
-    let newTabAry = Array.from(tabAry);
+    let newTabAry = Array.from(props.pathAry.pathAry);
     newTabAry.splice(addPosIdx + 1, 0, { path: newTabPath, pined: false });
-    setTabAry(newTabAry);
-    setActiveTabIdx(addPosIdx + 1);
+    props.onTabsChanged(newTabAry, addPosIdx + 1);
   }
   const removeTab = (trgIdx: number) => {
     if (tabAry.length === 1) { return; }
@@ -47,30 +46,25 @@ export const PaneTabs = (
 
     let newTabAry = Array.from(tabAry);
     newTabAry.splice(trgIdx, 1);
-    setTabAry(newTabAry);
 
-    if (activeTabIdx >= newTabAry.length) {
-      setActiveTabIdx(newTabAry.length - 1);
-    }
+    const newTabIdx = (activeTabIdx >= newTabAry.length) ? newTabAry.length - 1 : activeTabIdx;
+    props.onTabsChanged(newTabAry, newTabIdx);
   }
   const changeTab = (offset: number) => {
     const new_val = (activeTabIdx + offset + tabAry.length) % tabAry.length;
-    setActiveTabIdx(new_val);
+    props.onTabsChanged(tabAry, new_val);
   }
   const togglePined = (idx: number) => {
     let newTabAry = Array.from(tabAry);
     newTabAry[idx].pined = !newTabAry[idx].pined;
-    setTabAry(newTabAry);
+    props.onTabsChanged(newTabAry, activeTabIdx);
   }
 
   const onPathChanged = (newPath: string) => {
     tabAry[activeTabIdx].path = newPath
-    setTabAry(Array.from(tabAry));
+    props.onTabsChanged(Array.from(tabAry), activeTabIdx);
   }
 
-  useEffect(() => {
-    props.onTabsChanged(tabAry, activeTabIdx);
-  }, [tabAry, activeTabIdx]);
 
   const pathToTabName = (tab: TabInfo) => {
     const pinedPrefix = tab.pined ? "*:" : "";
@@ -106,7 +100,7 @@ export const PaneTabs = (
       >
         <div css={css({ textTransform: 'none' })}>
           {
-            tabAry.map((tab, idx) => {
+            props.pathAry.pathAry.map((tab, idx) => {
               return <Button
                 css={[
                   css({
@@ -116,9 +110,9 @@ export const PaneTabs = (
                     margin: '1pt',
                     minWidth: '5pt'
                   }),
-                  tabColor(idx === activeTabIdx, tab.path),
+                  tabColor(idx === props.pathAry.activeTabIndex, tab.path),
                 ]}
-                onClick={() => { setActiveTabIdx(idx) }}
+                onClick={() => { props.onTabsChanged(tabAry, idx) }}
                 onDoubleClick={() => togglePined(idx)}
                 onAuxClick={() => { removeTab(idx) }}
                 defaultValue={pathToTabName(tab)}
