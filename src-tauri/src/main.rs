@@ -26,8 +26,9 @@ mod execute_shell_command;
 use execute_shell_command::execute_shell_command;
 use execute_shell_command::push_log_message;
 
+mod get_latest_version;
 mod update_filer;
-use update_filer::get_latest_version;
+use get_latest_version::get_latest_version;
 use update_filer::update_filer;
 
 fn main() {
