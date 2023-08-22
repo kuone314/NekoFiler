@@ -113,7 +113,8 @@ export function MainModeView(
   }
 
   const commandBarHeight = 60; // とりあえず固定で。
-  const paneHeight = ((props.height - commandBarHeight) / 2);
+  const borderThickness = 2;
+  const paneHeight = ((props.height - commandBarHeight) / 2) - (borderThickness * 2);
 
   return (
     <>
@@ -121,7 +122,6 @@ export function MainModeView(
         css={css({
           display: 'grid',
           gridTemplateColumns: '0.2fr 0.6fr 0.2fr', // bookmark panes options
-          height: 'aplHeight',
           overflow: 'auto',
         })}
       >
@@ -137,7 +137,6 @@ export function MainModeView(
           css={css({
             display: 'grid',
             gridTemplateRows: 'auto auto auto', // Pane Pane commandBar
-            height: 'aplHeight',
           })}
         >
           {
