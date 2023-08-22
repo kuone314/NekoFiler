@@ -93,6 +93,9 @@ export function TabColorSettingPane(
       <label>
         Name
         <input
+          css={css({
+            width: '100%',
+          })}
           type="Name"
           value={setting.name}
           onChange={e => {
@@ -148,8 +151,11 @@ export function TabColorSettingPane(
           }}
         />
         <input
+          css={css({
+            width: '100%',
+          })}
           type="text"
-          value={setting.match.string}
+          value={tabColorSetting[activeIdx].match.string}
           onChange={e => {
             const newSetting = [...tabColorSetting]
             newSetting[activeIdx].match.string = e.target.value;
