@@ -6,8 +6,8 @@
 #[macro_use]
 extern crate serde;
 
-use tauri::Manager;
 use std::time::Duration;
+use tauri::Manager;
 
 mod get_exe_dir;
 use get_exe_dir::get_exe_dir;
