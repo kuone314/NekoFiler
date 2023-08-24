@@ -18,9 +18,16 @@ pub fn update_filer(version: &str) -> Result<(), String> {
     .ok_or("Fail temp dir create.")?;
     let work_dir_path = work_dir.path();
 
-    let downloaded_exe_path =
-        download_filer(&version, &work_dir_path).ok_or("Failed download latest.")?;
+    let error_msg = format!(
+        r#"
+Failed download versiont {}
+See https://github.com/kuone314/AMATERASU-Filer/releases
+"#,
+        &version
+    );
 
+    let downloaded_exe_path =
+        download_filer(&version, &work_dir_path).ok_or(error_msg)?;
     kick_replace_shell_command(&work_dir_path, &downloaded_exe_path)?;
 
     std::process::exit(0);
