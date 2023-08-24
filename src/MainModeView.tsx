@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api';
 import React from 'react';
 
 import CommandBar from './CommandBar';
@@ -14,6 +13,7 @@ import { TabColorSetting } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
+import { Updater } from './Updater';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,14 +107,7 @@ export function MainModeView(
     logMessagePeinFunc.addMessage(message);
   };
 
-  const Update = () => {
-    (async () => {
-      const version = await invoke<string>("get_latest_version", {})
-        .catch(() => "");
-      invoke<void>("update_filer", { version }).catch(
-        message => addLogMessage(message))
-    })()
-  }
+  const [updateDlg, Update] = Updater(addLogMessage);
 
   const commandBarHeight = 60; // とりあえず固定で。
   const borderThickness = 2;
@@ -122,6 +115,7 @@ export function MainModeView(
 
   return (
     <>
+      {updateDlg}
       <div
         css={css({
           display: 'grid',
