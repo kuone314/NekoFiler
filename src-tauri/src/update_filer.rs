@@ -19,7 +19,7 @@ pub fn update_filer(version: &str) -> Result<(), String> {
     let work_dir_path = work_dir.path();
 
     let downloaded_exe_path =
-        download_latest(&version, &work_dir_path).ok_or("Failed download latest.")?;
+        download_filer(&version, &work_dir_path).ok_or("Failed download latest.")?;
 
     kick_replace_shell_command(&work_dir_path, &downloaded_exe_path)?;
 
@@ -27,7 +27,7 @@ pub fn update_filer(version: &str) -> Result<(), String> {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-fn download_latest(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf> {
+fn download_filer(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf> {
     let download_command = format!(
         "{}{}{}",
         r#"curl.exe -sLJO https://github.com/kuone314/AMATERASU-Filer/releases/download/"#,
