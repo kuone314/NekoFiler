@@ -44,6 +44,12 @@ fn download_filer(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf>
     if !downloaded_exe_path.is_file() {
         return None;
     }
+
+    let content = fs::read_to_string(downloaded_exe_path);
+    if content.is_ok() && content.ok()? == "Not Found" {
+        return None;
+    }
+
     Some(downloaded_exe_path.to_owned())
 }
 
