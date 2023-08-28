@@ -93,7 +93,7 @@ export function BookMarkPane(
           css={[
             tabColor(bookMarkItem.path),
           ]}
-          onClick={() => props.accessDirectry(bookMarkItem.path)}
+          onDoubleClick={() => props.accessDirectry(bookMarkItem.path)}
           key={'BookmarkItem' + idx}
         >
           {bookMarkItem.name}
