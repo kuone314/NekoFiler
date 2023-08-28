@@ -6,8 +6,8 @@
 #[macro_use]
 extern crate serde;
 
-use tauri::Manager;
 use std::time::Duration;
+use tauri::Manager;
 
 mod get_exe_dir;
 use get_exe_dir::get_exe_dir;
@@ -26,7 +26,9 @@ mod execute_shell_command;
 use execute_shell_command::execute_shell_command;
 use execute_shell_command::push_log_message;
 
+mod get_latest_version;
 mod update_filer;
+use get_latest_version::get_latest_version;
 use update_filer::update_filer;
 
 fn main() {
@@ -38,6 +40,7 @@ fn main() {
             read_setting_file,
             write_setting_file,
             get_exe_dir,
+            get_latest_version,
             update_filer,
         ])
         .setup(|app| {

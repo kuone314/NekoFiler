@@ -9,7 +9,7 @@ use tempdir::TempDir;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
-pub fn update_filer() -> Result<(), String> {
+pub fn update_filer(version: &str) -> Result<(), String> {
     let work_dir = TempDir::new_in(
         &crate::setting_file::setting_dir().ok_or("Setting dir unfound.")?,
         "UpdateTemp",
@@ -18,50 +18,23 @@ pub fn update_filer() -> Result<(), String> {
     .ok_or("Fail temp dir create.")?;
     let work_dir_path = work_dir.path();
 
-    let downloaded_exe_path = download_latest(&work_dir_path).ok_or("Failed download latest.")?;
+    let error_msg = format!(
+        r#"
+Failed download versiont {}
+See https://github.com/kuone314/AMATERASU-Filer/releases
+"#,
+        &version
+    );
 
+    let downloaded_exe_path =
+        download_filer(&version, &work_dir_path).ok_or(error_msg)?;
     kick_replace_shell_command(&work_dir_path, &downloaded_exe_path)?;
 
     std::process::exit(0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-fn get_release_page_htlm() -> Option<String> {
-    use curl::easy::Easy;
-
-    let mut data = Vec::new();
-    let mut handle = Easy::new();
-    handle
-        .url("https://github.com/kuone314/AMATERASU-Filer/releases")
-        .unwrap();
-    {
-        let mut transfer = handle.transfer();
-        transfer
-            .write_function(|new_data| {
-                data.extend_from_slice(new_data);
-                Ok(new_data.len())
-            })
-            .unwrap();
-        transfer.perform().unwrap();
-    }
-    Some(String::from_utf8(data).ok()?)
-}
-
-fn get_latest_version() -> Option<String> {
-    let html = get_release_page_htlm()?;
-    let key_text_front = r#"kuone314/AMATERASU-Filer/releases/tag/"#;
-    let found = html.find(key_text_front)?;
-
-    let remain = &html[found + key_text_front.len()..];
-
-    let key_text_back = r#"""#;
-    let found = remain.find(key_text_back)?;
-    Some(remain[..found].to_owned())
-}
-
-fn download_latest(work_dir_path: &Path) -> Option<PathBuf> {
-    let latest_version = get_latest_version()?;
-
+fn download_filer(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf> {
     let download_command = format!(
         "{}{}{}",
         r#"curl.exe -sLJO https://github.com/kuone314/AMATERASU-Filer/releases/download/"#,
@@ -78,6 +51,12 @@ fn download_latest(work_dir_path: &Path) -> Option<PathBuf> {
     if !downloaded_exe_path.is_file() {
         return None;
     }
+
+    let content = fs::read_to_string(downloaded_exe_path);
+    if content.is_ok() && content.ok()? == "Not Found" {
+        return None;
+    }
+
     Some(downloaded_exe_path.to_owned())
 }
 
