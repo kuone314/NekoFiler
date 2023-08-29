@@ -4,6 +4,7 @@ import React from 'react';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
+import { CurrentVersion } from './CurrentVersion';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +48,10 @@ export function Updater(
     >
       <div
       >
+        {"Current:" + CurrentVersion()}
+      </div>
+      <div
+      >
         {"Latest:" + latestVersiton}
       </div>
       <div
@@ -65,7 +70,7 @@ export function Updater(
           onChange={e => { setTargetVersiton(e.target.value) }}
         />
       </div>
-      <div css={css({ height: '30px', })}/>
+      <div css={css({ height: '30px', })} />
       {button()}
     </div>
   </dialog>
