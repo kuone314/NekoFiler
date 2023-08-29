@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Build project
         run: |
+          PowerShell -FIle scripts\SetVersion.ps1 ${{ github.ref }}
           npm install
           npm run tauri build
       - name: Create Release
