@@ -9,4 +9,5 @@ $replaceFrom = 'return "Develop";'
 $replaceTo = 'return "' + $version + '";'
 $replaced = $content.Replace($replaceFrom, $replaceTo )
 
-Write-Output $replaced > $trgFile
+$UTF8woBOM = New-Object "System.Text.UTF8Encoding" -ArgumentList @($false)
+[System.IO.File]::WriteAllLines($trgFile, $replaced, $UTF8woBOM)
