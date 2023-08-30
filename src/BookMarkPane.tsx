@@ -71,14 +71,16 @@ export function BookMarkPane(
     writeBookMarkItem(newBookMarkItemAry)
   }
 
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const tabColor = (path: string) => {
+  const tabColor = (path: string, isActive: boolean) => {
     const setting = props.colorSetting.find(setting => Match(setting, path));
     if (!setting) { return ``; }
+    const borderColor = isActive ? '#ff0000' : setting.color.backGround;
     return css({
       background: setting.color.backGround,
       color: setting.color.string,
-      border: '1px solid ' + setting.color.string,
+      border: '3px solid ' + borderColor,
     })
   };
 
@@ -91,8 +93,9 @@ export function BookMarkPane(
       bookMarkItemAry.map((bookMarkItem, idx) => {
         return <div
           css={[
-            tabColor(bookMarkItem.path),
+            tabColor(bookMarkItem.path, idx == currentIndex),
           ]}
+          onClick={() => setCurrentIndex(idx)}
           onDoubleClick={() => props.accessDirectry(bookMarkItem.path)}
           key={'BookmarkItem' + idx}
         >
