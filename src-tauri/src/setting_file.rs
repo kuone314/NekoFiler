@@ -15,11 +15,11 @@ pub fn write_setting_file(filename: &str, content: &str) -> Option<()> {
     file.write_all(content.as_bytes()).ok()
 }
 
+#[tauri::command]
 pub fn setting_dir() -> Option<std::path::PathBuf> {
     let dir_name = "AmaterasuFilerSettings";
 
     let current_dir = env::current_dir().ok()?;
-    // let result = std::path::PathBuf::from(dir_name);
     let result = current_dir.join(dir_name);
     if result.exists() {
         return Some(result);

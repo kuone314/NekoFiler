@@ -14,6 +14,7 @@ import { TabColorSetting } from './TabColorSetting';
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
 import { Updater } from './Updater';
+import { invoke } from '@tauri-apps/api/tauri';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,6 +114,12 @@ export function MainModeView(
   const borderThickness = 2;
   const paneHeight = ((props.height - commandBarHeight) / 2) - (borderThickness * 2);
 
+  async function OpenSettingDir(): Promise<void> {
+    const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
+    if (!settingDir) { addLogMessage("Get setting dir failed."); return; }
+    addTab(settingDir)
+  }
+
   return (
     <>
       {updateDlg}
@@ -173,7 +180,7 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.1fr 0.1fr 0.1fr auto 0.1fr', // button button button logPane statusBar
+            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr auto 0.1fr', // button button button button logPane statusBar
             height: '100%',
           })}
         >
@@ -192,6 +199,14 @@ export function MainModeView(
             })}
             onClick={() => props.setTabColor()}>
             Set Tab Color
+          </button>
+          <button
+            css={css({
+              width: '85pt',
+              padding: '10px',
+            })}
+            onClick={OpenSettingDir}>
+            Setting Dir
           </button>
           <button
             css={css({
