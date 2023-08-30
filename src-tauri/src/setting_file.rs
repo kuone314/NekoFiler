@@ -15,6 +15,7 @@ pub fn write_setting_file(filename: &str, content: &str) -> Option<()> {
     file.write_all(content.as_bytes()).ok()
 }
 
+#[tauri::command]
 pub fn setting_dir() -> Option<std::path::PathBuf> {
     let dir_name = "AmaterasuFilerSettings";
 

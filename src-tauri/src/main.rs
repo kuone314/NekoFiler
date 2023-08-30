@@ -17,6 +17,7 @@ use get_entries::get_entries;
 
 mod setting_file;
 use setting_file::read_setting_file;
+use setting_file::setting_dir;
 use setting_file::write_setting_file;
 
 mod adjust_addressbar_str;
@@ -39,6 +40,7 @@ fn main() {
             execute_shell_command,
             read_setting_file,
             write_setting_file,
+            setting_dir,
             get_exe_dir,
             get_latest_version,
             update_filer,
