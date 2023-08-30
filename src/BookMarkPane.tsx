@@ -46,6 +46,14 @@ export async function readBookMarkItem(): Promise<BookMarkItem[]> {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+function IsValidIndex<T>(
+  ary: T[],
+  idx: number
+) {
+  return 0 <= idx && idx < ary.length;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 export function BookMarkPane(
   props: {
     height: number
@@ -84,11 +92,51 @@ export function BookMarkPane(
     })
   };
 
+  function RemoveBookMark(trgIdx: number) {
+    if (!IsValidIndex(bookMarkItemAry, trgIdx)) { return; }
+    let newBookMarkItemAry = Array.from(bookMarkItemAry);
+    newBookMarkItemAry.splice(trgIdx, 1);
+    setBookMarkItemAry(newBookMarkItemAry);
+    writeBookMarkItem(newBookMarkItemAry);
+    if (!IsValidIndex(newBookMarkItemAry, currentIndex)) {
+      setCurrentIndex(Math.max(newBookMarkItemAry.length - 1, 0));
+    }
+  }
+  function MoveUpBookMark(trgIdx: number) {
+    if (!IsValidIndex(bookMarkItemAry, trgIdx)) { return; }
+    if (!IsValidIndex(bookMarkItemAry, trgIdx - 1)) { return; }
+    let newBookMarkItemAry = Array.from(bookMarkItemAry);
+    [newBookMarkItemAry[trgIdx], newBookMarkItemAry[trgIdx - 1]] = [newBookMarkItemAry[trgIdx - 1], newBookMarkItemAry[trgIdx]]
+    setBookMarkItemAry(newBookMarkItemAry);
+    writeBookMarkItem(newBookMarkItemAry);
+    setCurrentIndex(trgIdx - 1);
+  }
+  function Swap(isx_1: number, isx_2: number) {
+  }
+  function MoveDownBookMark(trgIdx: number) {
+    if (!IsValidIndex(bookMarkItemAry, trgIdx)) { return; }
+    if (!IsValidIndex(bookMarkItemAry, trgIdx + 1)) { return; }
+    let newBookMarkItemAry = Array.from(bookMarkItemAry);
+    [newBookMarkItemAry[trgIdx], newBookMarkItemAry[trgIdx + 1]] = [newBookMarkItemAry[trgIdx + 1], newBookMarkItemAry[trgIdx]]
+    setBookMarkItemAry(newBookMarkItemAry);
+    writeBookMarkItem(newBookMarkItemAry);
+    setCurrentIndex(trgIdx + 1);
+  }
+
   return <>
     <div>BookMark</div>
     <button
       onClick={() => { AddBookMark(props.currendDir) }}
     >Add Current Dir</button>
+    <button
+      onClick={() => { RemoveBookMark(currentIndex) }}
+    >-</button>
+    <button
+      onClick={() => { MoveUpBookMark(currentIndex) }}
+    >↑</button>
+    <button
+      onClick={() => { MoveDownBookMark(currentIndex) }}
+    >↓</button>
     {
       bookMarkItemAry.map((bookMarkItem, idx) => {
         return <div
