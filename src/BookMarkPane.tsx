@@ -111,8 +111,7 @@ export function BookMarkPane(
     writeBookMarkItem(newBookMarkItemAry);
     setCurrentIndex(trgIdx - 1);
   }
-  function Swap(isx_1: number, isx_2: number) {
-  }
+
   function MoveDownBookMark(trgIdx: number) {
     if (!IsValidIndex(bookMarkItemAry, trgIdx)) { return; }
     if (!IsValidIndex(bookMarkItemAry, trgIdx + 1)) { return; }
