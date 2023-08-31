@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
@@ -123,11 +123,27 @@ export function BookMarkPane(
     setCurrentIndex(trgIdx + 1);
   }
 
+  const [editDlg, EditStart] = BookMarkEditor(
+    (editedBookMarkItem: BookMarkItem) => {
+      let newBookMarkItemAry = Array.from(bookMarkItemAry);
+      newBookMarkItemAry[currentIndex] = editedBookMarkItem;
+      setBookMarkItemAry(newBookMarkItemAry);
+      writeBookMarkItem(newBookMarkItemAry);
+    }
+  );
+
   return <>
+    {editDlg}
     <div>BookMark</div>
     <button
       onClick={() => { AddBookMark(props.currendDir) }}
     >Add Current Dir</button>
+    <button
+      onClick={() => {
+        if (!IsValidIndex(bookMarkItemAry, currentIndex)) { return; }
+        EditStart(bookMarkItemAry[currentIndex])
+      }}
+    >Edit</button>
     <button
       onClick={() => { RemoveBookMark(currentIndex) }}
     >-</button>
@@ -152,4 +168,64 @@ export function BookMarkPane(
       })
     }
   </>
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export function BookMarkEditor(
+  onOk: (editedBookMarkItem: BookMarkItem) => void,
+): [JSX.Element, (srcBookMarkItem: BookMarkItem) => void,] {
+  const [name, setName] = useState('');
+  const [path, setPath] = useState('');
+
+
+  const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
+  const button = () => {
+    return <div
+      css={css({
+        marginLeft: 'auto',
+        marginRight: 'auto',
+      })}
+    >
+      <button
+        onClick={() => { onOk({ name, path }); dlg.current?.close() }}
+      >
+        Ok
+      </button>
+      <button
+        onClick={() => { dlg.current?.close() }}
+      >
+        Cancle
+      </button>
+    </div>
+  }
+
+  const dialogElement = <dialog ref={dlg}>
+    <div
+      css={css({
+        display: 'grid',
+        gridTemplateRows: 'auto auto auto auto',
+      })}
+    >
+      <input
+        type="text"
+        value={name}
+        onChange={e => { setName(e.target.value) }}
+      />
+      <input
+        type="text"
+        value={path}
+        onChange={e => { setPath(e.target.value) }}
+      />
+      <div css={css({ height: '30px', })} />
+      {button()}
+    </div>
+  </dialog>
+
+  const EditStart = (srcBookMarkItem: BookMarkItem) => {
+    setName(srcBookMarkItem.name);
+    setPath(srcBookMarkItem.path);
+    dlg.current?.showModal();
+  }
+
+  return [dialogElement, EditStart];
 }
