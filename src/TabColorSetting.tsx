@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api";
 
 import JSON5 from 'json5'
 import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
+import { css } from "@emotion/react";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabColorSetting {
@@ -87,11 +88,27 @@ function MatchImpl(setting: TabColorSetting, path: string): boolean {
   return false;
 }
 
-export function Match(setting: TabColorSetting, path: string): boolean {
+function Match(setting: TabColorSetting, path: string): boolean {
   const path_ary = Object.values(SEPARATOR)
     .map(separator => ApplySeparator(path, separator) + separator);
   return !!path_ary.find(path => MatchImpl(setting, path));
 }
+
+export function TabColor(
+  settings: TabColorSetting[],
+  borderWidth: number,
+  isActive: boolean,
+  path: string
+) {
+  const setting = settings.find(setting => Match(setting, path));
+  if (!setting) { return ``; }
+  const borderColor = (isActive) ? '#ff0000' : setting.color.backGround;
+  return css({
+    background: setting.color.backGround,
+    color: setting.color.string,
+    border: borderWidth + 'px solid ' + borderColor,
+  })
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function GenerateDefaultCommandSeting(): TabColorSetting[] {
