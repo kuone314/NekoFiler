@@ -10,7 +10,7 @@ import { SEPARATOR, separator, ApplySeparator } from './FilePathSeparator';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { Match, TabColorSetting, readTabColorSetting } from './TabColorSetting';
+import { TabColor, TabColorSetting, readTabColorSetting } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
@@ -33,7 +33,7 @@ export const PaneTabs = (
 ) => {
   const tabAry = props.pathAry.pathAry;
   const activeTabIdx = props.pathAry.activeTabIndex;
-  
+
   const addNewTab = (addPosIdx: number, newTabPath: string) => {
     let newTabAry = Array.from(props.pathAry.pathAry);
     newTabAry.splice(addPosIdx + 1, 0, { path: newTabPath, pined: false });
@@ -76,17 +76,6 @@ export const PaneTabs = (
     return pinedPrefix + dirName;
   }
 
-  const tabColor = (isActive: boolean, path: string) => {
-    const setting = props.tabColorSetting.find(setting => Match(setting, path));
-    if (!setting) { return ``; }
-    const borderColor = (isActive) ? '#ff0000' : setting.color.backGround;
-    return css({
-      border: '5px solid ' + borderColor,
-      background: setting.color.backGround,
-      color: setting.color.string,
-    })
-  };
-
   return (
     <>
       <div
@@ -110,7 +99,11 @@ export const PaneTabs = (
                     margin: '1pt',
                     minWidth: '5pt'
                   }),
-                  tabColor(idx === props.pathAry.activeTabIndex, tab.path),
+                  TabColor(
+                    props.tabColorSetting,
+                    5,
+                    idx === props.pathAry.activeTabIndex,
+                    tab.path),
                 ]}
                 onClick={() => { props.onTabsChanged(tabAry, idx) }}
                 onDoubleClick={() => togglePined(idx)}

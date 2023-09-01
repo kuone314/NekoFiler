@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { Match, TabColorMatchingType, TabColorSetting } from './TabColorSetting';
+import { TabColor, TabColorMatchingType, TabColorSetting } from './TabColorSetting';
 import { Button } from '@mui/material';
 import Select from 'react-select'
 
@@ -81,17 +81,6 @@ export function BookMarkPane(
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const tabColor = (path: string, isActive: boolean) => {
-    const setting = props.colorSetting.find(setting => Match(setting, path));
-    if (!setting) { return ``; }
-    const borderColor = isActive ? '#ff0000' : setting.color.backGround;
-    return css({
-      background: setting.color.backGround,
-      color: setting.color.string,
-      border: '3px solid ' + borderColor,
-    })
-  };
-
   function RemoveBookMark(trgIdx: number) {
     if (!IsValidIndex(bookMarkItemAry, trgIdx)) { return; }
     let newBookMarkItemAry = Array.from(bookMarkItemAry);
@@ -156,7 +145,11 @@ export function BookMarkPane(
       bookMarkItemAry.map((bookMarkItem, idx) => {
         return <div
           css={[
-            tabColor(bookMarkItem.path, idx == currentIndex),
+            TabColor(
+              props.colorSetting,
+              3,
+              idx == currentIndex,
+              bookMarkItem.path),
           ]}
           onClick={() => setCurrentIndex(idx)}
           onDoubleClick={() => props.accessDirectry(bookMarkItem.path)}
