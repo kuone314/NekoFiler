@@ -108,6 +108,16 @@ export function TabColorSettingPane(
       <label>
         BackGroundColor
         <input
+          type="text"
+          css={css({ width: '5em', })}
+          value={setting.color.backGround}
+          onChange={e => {
+            const newSetting = [...tabColorSetting]
+            newSetting[activeIdx].color.backGround = e.target.value;
+            setTabColorSetting([...newSetting])
+          }}
+        />
+        <input
           type="color"
           list="color-list"
           value={setting.color.backGround}
@@ -120,6 +130,16 @@ export function TabColorSettingPane(
       </label>
       <label>
         StringColor
+        <input
+          type="text"
+          css={css({ width: '5em', })}
+          value={setting.color.string}
+          onChange={e => {
+            const newSetting = [...tabColorSetting]
+            newSetting[activeIdx].color.string = e.target.value;
+            setTabColorSetting([...newSetting])
+          }}
+        />
         <input
           type="color"
           list="color-list"
