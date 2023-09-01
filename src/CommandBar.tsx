@@ -41,6 +41,7 @@ const CommandBar = (props: {
     }>
       <input
         type="text"
+        placeholder='Input PowerSehll command.(e.g. echo Foo)'
         value={str}
         onChange={e => setStr(e.target.value)}
         onKeyDown={onKeyDown}
