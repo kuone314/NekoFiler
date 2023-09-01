@@ -101,11 +101,11 @@ export function TabColor(
   path: string
 ) {
   const setting = settings.find(setting => Match(setting, path));
-  if (!setting) { return ``; }
-  const borderColor = (isActive) ? '#ff0000' : setting.color.backGround;
+  const colorSetting = setting?.color ?? { backGround: '#ffffff', string: '#000000' };
+  const borderColor = (isActive) ? '#ff0000' : colorSetting.backGround;
   return css({
-    background: setting.color.backGround,
-    color: setting.color.string,
+    background: colorSetting.backGround,
+    color: colorSetting.string,
     border: borderWidth + 'px solid ' + borderColor,
   })
 };
