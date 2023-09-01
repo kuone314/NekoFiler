@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 import { executeShellCommand } from './RustFuncs';
 
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react';
+
 type Entry = {
   type: 'dir' | 'file';
   name: string;
@@ -38,14 +41,13 @@ const CommandBar = (props: {
     }>
       <input
         type="text"
+        placeholder='Input PowerSehll command.(e.g. echo Foo)'
         value={str}
         onChange={e => setStr(e.target.value)}
         onKeyDown={onKeyDown}
-        style={
-          {
-            width: '96%',
-          }
-        }
+        css={css({
+          width: '96%',
+        })}
       />
     </div>
   );
