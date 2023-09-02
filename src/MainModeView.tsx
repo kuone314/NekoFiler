@@ -16,6 +16,7 @@ import { BookMarkPane } from './BookMarkPane';
 import { Updater } from './Updater';
 import { invoke } from '@tauri-apps/api/tauri';
 
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function GetActive(tab_info: TabsInfo) {
@@ -120,6 +121,20 @@ export function MainModeView(
     addTab(settingDir)
   }
 
+  function ErrorFallback({
+    error,
+    resetErrorBoundary }: FallbackProps
+  ) {
+    console.log("erro");
+    return (
+      <div>
+        <h3>Error</h3>
+        <p>{error.message}</p>
+        <button onClick={resetErrorBoundary}>Reload</button>
+      </div>
+    );
+  }
+
   return (
     <>
       {updateDlg}
@@ -131,12 +146,14 @@ export function MainModeView(
         })}
       >
         <div>
-          <BookMarkPane
-            height={props.height}
-            colorSetting={props.tabColorSetting}
-            currendDir={getPath()}
-            accessDirectry={addTab}
-          />
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <BookMarkPane
+              height={props.height}
+              colorSetting={props.tabColorSetting}
+              currendDir={getPath()}
+              accessDirectry={addTab}
+            />
+          </ErrorBoundary>
         </div>
         <div
           css={css({
@@ -156,19 +173,21 @@ export function MainModeView(
                 onFocus={() => { setCurrentPaneIndex(idx); }}
                 key={'Tabs' + idx}
               >
-                <PaneTabs
-                  height={paneHeight}
-                  pathAry={pathAry}
-                  tabColorSetting={props.tabColorSetting}
-                  onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
-                  onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
-                  onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
-                  getOppositePath={getOppositePath}
-                  addLogMessage={addLogMessage}
-                  separator={separator}
-                  gridRef={grid[idx]}
-                  focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
-                />
+                <ErrorBoundary FallbackComponent={ErrorFallback}>
+                  <PaneTabs
+                    height={paneHeight}
+                    pathAry={pathAry}
+                    tabColorSetting={props.tabColorSetting}
+                    onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                    onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
+                    onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
+                    getOppositePath={getOppositePath}
+                    addLogMessage={addLogMessage}
+                    separator={separator}
+                    gridRef={grid[idx]}
+                    focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
+                  />
+                </ErrorBoundary>
               </div>
             })
           }
