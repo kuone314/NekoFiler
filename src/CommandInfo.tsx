@@ -83,6 +83,12 @@ export class CommandInfoVersiton {
   static latest = CommandInfoVersiton.read_script_from_file;
 }
 
+export async function writeCommandsSetting(setting: CommandInfo[]) {
+  const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: setting }, null, 2);
+  await invoke<String>(
+    "write_setting_file", { filename: "key_bind.json5", content: data });
+}
+
 export async function readCommandsSetting(): Promise<CommandInfo[]> {
   const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" })
     .catch(_ => "");
