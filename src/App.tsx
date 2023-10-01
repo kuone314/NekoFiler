@@ -9,12 +9,14 @@ import { TabColorSetting, readTabColorSetting, writeTabColorSetting } from './Ta
 import { TabColorSettingPane } from './TabColorSettingPane';
 
 import { ReadLastOpenedTabs, TabsInfo } from './TabsInfo';
+import { KeyBindSettingPane } from './KeyBindSettingPane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const Mode = {
   main: "main",
   setTabColor: "setTabColor",
+  setKeyBindSettings: "setKeyBindSettings",
 } as const;
 type Mode = typeof Mode[keyof typeof Mode];
 
@@ -42,6 +44,7 @@ const App = () => {
           height={aplHeight}
           tabColorSetting={tabColorSetting}
           setTabColor={() => setMode(Mode.setTabColor)}
+          setKeyBind={() => setMode(Mode.setKeyBindSettings)}
         />
       case Mode.setTabColor:
         return <TabColorSettingPane
@@ -51,6 +54,11 @@ const App = () => {
             setTabColorSetting(setting);
             writeTabColorSetting(setting);
           }}
+          finishSetting={() => setMode(Mode.main)}
+        />
+      case Mode.setKeyBindSettings:
+        return <KeyBindSettingPane
+          height={aplHeight - 20}
           finishSetting={() => setMode(Mode.main)}
         />
     }
