@@ -10,7 +10,7 @@ import { css } from '@emotion/react'
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
-import {GenerateDefaultCommandSeting} from './DefaultCommandSettins';
+import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const COMMAND_TYPE = {
@@ -18,6 +18,30 @@ export const COMMAND_TYPE = {
   power_shell: "power_shell",
 } as const;
 type CommandType = typeof COMMAND_TYPE[keyof typeof COMMAND_TYPE];
+
+export const BUILDIN_COMMAND_TYPE = {
+  accessCurrentItem: 'accessCurrentItem',
+  accessParentDir: 'accessParentDir',
+  moveUp: 'moveUp',
+  moveUpSelect: 'moveUpSelect',
+  moveDown: 'moveDown',
+  moveDownSelect: 'moveDownSelect',
+  moveTop: 'moveTop',
+  moveTopSelect: 'moveTopSelect',
+  moveBottom: 'moveBottom',
+  moveBottomSelect: 'moveBottomSelect',
+  selectAll: 'selectAll',
+  clearSelection: 'clearSelection',
+  toggleSelection: 'toggleSelection',
+  selectCurrentOnly: 'selectCurrentOnly',
+  addNewTab: 'addNewTab',
+  removeTab: 'removeTab',
+  toPrevTab: 'toPrevTab',
+  toNextTab: 'toNextTab',
+  focusAddoressBar: 'focusAddoressBar',
+  focusOppositePane: 'focusOppositePane',
+} as const;
+export type BuildinCommandType = typeof BUILDIN_COMMAND_TYPE[keyof typeof BUILDIN_COMMAND_TYPE];
 
 export const DIALOG_TYPE = {
   none: "none",
