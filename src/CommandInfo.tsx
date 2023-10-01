@@ -17,7 +17,7 @@ export const COMMAND_TYPE = {
   build_in: "build_in",
   power_shell: "power_shell",
 } as const;
-type CommandType = typeof COMMAND_TYPE[keyof typeof COMMAND_TYPE];
+export type CommandType = typeof COMMAND_TYPE[keyof typeof COMMAND_TYPE];
 
 export const BUILDIN_COMMAND_TYPE = {
   accessCurrentItem: 'accessCurrentItem',
