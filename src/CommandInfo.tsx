@@ -10,14 +10,38 @@ import { css } from '@emotion/react'
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
-import {GenerateDefaultCommandSeting} from './DefaultCommandSettins';
+import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const COMMAND_TYPE = {
   build_in: "build_in",
   power_shell: "power_shell",
 } as const;
-type CommandType = typeof COMMAND_TYPE[keyof typeof COMMAND_TYPE];
+export type CommandType = typeof COMMAND_TYPE[keyof typeof COMMAND_TYPE];
+
+export const BUILDIN_COMMAND_TYPE = {
+  accessCurrentItem: 'accessCurrentItem',
+  accessParentDir: 'accessParentDir',
+  moveUp: 'moveUp',
+  moveUpSelect: 'moveUpSelect',
+  moveDown: 'moveDown',
+  moveDownSelect: 'moveDownSelect',
+  moveTop: 'moveTop',
+  moveTopSelect: 'moveTopSelect',
+  moveBottom: 'moveBottom',
+  moveBottomSelect: 'moveBottomSelect',
+  selectAll: 'selectAll',
+  clearSelection: 'clearSelection',
+  toggleSelection: 'toggleSelection',
+  selectCurrentOnly: 'selectCurrentOnly',
+  addNewTab: 'addNewTab',
+  removeTab: 'removeTab',
+  toPrevTab: 'toPrevTab',
+  toNextTab: 'toNextTab',
+  focusAddoressBar: 'focusAddoressBar',
+  focusOppositePane: 'focusOppositePane',
+} as const;
+export type BuildinCommandType = typeof BUILDIN_COMMAND_TYPE[keyof typeof BUILDIN_COMMAND_TYPE];
 
 export const DIALOG_TYPE = {
   none: "none",
@@ -57,6 +81,12 @@ export class CommandInfoVersiton {
   static add_valid_on_addressbar = 2;
   static read_script_from_file = 3;
   static latest = CommandInfoVersiton.read_script_from_file;
+}
+
+export async function writeCommandsSetting(setting: CommandInfo[]) {
+  const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: setting }, null, 2);
+  await invoke<String>(
+    "write_setting_file", { filename: "key_bind.json5", content: data });
 }
 
 export async function readCommandsSetting(): Promise<CommandInfo[]> {

@@ -6,7 +6,7 @@ import React from 'react';
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
 import { FileList, Entries } from './FileList';
-import { CommandInfo, COMMAND_TYPE, match, readCommandsSetting, commandExecuter } from './CommandInfo';
+import { CommandInfo, COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -112,26 +112,26 @@ export const MainPanel = (
 
   const execBuildInCommand = (commandName: string) => {
     switch (commandName) {
-      case 'accessCurrentItem': FileListFunctions.accessCurrentItem(); return;
-      case 'accessParentDir': accessParentDir(); return;
-      case 'moveUp': FileListFunctions.moveUp(); return;
-      case 'moveUpSelect': FileListFunctions.moveUpSelect(); return;
-      case 'moveDown': FileListFunctions.moveDown(); return;
-      case 'moveDownSelect': FileListFunctions.moveDownSelect(); return;
-      case 'moveTop': FileListFunctions.moveTop(); return;
-      case 'moveTopSelect': FileListFunctions.moveTopSelect(); return;
-      case 'moveBottom': FileListFunctions.moveBottom(); return;
-      case 'moveBottomSelect': FileListFunctions.moveBottomSelect(); return;
-      case 'selectAll': FileListFunctions.selectAll(); return;
-      case 'clearSelection': FileListFunctions.clearSelection(); return;
-      case 'toggleSelection': FileListFunctions.toggleSelection(); return;
-      case 'selectCurrentOnly': FileListFunctions.selectCurrentOnly(); return;
-      case 'addNewTab': addNewTab(); return;
-      case 'removeTab': removeTab(); return;
-      case 'toPrevTab': toPrevTab(); return;
-      case 'toNextTab': toNextTab(); return;
-      case 'focusAddoressBar': focusAddoressBar(); return;
-      case 'focusOppositePane': props.focusOppositePane(); return;
+      case BUILDIN_COMMAND_TYPE.accessCurrentItem: FileListFunctions.accessCurrentItem(); return;
+      case BUILDIN_COMMAND_TYPE.accessParentDir: accessParentDir(); return;
+      case BUILDIN_COMMAND_TYPE.moveUp: FileListFunctions.moveUp(); return;
+      case BUILDIN_COMMAND_TYPE.moveUpSelect: FileListFunctions.moveUpSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveDown: FileListFunctions.moveDown(); return;
+      case BUILDIN_COMMAND_TYPE.moveDownSelect: FileListFunctions.moveDownSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveTop: FileListFunctions.moveTop(); return;
+      case BUILDIN_COMMAND_TYPE.moveTopSelect: FileListFunctions.moveTopSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveBottom: FileListFunctions.moveBottom(); return;
+      case BUILDIN_COMMAND_TYPE.moveBottomSelect: FileListFunctions.moveBottomSelect(); return;
+      case BUILDIN_COMMAND_TYPE.selectAll: FileListFunctions.selectAll(); return;
+      case BUILDIN_COMMAND_TYPE.clearSelection: FileListFunctions.clearSelection(); return;
+      case BUILDIN_COMMAND_TYPE.toggleSelection: FileListFunctions.toggleSelection(); return;
+      case BUILDIN_COMMAND_TYPE.selectCurrentOnly: FileListFunctions.selectCurrentOnly(); return;
+      case BUILDIN_COMMAND_TYPE.addNewTab: addNewTab(); return;
+      case BUILDIN_COMMAND_TYPE.removeTab: removeTab(); return;
+      case BUILDIN_COMMAND_TYPE.toPrevTab: toPrevTab(); return;
+      case BUILDIN_COMMAND_TYPE.toNextTab: toNextTab(); return;
+      case BUILDIN_COMMAND_TYPE.focusAddoressBar: focusAddoressBar(); return;
+      case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
     }
   }
 

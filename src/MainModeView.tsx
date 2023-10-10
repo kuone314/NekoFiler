@@ -29,6 +29,7 @@ export function MainModeView(
     height: number,
     tabColorSetting: TabColorSetting[],
     setTabColor: () => void,
+    setKeyBind: () => void,
   }
 ) {
   const [tabsPathAry, setTabsPathAry] = useState<TabsInfo[]>([]);
@@ -199,7 +200,7 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr auto 0.1fr', // button button button button logPane statusBar
+            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr 0.1fr auto 0.1fr', // button button button button button logPane statusBar
             height: '100%',
           })}
         >
@@ -218,6 +219,14 @@ export function MainModeView(
             })}
             onClick={() => props.setTabColor()}>
             Set Tab Color
+          </button>
+          <button
+            css={css({
+              width: '85pt',
+              padding: '10px',
+            })}
+            onClick={() => props.setKeyBind()}>
+            Set KeyBind
           </button>
           <button
             css={css({
