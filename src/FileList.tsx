@@ -193,7 +193,7 @@ export function FileList(
     const scroll_area_height = myGrid.current?.clientHeight;
     const header_height = table_header.current?.clientHeight;
     const current_row_rect = current_row.current?.getBoundingClientRect();
-    const table_full_size = current_row.current?.parentElement?.getBoundingClientRect();
+    const table_full_size = current_row.current?.parentElement?.parentElement?.getBoundingClientRect();
 
     if (scroll_pos == undefined) { return; }
     if (scroll_area_height == undefined) { return; }
@@ -450,20 +450,21 @@ export function FileList(
       </thead>
       {
         entries.map((entry, idx) => {
-          return <tr
-            ref={(idx === currentIndex) ? current_row : null}
-            onMouseDown={(event) => { onMouseDown(idx, event) }}
-            onMouseMove={(event) => { onMouseMove(idx, event) }}
-            onMouseUp={(event) => { onMouseUp(idx) }}
-            onDoubleClick={(event) => onRowdoubleclick(idx, event)}
-            css={table_color(idx)}
-            key={'LIst' + idx}
-          >
-            <td css={table_border}>{entry.name}</td>
-            <td css={table_border}>{ToTypeName(entry)}</td>
-            <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
-            <td css={table_border}>{entry.date}</td>
-          </tr>
+          return <tbody key={'LIst' + idx}>
+            <tr
+              ref={(idx === currentIndex) ? current_row : null}
+              onMouseDown={(event) => { onMouseDown(idx, event) }}
+              onMouseMove={(event) => { onMouseMove(idx, event) }}
+              onMouseUp={(event) => { onMouseUp(idx) }}
+              onDoubleClick={(event) => onRowdoubleclick(idx, event)}
+              css={table_color(idx)}
+            >
+              <td css={table_border}>{entry.name}</td>
+              <td css={table_border}>{ToTypeName(entry)}</td>
+              <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
+              <td css={table_border}>{entry.date}</td>
+            </tr>
+          </tbody>
         })
       }
     </table>
