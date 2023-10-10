@@ -18,9 +18,10 @@ import useInterval from 'use-interval';
 import { basename, normalize } from '@tauri-apps/api/path';
 
 import { executeShellCommand } from './RustFuncs';
+import { TabFuncs } from './PaneTabs';
 
- const dummy: never[] = [];
- 
+const dummy: never[] = [];
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
   props: {
@@ -29,9 +30,10 @@ export const MainPanel = (
     onPathChanged: (newPath: string) => void
     onItemNumChanged: (newItemNum: number) => void,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
-    addNewTab: (newTabPath: string) => void,
-    removeTab: () => void,
-    changeTab: (offset: number) => void,
+    // addNewTab: (newTabPath: string) => void,
+    // removeTab: () => void,
+    // changeTab: (offset: number) => void,
+    tabFuncs: TabFuncs,
     getOppositePath: () => string,
     addLogMessage: (message: string) => void,
     separator: separator,
@@ -60,7 +62,7 @@ export const MainPanel = (
 
   const AccessDirectory = async (newDir: string, trgFile: string) => {
     if (props.pined && dir !== newDir) {
-      props.addNewTab(newDir);
+      props.tabFuncs.addNewTab(newDir);
       return;
     }
 
@@ -105,10 +107,10 @@ export const MainPanel = (
     addressBarFunc.focus();
   }
 
-  const addNewTab = () => { props.addNewTab(dir); }
-  const removeTab = () => { props.removeTab(); }
-  const toPrevTab = () => { props.changeTab(-1); }
-  const toNextTab = () => { props.changeTab(+1); }
+  const addNewTab = () => { props.tabFuncs.addNewTab(dir); }
+  const removeTab = () => { props.tabFuncs.removeTab(); }
+  const toPrevTab = () => { props.tabFuncs.changeTab(-1); }
+  const toNextTab = () => { props.tabFuncs.changeTab(+1); }
 
   const execBuildInCommand = (commandName: string) => {
     switch (commandName) {

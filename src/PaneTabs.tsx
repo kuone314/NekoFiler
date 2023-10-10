@@ -15,6 +15,14 @@ import { TabColor, TabColorSetting, readTabColorSetting } from './TabColorSettin
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export interface TabFuncs {
+  addNewTab: (newTabPath: string) => void,
+  removeTab: () => void,
+  changeTab: (offset: number) => void,
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const PaneTabs = (
   props: {
@@ -133,9 +141,13 @@ export const PaneTabs = (
           onPathChanged={onPathChanged}
           onItemNumChanged={props.onItemNumChanged}
           onSelectItemNumChanged={props.onSelectItemNumChanged}
-          addNewTab={(path) => addNewTab(activeTabIdx, path)}
-          removeTab={() => removeTab(activeTabIdx)}
-          changeTab={changeTab}
+          tabFuncs={
+            {
+              addNewTab: (path: string) => addNewTab(activeTabIdx, path),
+              removeTab: () => removeTab(activeTabIdx),
+              changeTab,
+            }
+          }
           getOppositePath={props.getOppositePath}
           addLogMessage={props.addLogMessage}
           separator={props.separator}
