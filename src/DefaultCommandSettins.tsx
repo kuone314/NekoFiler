@@ -287,6 +287,36 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       valid_on_addressbar: false,
     },
     {
+      command_name: 'removeOtherTabs',
+      key: 'ctrl+Shift+w',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'removeOtherTabs',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'removeAllRightTabs',
+      key: 'ctrl+Shift+w',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'removeAllRightTabs',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'removeAllLeftTabs',
+      key: 'ctrl+Shift+w',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'removeAllLeftTabs',
+      },
+      valid_on_addressbar: true,
+    },
+    {
       command_name: 'toPrevTab',
       key: 'ctrl+shift+tab',
       dialog_type: 'none',
