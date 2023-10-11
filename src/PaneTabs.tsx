@@ -1,16 +1,14 @@
-import { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api';
 import React from 'react';
 
 import { Button } from '@mui/material';
 
 
-import { SEPARATOR, separator, ApplySeparator } from './FilePathSeparator';
+import { separator, ApplySeparator } from './FilePathSeparator';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { TabColor, TabColorSetting, readTabColorSetting } from './TabColorSetting';
+import { TabColor, TabColorSetting } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
