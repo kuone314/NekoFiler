@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { Button } from '@mui/material';
+import { Button, MenuItem } from '@mui/material';
 
 
 import { separator, ApplySeparator } from './FilePathSeparator';
@@ -12,6 +12,7 @@ import { TabColor, TabColorSetting } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
+import { ControlledMenu } from '@szhsin/react-menu';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,8 +123,42 @@ export const PaneTabs = (
     return pinedPrefix + dirName;
   }
 
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [contextMenuTabIdx, setContextMenuTabIdx] = useState(0);
+  const [contextMenuPosX, setContextMenuPosX] = useState(0);
+  const [contextMenuPosY, setContextMenuPosY] = useState(0);
+  const contextMenu = () => {
+    return <ControlledMenu
+      state={isMenuOpen ? 'open' : 'closed'}
+      onClose={() => { setMenuOpen(false); }}
+      anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
+    >
+      <MenuItem
+        onClick={_ => removeTab(contextMenuTabIdx)}
+      >
+        Close Tab
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeOtherTabs(contextMenuTabIdx)}
+      >
+        Close Other Tabs
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
+      >
+        Close Right Tabs
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
+      >
+        Close Left Tabs
+      </MenuItem>
+    </ControlledMenu>
+  }
+
   return (
     <>
+      {contextMenu()}
       <div
         css={css({
           display: 'grid',
@@ -154,6 +189,13 @@ export const PaneTabs = (
                 onClick={() => { props.onTabsChanged(tabAry, idx) }}
                 onDoubleClick={() => togglePined(idx)}
                 onAuxClick={e => { if (e.button === 1) { removeTab(idx) } }}
+                onContextMenu={e => {
+                  setContextMenuTabIdx(idx);
+                  setContextMenuPosX(e.clientX);
+                  setContextMenuPosY(e.clientY);
+                  setMenuOpen(true);
+                  e.preventDefault();
+                }}
                 defaultValue={pathToTabName(tab)}
                 tabIndex={-1}
                 key={'TabButton' + idx}
