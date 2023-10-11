@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react';
-import { invoke } from '@tauri-apps/api';
-import React from 'react';
+import React, { useState } from 'react';
 
-import { Button } from '@mui/material';
+import { Button, MenuItem } from '@mui/material';
 
 
-import { SEPARATOR, separator, ApplySeparator } from './FilePathSeparator';
+import { separator, ApplySeparator } from './FilePathSeparator';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { TabColor, TabColorSetting, readTabColorSetting } from './TabColorSetting';
+import { TabColor, TabColorSetting } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
+import { ControlledMenu } from '@szhsin/react-menu';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,24 +61,40 @@ export const PaneTabs = (
     props.onTabsChanged(newTabAry, newTabIdx);
   }
 
-  const removeOtherTabs = (remainIdx: number) => {
-    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx === remainIdx);
-    if (newTabAry.length === 0) { return; }
-    const newTabIdx = tabAry.slice(0, remainIdx).filter(tab => tab.pined).length;
+  const removeTabs = (remainIdxAry: number[]) => {
+    if (remainIdxAry.length === 0) { return; }
+
+    let newTabAry = remainIdxAry.map(idx => tabAry[idx]);
+    const newTabIdx = remainIdxAry
+      .map((orgIdx, idx) => { return { idx, dist: Math.abs(orgIdx - activeTabIdx) } })
+      .reduce((pre, cur) => (pre.dist < cur.dist) ? pre : cur)
+      .idx;
     props.onTabsChanged(newTabAry, newTabIdx);
+  }
+
+  const removeOtherTabs = (remainIdx: number) => {
+    let remaiIdxAry = tabAry
+      .map((tab, idx) => { return { tab, orgIdx: idx } })
+      .filter(item => item.tab.pined || item.orgIdx === remainIdx)
+      .map(item => item.orgIdx);
+    removeTabs(remaiIdxAry);
   }
 
   const removeAllRightTabs = (baseIdx: number) => {
-    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx <= baseIdx);
-    if (newTabAry.length === 0) { return; }
-    props.onTabsChanged(newTabAry, activeTabIdx);
+    let remaiIdxAry = tabAry
+      .map((tab, idx) => { return { tab, orgIdx: idx } })
+      .filter(item => item.tab.pined || item.orgIdx <= baseIdx)
+      .map(item => item.orgIdx);
+    removeTabs(remaiIdxAry);
   }
 
   const removeAllLeftTabs = (baseIdx: number) => {
-    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx >= baseIdx);
-    if (newTabAry.length === 0) { return; }
-    const newTabIdx = tabAry.slice(0, baseIdx).filter(tab => tab.pined).length;
-    props.onTabsChanged(newTabAry, newTabIdx);
+    let remaiIdxAry = tabAry
+      .map((tab, idx) => { return { tab, orgIdx: idx } })
+      .filter(item => item.tab.pined || item.orgIdx >= baseIdx)
+      .map(item => item.orgIdx);
+    removeTabs(remaiIdxAry);
+
   }
 
   const changeTab = (offset: number) => {
@@ -108,8 +123,42 @@ export const PaneTabs = (
     return pinedPrefix + dirName;
   }
 
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [contextMenuTabIdx, setContextMenuTabIdx] = useState(0);
+  const [contextMenuPosX, setContextMenuPosX] = useState(0);
+  const [contextMenuPosY, setContextMenuPosY] = useState(0);
+  const contextMenu = () => {
+    return <ControlledMenu
+      state={isMenuOpen ? 'open' : 'closed'}
+      onClose={() => { setMenuOpen(false); }}
+      anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
+    >
+      <MenuItem
+        onClick={_ => removeTab(contextMenuTabIdx)}
+      >
+        Close Tab
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeOtherTabs(contextMenuTabIdx)}
+      >
+        Close Other Tabs
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
+      >
+        Close Right Tabs
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
+      >
+        Close Left Tabs
+      </MenuItem>
+    </ControlledMenu>
+  }
+
   return (
     <>
+      {contextMenu()}
       <div
         css={css({
           display: 'grid',
@@ -139,7 +188,14 @@ export const PaneTabs = (
                 ]}
                 onClick={() => { props.onTabsChanged(tabAry, idx) }}
                 onDoubleClick={() => togglePined(idx)}
-                onAuxClick={() => { removeTab(idx) }}
+                onAuxClick={e => { if (e.button === 1) { removeTab(idx) } }}
+                onContextMenu={e => {
+                  setContextMenuTabIdx(idx);
+                  setContextMenuPosX(e.clientX);
+                  setContextMenuPosY(e.clientY);
+                  setMenuOpen(true);
+                  e.preventDefault();
+                }}
                 defaultValue={pathToTabName(tab)}
                 tabIndex={-1}
                 key={'TabButton' + idx}
