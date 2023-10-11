@@ -20,6 +20,9 @@ import { TabInfo, TabsInfo } from './TabsInfo';
 export interface TabFuncs {
   addNewTab: (newTabPath: string) => void,
   removeTab: () => void,
+  removeOtherTabs: () => void,
+  removeAllRightTabs: () => void,
+  removeAllLeftTabs: () => void,
   changeTab: (offset: number) => void,
 }
 
@@ -58,6 +61,27 @@ export const PaneTabs = (
     const newTabIdx = (activeTabIdx >= newTabAry.length) ? newTabAry.length - 1 : activeTabIdx;
     props.onTabsChanged(newTabAry, newTabIdx);
   }
+
+  const removeOtherTabs = (remainIdx: number) => {
+    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx === remainIdx);
+    if (newTabAry.length === 0) { return; }
+    const newTabIdx = tabAry.slice(0, remainIdx).filter(tab => tab.pined).length;
+    props.onTabsChanged(newTabAry, newTabIdx);
+  }
+
+  const removeAllRightTabs = (baseIdx: number) => {
+    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx <= baseIdx);
+    if (newTabAry.length === 0) { return; }
+    props.onTabsChanged(newTabAry, activeTabIdx);
+  }
+
+  const removeAllLeftTabs = (baseIdx: number) => {
+    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx >= baseIdx);
+    if (newTabAry.length === 0) { return; }
+    const newTabIdx = tabAry.slice(0, baseIdx).filter(tab => tab.pined).length;
+    props.onTabsChanged(newTabAry, newTabIdx);
+  }
+
   const changeTab = (offset: number) => {
     const new_val = (activeTabIdx + offset + tabAry.length) % tabAry.length;
     props.onTabsChanged(tabAry, new_val);
@@ -145,6 +169,9 @@ export const PaneTabs = (
             {
               addNewTab: (path: string) => addNewTab(activeTabIdx, path),
               removeTab: () => removeTab(activeTabIdx),
+              removeOtherTabs: () => removeOtherTabs(activeTabIdx),
+              removeAllRightTabs: () => removeAllRightTabs(activeTabIdx),
+              removeAllLeftTabs: () => removeAllLeftTabs(activeTabIdx),
               changeTab,
             }
           }

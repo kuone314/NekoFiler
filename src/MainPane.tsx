@@ -109,6 +109,9 @@ export const MainPanel = (
 
   const addNewTab = () => { props.tabFuncs.addNewTab(dir); }
   const removeTab = () => { props.tabFuncs.removeTab(); }
+  const removeOtherTabs = () => { props.tabFuncs.removeOtherTabs(); }
+  const removeAllRightTabs = () => { props.tabFuncs.removeAllRightTabs(); }
+  const removeAllLeftTabs = () => { props.tabFuncs.removeAllLeftTabs(); }
   const toPrevTab = () => { props.tabFuncs.changeTab(-1); }
   const toNextTab = () => { props.tabFuncs.changeTab(+1); }
 
@@ -130,6 +133,9 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.selectCurrentOnly: FileListFunctions.selectCurrentOnly(); return;
       case BUILDIN_COMMAND_TYPE.addNewTab: addNewTab(); return;
       case BUILDIN_COMMAND_TYPE.removeTab: removeTab(); return;
+      case BUILDIN_COMMAND_TYPE.removeOtherTabs: removeOtherTabs(); return;
+      case BUILDIN_COMMAND_TYPE.removeAllRightTabs: removeAllRightTabs(); return;
+      case BUILDIN_COMMAND_TYPE.removeAllLeftTabs: removeAllLeftTabs(); return;
       case BUILDIN_COMMAND_TYPE.toPrevTab: toPrevTab(); return;
       case BUILDIN_COMMAND_TYPE.toNextTab: toNextTab(); return;
       case BUILDIN_COMMAND_TYPE.focusAddoressBar: focusAddoressBar(); return;
