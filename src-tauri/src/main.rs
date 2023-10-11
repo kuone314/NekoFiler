@@ -51,6 +51,10 @@ fn main() {
                 std::thread::sleep(Duration::from_secs(1));
                 push_log_message(&app_handle);
             });
+
+            #[cfg(debug_assertions)]
+            app.get_window("main").unwrap().open_devtools();
+
             Ok(())
         })
         .run(tauri::generate_context!())
