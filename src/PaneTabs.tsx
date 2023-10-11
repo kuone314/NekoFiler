@@ -60,24 +60,40 @@ export const PaneTabs = (
     props.onTabsChanged(newTabAry, newTabIdx);
   }
 
-  const removeOtherTabs = (remainIdx: number) => {
-    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx === remainIdx);
-    if (newTabAry.length === 0) { return; }
-    const newTabIdx = tabAry.slice(0, remainIdx).filter(tab => tab.pined).length;
+  const removeTabs = (remainIdxAry: number[]) => {
+    if (remainIdxAry.length === 0) { return; }
+
+    let newTabAry = remainIdxAry.map(idx => tabAry[idx]);
+    const newTabIdx = remainIdxAry
+      .map((orgIdx, idx) => { return { idx, dist: Math.abs(orgIdx - activeTabIdx) } })
+      .reduce((pre, cur) => (pre.dist < cur.dist) ? pre : cur)
+      .idx;
     props.onTabsChanged(newTabAry, newTabIdx);
+  }
+
+  const removeOtherTabs = (remainIdx: number) => {
+    let remaiIdxAry = tabAry
+      .map((tab, idx) => { return { tab, orgIdx: idx } })
+      .filter(item => item.tab.pined || item.orgIdx === remainIdx)
+      .map(item => item.orgIdx);
+    removeTabs(remaiIdxAry);
   }
 
   const removeAllRightTabs = (baseIdx: number) => {
-    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx <= baseIdx);
-    if (newTabAry.length === 0) { return; }
-    props.onTabsChanged(newTabAry, activeTabIdx);
+    let remaiIdxAry = tabAry
+      .map((tab, idx) => { return { tab, orgIdx: idx } })
+      .filter(item => item.tab.pined || item.orgIdx <= baseIdx)
+      .map(item => item.orgIdx);
+    removeTabs(remaiIdxAry);
   }
 
   const removeAllLeftTabs = (baseIdx: number) => {
-    let newTabAry = tabAry.filter((tab, idx) => tab.pined || idx >= baseIdx);
-    if (newTabAry.length === 0) { return; }
-    const newTabIdx = tabAry.slice(0, baseIdx).filter(tab => tab.pined).length;
-    props.onTabsChanged(newTabAry, newTabIdx);
+    let remaiIdxAry = tabAry
+      .map((tab, idx) => { return { tab, orgIdx: idx } })
+      .filter(item => item.tab.pined || item.orgIdx >= baseIdx)
+      .map(item => item.orgIdx);
+    removeTabs(remaiIdxAry);
+
   }
 
   const changeTab = (offset: number) => {
