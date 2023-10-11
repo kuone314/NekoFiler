@@ -137,7 +137,7 @@ export const PaneTabs = (
                 ]}
                 onClick={() => { props.onTabsChanged(tabAry, idx) }}
                 onDoubleClick={() => togglePined(idx)}
-                onAuxClick={() => { removeTab(idx) }}
+                onAuxClick={e => { if (e.button === 1) { removeTab(idx) } }}
                 defaultValue={pathToTabName(tab)}
                 tabIndex={-1}
                 key={'TabButton' + idx}
