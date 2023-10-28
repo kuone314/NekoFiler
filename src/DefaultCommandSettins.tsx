@@ -1,15 +1,6 @@
 import { invoke } from '@tauri-apps/api';
 import JSON5 from 'json5'
 
-import { executeShellCommand } from './RustFuncs';
-import { separator, ApplySeparator } from './FilePathSeparator';
-
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react'
-
-import { useEffect, useRef, useState } from 'react';
-import React from 'react';
-
 import { CommandInfo, CommandInfoVersiton, } from './CommandInfo';
 
 
