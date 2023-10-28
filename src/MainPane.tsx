@@ -150,7 +150,14 @@ export const MainPanel = (
     }
 
     if (command.action.type === COMMAND_TYPE.power_shell) {
-      execShellCommand(command, dir, FileListFunctions.selectingItemName(), props.getOppositePath(), props.separator);
+      execShellCommand(
+        command.command_name,
+        command.dialog_type,
+        command.action.command,
+        dir,
+        FileListFunctions.selectingItemName(),
+        props.getOppositePath(),
+        props.separator);
       return
     }
   }

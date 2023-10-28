@@ -133,7 +133,9 @@ function decoratePath(path: String): string {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type ExecShellCommand = (
-  command: CommandInfo,
+  command_name: string,
+  dialog_type: DialogType,
+  script_path: string,
   current_dir: string,
   selecting_item_name_ary: string[],
   opposite_path: string,
@@ -182,7 +184,9 @@ export function commandExecuter(
     executeShellCommand(replaced_command_line, current_dir);
   }
   const execShellCommand = (
-    command: CommandInfo,
+    command_name: string,
+    dialog_type: DialogType,
+    script_path: string,
     current_dir: string,
     selecting_item_name_ary: string[],
     opposite_dir: string,
@@ -190,9 +194,9 @@ export function commandExecuter(
   ) => {
     const fn = (dialog_input_string: string) => {
       addLogMessage('---');
-      addLogMessage(command.command_name)
+      addLogMessage(command_name)
       execShellCommandImpl(
-        command.action.command,
+        script_path,
         ApplySeparator(current_dir, separator),
         selecting_item_name_ary,
         dialog_input_string,
@@ -201,13 +205,13 @@ export function commandExecuter(
       );
     }
 
-    const type = command.dialog_type;
+    const type = dialog_type;
     if (!type || type === DIALOG_TYPE.none) {
       fn('');
       return;
     }
     if (type === DIALOG_TYPE.reference_selection || type === DIALOG_TYPE.multi_line) {
-      setTitle(command.command_name);
+      setTitle(command_name);
       const str = (type === DIALOG_TYPE.reference_selection)
         ? selecting_item_name_ary.join('\n')
         : '';
