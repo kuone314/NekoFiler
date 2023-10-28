@@ -6,7 +6,7 @@ import React from 'react';
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
 import { FileList, Entries } from './FileList';
-import { CommandInfo, COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE } from './CommandInfo';
+import { COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE, CommandInfo } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -19,6 +19,7 @@ import { basename, normalize } from '@tauri-apps/api/path';
 
 import { executeShellCommand } from './RustFuncs';
 import { TabFuncs } from './PaneTabs';
+import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 
 const dummy: never[] = [];
 
@@ -150,7 +151,14 @@ export const MainPanel = (
     }
 
     if (command.action.type === COMMAND_TYPE.power_shell) {
-      execShellCommand(command, dir, FileListFunctions.selectingItemName(), props.getOppositePath(), props.separator);
+      execShellCommand(
+        command.command_name,
+        command.dialog_type,
+        command.action.command,
+        dir,
+        FileListFunctions.selectingItemName(),
+        props.getOppositePath(),
+        props.separator);
       return
     }
   }
@@ -234,6 +242,44 @@ export const MainPanel = (
     </ControlledMenu>
   }
 
+
+  const [contextMenuInfoAry, setContextMenuInfoAry] = useState<ContextMenuInfo[]>([]);
+  useEffect(() => {
+    (async () => {
+      const seting = await readContextMenuSetting();
+      setContextMenuInfoAry(seting);
+    })()
+  }, []);
+
+  const [isContextMenuOpen, setContextMenuOpen] = useState(false);
+  const [contextMenuPosX, setContextMenuPosX] = useState(0);
+  const [contextMenuPosY, setContextMenuPosY] = useState(0);
+  const contextMenu = () => {
+    return <ControlledMenu
+      state={isContextMenuOpen ? 'open' : 'closed'}
+      onClose={() => { setContextMenuOpen(false); }}
+      anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
+    >
+      {
+        contextMenuInfoAry.map((command, idx) => {
+          return <MenuItem
+            onClick={e => execShellCommand(
+              command.menu_name,
+              command.dialog_type,
+              command.command,
+              dir,
+              FileListFunctions.selectingItemName(),
+              props.getOppositePath(),
+              props.separator
+            )}
+            key={idx}
+          >
+            {command.menu_name}
+          </MenuItem>
+        })
+      }
+    </ControlledMenu >
+  }
   const [fileList, FileListFunctions] = FileList(
     {
       entries: entries ?? dummy,
@@ -272,12 +318,19 @@ export const MainPanel = (
           height: '100%',
         })}
       >
+        {contextMenu()}
         {addressBar}
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
           onDoubleClick={onDoubleClick}
           tabIndex={0}
           ref={myGrid}
+          onContextMenu={e => {
+            setContextMenuPosX(e.clientX);
+            setContextMenuPosY(e.clientY);
+            setContextMenuOpen(true);
+            e.preventDefault();
+          }}
         >
           {
             entries
