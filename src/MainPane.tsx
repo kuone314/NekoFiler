@@ -179,6 +179,9 @@ export const MainPanel = (
     const command_ary = validKeyBindInfo.filter(cmd => match(keyboard_event, cmd.key));
 
     if (command_ary.length !== 0) {
+      if (keyboard_event.key === "ContextMenu") {
+        setContextMenuOpen(true);
+      }
       keyboard_event.preventDefault();
     }
 
