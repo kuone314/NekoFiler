@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
 import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
+import { sleep } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const COMMAND_TYPE = {
@@ -223,9 +224,11 @@ export function commandExecuter(
     }
   }
 
-  const [textareaInitFlag, setTextareaInitFlag] = useState<boolean>(false);
   useEffect(() => {
-    textarea.current?.focus()
+    (async () => {
+      await sleep(300);// この処理が無いと、何故か、ダイアログの文字列に、空行が入る…。
+      textarea.current?.focus()
+    })()
   }, [dlg.current?.open]);
 
   const countTextRows = (str: string) => {
@@ -257,7 +260,6 @@ export function commandExecuter(
       <textarea
         value={dlgString}
         onChange={e => {
-          if (!textareaInitFlag) { setTextareaInitFlag(true); return; } // この処理が無いと、何故か、ダイアログの文字列に、空行が入る…。
           setDlgString(e.target.value);
         }}
         rows={countTextRows(refString)}
@@ -280,7 +282,6 @@ export function commandExecuter(
         })}
         value={dlgString}
         onChange={e => {
-          if (!textareaInitFlag) { setTextareaInitFlag(true); return; } // この処理が無いと、何故か、ダイアログの文字列に、空行が入る…。
           setDlgString(e.target.value);
         }}
         ref={textarea}
@@ -313,7 +314,7 @@ export function commandExecuter(
       height: '80%',
     })}
     ref={dlg}
-    onClose={() => { onDialogClose(); setTextareaInitFlag(false); }}
+    onClose={() => { onDialogClose(); }}
   >
     <div
       css={css({
