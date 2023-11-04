@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
 import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
+import { sleep } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const COMMAND_TYPE = {
@@ -224,7 +225,10 @@ export function commandExecuter(
   }
 
   useEffect(() => {
-    textarea.current?.focus()
+    (async () => {
+      await sleep(300);// この処理が無いと、何故か、ダイアログの文字列に、空行が入る…。
+      textarea.current?.focus()
+    })()
   }, [dlg.current?.open]);
 
   const countTextRows = (str: string) => {
