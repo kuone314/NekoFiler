@@ -10,6 +10,7 @@ export interface TabColorSetting {
   color: {
     backGround: string,
     string: string,
+    activeHightlight: string,
   },
   match: {
     type: TabColorMatchingType,
@@ -27,7 +28,8 @@ class TabColorSettingVersiton {
   static first = 1;
   static add_start_with = 2;
   static add_setting_name = 3;
-  static latest = TabColorSettingVersiton.add_setting_name;
+  static add_frame_highlightv = 4;
+  static latest = TabColorSettingVersiton.add_frame_highlightv;
 }
 
 export async function writeTabColorSetting(setting: TabColorSetting[]) {
@@ -58,6 +60,12 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
     if (result.version < TabColorSettingVersiton.add_setting_name) {
       result.data.forEach((setting, idx) => {
         setting.name = "Setting " + idx.toString();
+      });
+    }
+
+    if (result.version < TabColorSettingVersiton.add_frame_highlightv) {
+      result.data.forEach((setting, idx) => {
+        setting.color.activeHightlight = '#ff0000';
       });
     }
 
@@ -101,8 +109,8 @@ export function TabColor(
   path: string
 ) {
   const setting = settings.find(setting => Match(setting, path));
-  const colorSetting = setting?.color ?? { backGround: '#ffffff', string: '#000000' };
-  const borderColor = (isActive) ? '#ff0000' : colorSetting.backGround;
+  const colorSetting = setting?.color ?? { backGround: '#ffffff', string: '#000000', activeHightlight: '#ff0000' };
+  const borderColor = (isActive) ? colorSetting.activeHightlight : colorSetting.backGround;
   return css({
     background: colorSetting.backGround,
     color: colorSetting.string,
@@ -118,6 +126,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
       color: {
         backGround: '#ffff00',
         string: '#000000',
+        activeHightlight: '#ff0000',
       },
       match: {
         type: TabColorMatchingType.start_with,
@@ -129,6 +138,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
       color: {
         backGround: '#00ff00',
         string: '#000000',
+        activeHightlight: '#ff0000',
       },
       match: {
         type: TabColorMatchingType.start_with,
