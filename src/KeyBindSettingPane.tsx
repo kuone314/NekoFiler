@@ -7,6 +7,7 @@ import Select from 'react-select'
 import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType } from './CommandInfo';
 import { invoke } from '@tauri-apps/api';
 import { IsValidIndex } from './Utility';
+import { Button } from '@mui/material';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,6 +247,13 @@ export function KeyBindEditor(
     return { value: type, label: comboLabel(type) };
   }
 
+  const isOkEnable = () => {
+    switch (commandType) {
+      case 'build_in': return true;
+      case 'power_shell': return commandFilePath !== ""; // 有効なパスかのチェックもした方が良い…。
+    }
+  }
+
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
@@ -255,7 +263,9 @@ export function KeyBindEditor(
         marginRight: 'auto',
       })}
     >
-      <button
+      <Button
+        css={css({ textTransform: 'none', })}
+        disabled={!isOkEnable()}
         onClick={() => {
           const command = (commandType == COMMAND_TYPE.power_shell) ? commandFilePath : buildinCommandType;
           onOk(
@@ -274,13 +284,14 @@ export function KeyBindEditor(
         }}
       >
         Ok
-      </button>
-      <button
+      </Button>
+      <Button
+        css={css({ textTransform: 'none', })}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
-      </button>
-    </div>
+      </Button>
+    </div >
   }
 
   const dialogElement = <dialog
