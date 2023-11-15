@@ -295,7 +295,6 @@ export function KeyBindEditor(
       <div
         css={css({
           display: 'grid',
-          gridTemplateRows: 'auto auto auto auto',
         })}
       >
         <div>
@@ -338,7 +337,12 @@ export function KeyBindEditor(
 
         {
           (commandType == COMMAND_TYPE.power_shell) ?
-            <div>
+            <div
+              css={css({
+                display: 'grid',
+                gridTemplateRows: 'auto auto auto auto',
+              })}
+            >
               <div>
                 <div>ScriptPath</div>
                 <input
