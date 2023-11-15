@@ -284,7 +284,10 @@ export function KeyBindEditor(
   }
 
   const dialogElement = <dialog
-    css={css({ height: height, })}
+    css={css({
+      height: height,
+      width: '60%', // 適当…。
+    })}
     ref={dlg}>
     <div
       css={css({
