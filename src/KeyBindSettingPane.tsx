@@ -101,24 +101,24 @@ export function KeyBindSettingPane(
       })}
     >
       {editDlg}
+      <div>
+        <input
+          defaultValue={trgKeyStr}
+          onKeyDown={event => setTrgKey(event)}
+        />
+        <button
+          onClick={() => setTrgKey(null)}
+        >x</button>
+      </div>
+      <button
+        onClick={AddCommand}
+      >+</button>
       <div
         css={css({
-          height: (props.height - buttonHeight),
+          height: (props.height - buttonHeight * 2), // 固定部分の高さの指定方法が良くない…。
           overflow: 'scroll',
         })}
       >
-        <div>
-          <input
-            defaultValue={trgKeyStr}
-            onKeyDown={event => setTrgKey(event)}
-          />
-          <button
-            onClick={() => setTrgKey(null)}
-          >x</button>
-        </div>
-        <button
-          onClick={AddCommand}
-        >+</button>
         <table>
           <thead css={[]} >
             <tr>
@@ -284,7 +284,10 @@ export function KeyBindEditor(
   }
 
   const dialogElement = <dialog
-    css={css({ height: height, })}
+    css={css({
+      height: height,
+      width: '60%', // 適当…。
+    })}
     ref={dlg}>
     <div
       css={css({
@@ -295,7 +298,6 @@ export function KeyBindEditor(
       <div
         css={css({
           display: 'grid',
-          gridTemplateRows: 'auto auto auto auto',
         })}
       >
         <div>
@@ -338,7 +340,12 @@ export function KeyBindEditor(
 
         {
           (commandType == COMMAND_TYPE.power_shell) ?
-            <div>
+            <div
+              css={css({
+                display: 'grid',
+                gridTemplateRows: 'auto auto auto auto',
+              })}
+            >
               <div>
                 <div>ScriptPath</div>
                 <input
