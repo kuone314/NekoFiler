@@ -101,24 +101,24 @@ export function KeyBindSettingPane(
       })}
     >
       {editDlg}
+      <div>
+        <input
+          defaultValue={trgKeyStr}
+          onKeyDown={event => setTrgKey(event)}
+        />
+        <button
+          onClick={() => setTrgKey(null)}
+        >x</button>
+      </div>
+      <button
+        onClick={AddCommand}
+      >+</button>
       <div
         css={css({
-          height: (props.height - buttonHeight),
+          height: (props.height - buttonHeight * 2), // 固定部分の高さの指定方法が良くない…。
           overflow: 'scroll',
         })}
       >
-        <div>
-          <input
-            defaultValue={trgKeyStr}
-            onKeyDown={event => setTrgKey(event)}
-          />
-          <button
-            onClick={() => setTrgKey(null)}
-          >x</button>
-        </div>
-        <button
-          onClick={AddCommand}
-        >+</button>
         <table>
           <thead css={[]} >
             <tr>
