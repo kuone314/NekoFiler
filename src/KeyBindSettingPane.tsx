@@ -319,6 +319,16 @@ export function KeyBindEditor(
           onChange={() => setCommandType(COMMAND_TYPE.build_in)} />
         <label onClick={() => setCommandType(COMMAND_TYPE.build_in)}>build_in</label>
       </div>
+
+      <label>
+        <input
+          type='checkbox'
+          checked={validOnAddressbar}
+          onChange={(e) => setValidOnAddressbar(!validOnAddressbar)}
+        />
+        validOnAddressbar
+      </label>
+
       {
         (commandType == COMMAND_TYPE.power_shell) ?
           <div>
@@ -337,6 +347,15 @@ export function KeyBindEditor(
               }}
               rows={15}
             />
+            <label>Dialog</label>
+            <Select
+              options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
+              value={dialogTypeToComboItem(dialogType)}
+              onChange={(val) => {
+                if (val === null) { return; }
+                setDialogType(val.value)
+              }}
+            />
           </div>
           :
           <Select
@@ -349,24 +368,6 @@ export function KeyBindEditor(
           />
       }
 
-      <label>
-        <input
-          type='checkbox'
-          checked={validOnAddressbar}
-          onChange={(e) => setValidOnAddressbar(!validOnAddressbar)}
-        />
-        validOnAddressbar
-      </label>
-
-      <label>Dialog</label>
-      <Select
-        options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
-        value={dialogTypeToComboItem(dialogType)}
-        onChange={(val) => {
-          if (val === null) { return; }
-          setDialogType(val.value)
-        }}
-      />
       {button()}
     </div>
   </dialog>
