@@ -10,6 +10,10 @@ import { IsValidIndex } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+const buttonHeight = 70;
+const dlgHeightMagin = 60;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 export function KeyBindSettingPane(
   props: {
     height: number
@@ -40,7 +44,7 @@ export function KeyBindSettingPane(
 
   const [editingIndex, setEditingIndex] = useState(0);
   const [editDlg, Editor] = KeyBindEditor(
-    props.height,
+    (props.height - dlgHeightMagin),
     (
       editedKeyBindItem: CommandInfo,
       editedScriptContent: string,
@@ -64,9 +68,6 @@ export function KeyBindSettingPane(
     const editedContent = editedScriptContents.get(keyBindSetting.action.command) ?? null;
     Editor(keyBindSetting, editedContent)
   }
-
-
-  const buttonHeight = 70;
 
   const matchEx = (commandInfo: CommandInfo) => {
     if (!trgKey) { return true; }
@@ -287,86 +288,102 @@ export function KeyBindEditor(
     ref={dlg}>
     <div
       css={css({
-        display: 'grid',
-        gridTemplateRows: 'auto auto auto auto',
+        height: (height - buttonHeight),
+        overflow: 'scroll',
       })}
     >
-      <div>
-        <div>Name</div>
-        <input
-          type="text"
-          value={commandName}
-          onChange={e => { setCommandName(e.target.value) }}
-        />
-      </div>
-      <div>
-        <div>Key</div>
-        <input
-          type="text"
-          defaultValue={keyStr}
-          onKeyDown={event => setKey(event)}
-        />
-      </div>
-      <div>
-        <input
-          type="radio" name='CommandType'
-          checked={commandType == COMMAND_TYPE.power_shell}
-          onChange={() => setCommandType(COMMAND_TYPE.power_shell)} />
-        <label onClick={() => setCommandType(COMMAND_TYPE.power_shell)}>power_shell</label>
-        <input
-          type="radio" name='CommandType'
-          checked={commandType == COMMAND_TYPE.build_in}
-          onChange={() => setCommandType(COMMAND_TYPE.build_in)} />
-        <label onClick={() => setCommandType(COMMAND_TYPE.build_in)}>build_in</label>
-      </div>
-      {
-        (commandType == COMMAND_TYPE.power_shell) ?
-          <div>
+      <div
+        css={css({
+          display: 'grid',
+          gridTemplateRows: 'auto auto auto auto',
+        })}
+      >
+        <div>
+          <div>Name</div>
+          <input
+            type="text"
+            value={commandName}
+            onChange={e => { setCommandName(e.target.value) }}
+          />
+        </div>
+        <div>
+          <div>Key</div>
+          <input
+            type="text"
+            defaultValue={keyStr}
+            onKeyDown={event => setKey(event)}
+          />
+        </div>
+        <div>
+          <input
+            type="radio" name='CommandType'
+            checked={commandType == COMMAND_TYPE.power_shell}
+            onChange={() => setCommandType(COMMAND_TYPE.power_shell)} />
+          <label onClick={() => setCommandType(COMMAND_TYPE.power_shell)}>power_shell</label>
+          <input
+            type="radio" name='CommandType'
+            checked={commandType == COMMAND_TYPE.build_in}
+            onChange={() => setCommandType(COMMAND_TYPE.build_in)} />
+          <label onClick={() => setCommandType(COMMAND_TYPE.build_in)}>build_in</label>
+        </div>
+
+        <label>
+          <input
+            type='checkbox'
+            checked={validOnAddressbar}
+            onChange={(e) => setValidOnAddressbar(!validOnAddressbar)}
+          />
+          validOnAddressbar
+        </label>
+
+        {
+          (commandType == COMMAND_TYPE.power_shell) ?
             <div>
-              <div>ScriptPath</div>
-              <input
-                type="text"
-                value={commandFilePath}
-                onChange={e => { setCommandFilePath(e.target.value) }}
+              <div>
+                <div>ScriptPath</div>
+                <input
+                  type="text"
+                  value={commandFilePath}
+                  onChange={e => { setCommandFilePath(e.target.value) }}
+                />
+              </div>
+              <textarea
+                value={scriptContent}
+                onChange={e => {
+                  setScriptContent(e.target.value);
+                }}
+                rows={15}
+              />
+              <label>Dialog</label>
+              <Select
+                options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
+                value={dialogTypeToComboItem(dialogType)}
+                onChange={(val) => {
+                  if (val === null) { return; }
+                  setDialogType(val.value)
+                }}
               />
             </div>
-            <textarea
-              value={scriptContent}
-              onChange={e => {
-                setScriptContent(e.target.value);
+            :
+            <Select
+              options={Object.values(BUILDIN_COMMAND_TYPE).map(toComboItem)}
+              value={toComboItem(buildinCommandType ?? BUILDIN_COMMAND_TYPE.accessCurrentItem)}
+              onChange={(val) => {
+                if (val === null) { return; }
+                setBuildinCommandType(val.value)
               }}
-              rows={15}
             />
-          </div>
-          :
-          <Select
-            options={Object.values(BUILDIN_COMMAND_TYPE).map(toComboItem)}
-            value={toComboItem(buildinCommandType ?? BUILDIN_COMMAND_TYPE.accessCurrentItem)}
-            onChange={(val) => {
-              if (val === null) { return; }
-              setBuildinCommandType(val.value)
-            }}
-          />
-      }
+        }
 
-      <label>
-        <input
-          type='checkbox'
-          checked={validOnAddressbar}
-          onChange={(e) => setValidOnAddressbar(!validOnAddressbar)}
-        />
-        validOnAddressbar
-      </label>
-
-      <label>Dialog</label>
-      <Select
-        options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
-        value={dialogTypeToComboItem(dialogType)}
-        onChange={(val) => {
-          if (val === null) { return; }
-          setDialogType(val.value)
-        }}
-      />
+      </div>
+    </div>
+    <div
+      css={css({
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        height: buttonHeight,
+      })}
+    >
       {button()}
     </div>
   </dialog>
