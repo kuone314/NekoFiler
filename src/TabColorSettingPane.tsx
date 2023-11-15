@@ -31,7 +31,7 @@ export function TabColorSettingPane(
       color: {
         backGround: '',
         string: '',
-        frameHighlight: '',
+        activeHightlight: '',
       },
       match: {
         type: TabColorMatchingType.start_with,
