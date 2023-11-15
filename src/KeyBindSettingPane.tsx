@@ -73,7 +73,7 @@ export function KeyBindSettingPane(
 
   function AddCommand(): void {
     const newSetting = {
-      command_name: 'name',
+      command_name: 'new command',
       key: trgKeyStr,
       valid_on_addressbar: true,
       dialog_type: DIALOG_TYPE.none,
