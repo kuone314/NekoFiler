@@ -71,9 +71,22 @@ export function KeyBindSettingPane(
     border: '1pt solid #000000',
   });
 
+  const [addDlg, EditAddingCommand] = KeyBindEditor(
+    props.height,
+    (
+      editedKeyBindItem: CommandInfo,
+      editedScriptContent: string,
+    ) => {
+      let newSettings = keyBindSettings.concat(editedKeyBindItem);
+      setKeyBindSettings(newSettings);
+
+      const newEditedScriptContents = new Map(editedScriptContents);
+      newEditedScriptContents.set(editedKeyBindItem.action.command, editedScriptContent)
+      setEditedScriptContents(newEditedScriptContents)
+    });
   function AddCommand(): void {
     const newSetting = {
-      command_name: 'name',
+      command_name: 'new command',
       key: trgKeyStr,
       valid_on_addressbar: true,
       dialog_type: DIALOG_TYPE.none,
@@ -82,8 +95,7 @@ export function KeyBindSettingPane(
         command: '',
       }
     };
-    const newSettings = [...keyBindSettings, newSetting];
-    setKeyBindSettings(newSettings);
+    EditAddingCommand(newSetting, "");
   }
 
   return <>
@@ -93,6 +105,7 @@ export function KeyBindSettingPane(
       })}
     >
       {editDlg}
+      {addDlg}
       <div
         css={css({
           height: (props.height - buttonHeight),
