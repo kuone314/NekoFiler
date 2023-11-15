@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE } from './CommandInfo';
+import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType } from './CommandInfo';
 import { invoke } from '@tauri-apps/api';
 
 
@@ -209,7 +209,7 @@ export function KeyBindEditor(
     return { value: type, label: dialogTypeComboLabel(type) };
   }
 
-  const [buildinCommandType, setBuildinCommandType] = useState<BuildinCommandType>('accessCurrentItem');
+  const [buildinCommandType, setBuildinCommandType] = useState<BuildinCommandType | null>('accessCurrentItem');
   const comboLabel = (type: BuildinCommandType) => {
     switch (type) {
       case 'accessCurrentItem': return 'accessCurrentItem';
@@ -249,13 +249,14 @@ export function KeyBindEditor(
     >
       <button
         onClick={() => {
+          const command = (commandType == COMMAND_TYPE.power_shell) ? commandFilePath : buildinCommandType;
           onOk(
             {
               command_name: commandName,
               key: keyStr,
               action: {
                 type: commandType,
-                command: (commandType == COMMAND_TYPE.power_shell) ? commandFilePath : buildinCommandType,
+                command: command ?? "",
               },
               valid_on_addressbar: validOnAddressbar,
               dialog_type: dialogType
@@ -333,7 +334,7 @@ export function KeyBindEditor(
           :
           <Select
             options={Object.values(BUILDIN_COMMAND_TYPE).map(toComboItem)}
-            value={toComboItem(buildinCommandType)}
+            value={toComboItem(buildinCommandType ?? BUILDIN_COMMAND_TYPE.accessCurrentItem)}
             onChange={(val) => {
               if (val === null) { return; }
               setBuildinCommandType(val.value)
@@ -372,7 +373,7 @@ export function KeyBindEditor(
     setKeyStr(commandInfo.key);
     setCommandType(commandInfo.action.type);
     setCommandFilePath(!is_buildin ? commandInfo.action.command : "");
-    setBuildinCommandType(is_buildin ? commandInfo.action.command as BuildinCommandType : BUILDIN_COMMAND_TYPE.accessCurrentItem);
+    setBuildinCommandType(is_buildin ? ToBuildinCommandType(commandInfo.action.command) : null);
     setValidOnAddressbar(commandInfo.valid_on_addressbar);
     setDialogType(commandInfo.dialog_type);
 

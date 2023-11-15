@@ -46,6 +46,9 @@ export const BUILDIN_COMMAND_TYPE = {
   focusOppositePane: 'focusOppositePane',
 } as const;
 export type BuildinCommandType = typeof BUILDIN_COMMAND_TYPE[keyof typeof BUILDIN_COMMAND_TYPE];
+export function ToBuildinCommandType(src: string): BuildinCommandType | null {
+  return Object.values(BUILDIN_COMMAND_TYPE).find(val => val === src) ?? null;
+}
 
 export const DIALOG_TYPE = {
   none: "none",
