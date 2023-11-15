@@ -6,6 +6,7 @@ import { css } from '@emotion/react';
 import Select from 'react-select'
 import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType } from './CommandInfo';
 import { invoke } from '@tauri-apps/api';
+import { IsValidIndex } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,12 @@ export function KeyBindSettingPane(
       editedScriptContent: string,
     ) => {
       let newSettings = Array.from(keyBindSettings);
-      newSettings[editingIndex] = editedKeyBindItem;
+      if (IsValidIndex(newSettings, editingIndex)) {
+        newSettings[editingIndex] = editedKeyBindItem;
+      }
+      else {
+        newSettings.push(editedKeyBindItem);
+      }
       setKeyBindSettings(newSettings);
 
       const newEditedScriptContents = new Map(editedScriptContents);
@@ -71,20 +77,9 @@ export function KeyBindSettingPane(
     border: '1pt solid #000000',
   });
 
-  const [addDlg, EditAddingCommand] = KeyBindEditor(
-    props.height,
-    (
-      editedKeyBindItem: CommandInfo,
-      editedScriptContent: string,
-    ) => {
-      let newSettings = keyBindSettings.concat(editedKeyBindItem);
-      setKeyBindSettings(newSettings);
-
-      const newEditedScriptContents = new Map(editedScriptContents);
-      newEditedScriptContents.set(editedKeyBindItem.action.command, editedScriptContent)
-      setEditedScriptContents(newEditedScriptContents)
-    });
   function AddCommand(): void {
+    setEditingIndex(keyBindSettings.length)
+
     const newSetting = {
       command_name: 'new command',
       key: trgKeyStr,
@@ -95,7 +90,7 @@ export function KeyBindSettingPane(
         command: '',
       }
     };
-    EditAddingCommand(newSetting, "");
+    Editor(newSetting, "")
   }
 
   return <>
@@ -105,7 +100,6 @@ export function KeyBindSettingPane(
       })}
     >
       {editDlg}
-      {addDlg}
       <div
         css={css({
           height: (props.height - buttonHeight),
@@ -390,7 +384,7 @@ export function KeyBindEditor(
     setValidOnAddressbar(commandInfo.valid_on_addressbar);
     setDialogType(commandInfo.dialog_type);
 
-    if (editedScriptContent) {
+    if (editedScriptContent !== null) {
       setScriptContent(editedScriptContent);
     } else {
       if (commandInfo.action.type === 'power_shell') {
