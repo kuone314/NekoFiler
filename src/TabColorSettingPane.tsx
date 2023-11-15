@@ -31,6 +31,7 @@ export function TabColorSettingPane(
       color: {
         backGround: '',
         string: '',
+        frameHighlight: '',
       },
       match: {
         type: TabColorMatchingType.start_with,
@@ -151,6 +152,29 @@ export function TabColorSettingPane(
           }}
         />
       </label>
+      <label>
+        FrameHighlightColor
+        <input
+          type="text"
+          css={css({ width: '5em', })}
+          value={setting.color.activeHightlight}
+          onChange={e => {
+            const newSetting = [...tabColorSetting]
+            newSetting[activeIdx].color.activeHightlight = e.target.value;
+            setTabColorSetting([...newSetting])
+          }}
+        />
+        <input
+          type="color"
+          list="color-list"
+          value={setting.color.activeHightlight}
+          onChange={e => {
+            const newSetting = [...tabColorSetting]
+            newSetting[activeIdx].color.activeHightlight = e.target.value;
+            setTabColorSetting([...newSetting])
+          }}
+        />
+      </label>
       <div
         css={css({
           display: 'flex',
@@ -231,7 +255,7 @@ export function TabColorSettingPane(
               return <Button
                 style={{
                   textTransform: 'none',
-                  border: (idx === activeIdx) ? '5px solid #ff0000' : '',
+                  border: (idx === activeIdx) ? '5px solid ' + setting.color.activeHightlight : '',
                   background: setting.color.backGround,
                   color: setting.color.string,
                 }}
