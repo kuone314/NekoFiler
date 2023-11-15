@@ -50,7 +50,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
     {
       command_name: 'Copy to opposite dirctory',
       key: 'ctrl+c',
-      dialog_type: 'none',
+      dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
         command: 'script/Copy to opposite dirctory.ps1',
@@ -442,7 +442,10 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 
   (async () => {
     const script = `\
-Copy-Item -Recurse -Path $selecting_item_path_ary -Destination $opposite_dir\
+for ($index = 0; $index -lt $selecting_item_path_ary.count; $index++) {
+  $newName = $opposite_dir+'/'+$dialog_input_str_ary[$index]
+  Copy-Item -Recurse -Path $selecting_item_path_ary[$index] -Destination $newName
+}
 `;
     await invoke<void>("write_setting_file", {
       filename: "script/Copy to opposite dirctory.ps1",
