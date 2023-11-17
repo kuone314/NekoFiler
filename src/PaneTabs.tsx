@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button, MenuItem } from '@mui/material';
 
 
-import { separator, ApplySeparator } from './FilePathSeparator';
+import { separator } from './FilePathSeparator';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -13,6 +13,7 @@ import { TabColor, TabColorSetting } from './TabColorSetting';
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
 import { ControlledMenu } from '@szhsin/react-menu';
+import { DirName } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,11 +116,7 @@ export const PaneTabs = (
 
   const pathToTabName = (tab: TabInfo) => {
     const pinedPrefix = tab.pined ? "*:" : "";
-    const dirName = (() => {
-      const splited = ApplySeparator(tab.path, '/').split('/').reverse();
-      if (splited[0].length !== 0) { return splited[0]; }
-      return splited[1];
-    })();
+    const dirName = DirName(tab.path);
     return pinedPrefix + dirName;
   }
 
