@@ -29,6 +29,7 @@ const App = () => {
     setAplHeight(document.documentElement.clientHeight);
   })
 
+  const [tabColorSettingTrgDir, setTabColorSettingTrgDir] = useState<string>('');
   const [tabColorSetting, setTabColorSetting] = useState<TabColorSetting[]>([]);
   useEffect(() => {
     (async () => {
@@ -43,12 +44,13 @@ const App = () => {
         return <MainModeView
           height={aplHeight}
           tabColorSetting={tabColorSetting}
-          setTabColor={() => setMode(Mode.setTabColor)}
+          setTabColor={(trgDir) => { setTabColorSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
           setKeyBind={() => setMode(Mode.setKeyBindSettings)}
         />
       case Mode.setTabColor:
         return <TabColorSettingPane
           height={aplHeight}
+          trgDir={tabColorSettingTrgDir}
           tabColorSetting={tabColorSetting}
           setTabColorSetting={(setting) => {
             setTabColorSetting(setting);
