@@ -184,6 +184,7 @@ export function MainModeView(
                     onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
                     getOppositePath={getOppositePath}
                     addLogMessage={addLogMessage}
+                    setTabColor={props.setTabColor}
                     separator={separator}
                     gridRef={grid[idx]}
                     focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
