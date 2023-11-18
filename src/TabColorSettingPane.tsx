@@ -20,7 +20,12 @@ export function TabColorSettingPane(
   }
 ) {
   const [tabColorSetting, setTabColorSetting] = useState(props.tabColorSetting);
-  const [activeIdx, setActiveIdx] = useState<number>(0);
+
+  const initTab = () => {
+    const fondIdx = tabColorSetting.findIndex(setting => Match(setting, props.trgDir));
+    return (fondIdx === -1) ? 0 : fondIdx;
+  }
+  const [activeIdx, setActiveIdx] = useState<number>(initTab());
 
   const buttonHeight = 70;
   const heightMergin = 20; // これがないと、スクロールバーが出てしまう…
