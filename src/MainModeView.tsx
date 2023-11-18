@@ -28,7 +28,7 @@ export function MainModeView(
   props: {
     height: number,
     tabColorSetting: TabColorSetting[],
-    setTabColor: () => void,
+    setTabColor: (tabColorSettingTrgDir: string) => void,
     setKeyBind: () => void,
   }
 ) {
@@ -217,7 +217,7 @@ export function MainModeView(
               width: '85pt',
               padding: '10px',
             })}
-            onClick={() => props.setTabColor()}>
+            onClick={() => props.setTabColor(getPath())}>
             Set Tab Color
           </button>
           <button

@@ -96,7 +96,7 @@ function MatchImpl(setting: TabColorSetting, path: string): boolean {
   return false;
 }
 
-function Match(setting: TabColorSetting, path: string): boolean {
+ export function Match(setting: TabColorSetting, path: string): boolean {
   const path_ary = Object.values(SEPARATOR)
     .map(separator => ApplySeparator(path, separator) + separator);
   return !!path_ary.find(path => MatchImpl(setting, path));

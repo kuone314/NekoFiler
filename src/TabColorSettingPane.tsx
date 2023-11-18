@@ -3,15 +3,17 @@ import { useEffect, useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { TabColorMatchingType, TabColorSetting } from './TabColorSetting';
+import { Match, TabColorMatchingType, TabColorSetting, } from './TabColorSetting';
 import { Button } from '@mui/material';
 import Select from 'react-select'
+import { DirName } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function TabColorSettingPane(
   props: {
     height: number
+    trgDir: string
     tabColorSetting: TabColorSetting[]
     setTabColorSetting: (newValue: TabColorSetting[]) => void
     finishSetting: () => void
@@ -25,9 +27,8 @@ export function TabColorSettingPane(
   const mainHeight = (props.height - buttonHeight - heightMergin);
 
   const AddSetting = () => {
-    const newSetting = [...tabColorSetting,
-    {
-      name: 'Setting',
+    const newValue = {
+      name: DirName(props.trgDir),
       color: {
         backGround: '',
         string: '',
@@ -35,10 +36,15 @@ export function TabColorSettingPane(
       },
       match: {
         type: TabColorMatchingType.start_with,
-        string: '',
+        string: props.trgDir,
       }
-    }]
+    }
+    const newSetting = [...tabColorSetting]
+    const fondIdx = tabColorSetting.findIndex(setting => Match(setting, props.trgDir));
+    const insertPos = (fondIdx === -1) ? newSetting.length : fondIdx;
+    newSetting.splice(insertPos, 0, newValue)
     setTabColorSetting(newSetting)
+    setActiveIdx(insertPos);
   }
 
 
@@ -250,6 +256,11 @@ export function TabColorSettingPane(
             overflow: 'scroll',
           })}
         >
+          <button
+            onClick={() => AddSetting()}
+          >
+            +
+          </button>
           {
             tabColorSetting.map((setting, idx) => {
               return <Button
@@ -266,11 +277,6 @@ export function TabColorSettingPane(
               </Button>
             })
           }
-          <button
-            onClick={() => AddSetting()}
-          >
-            +
-          </button>
         </div>
         <div>
           {Impl()}
