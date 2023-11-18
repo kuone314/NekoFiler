@@ -37,6 +37,7 @@ export const PaneTabs = (
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     getOppositePath: () => string,
     addLogMessage: (message: string) => void,
+    setTabColor: (trgDir: string) => void,
     separator: separator,
     focusOppositePane: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
@@ -131,16 +132,6 @@ export const PaneTabs = (
       anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
     >
       <MenuItem
-        onClick={_ => removeTab(contextMenuTabIdx)}
-      >
-        Close Tab
-      </MenuItem>
-      <MenuItem
-        onClick={_ => removeOtherTabs(contextMenuTabIdx)}
-      >
-        Close Other Tabs
-      </MenuItem>
-      <MenuItem
         onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
       >
         Close Right Tabs
@@ -149,6 +140,26 @@ export const PaneTabs = (
         onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
       >
         Close Left Tabs
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeOtherTabs(contextMenuTabIdx)}
+      >
+        Close Other Tabs
+      </MenuItem>
+      <MenuItem
+        onClick={_ => removeTab(contextMenuTabIdx)}
+      >
+        Close Tab
+      </MenuItem>
+      <MenuItem
+        onClick={_ => props.setTabColor(tabAry[contextMenuTabIdx].path)}
+      >
+        Set Tab Color
+      </MenuItem>
+      <MenuItem
+        onClick={_ => togglePined(contextMenuTabIdx)}
+      >
+        Toggle Pin
       </MenuItem>
     </ControlledMenu>
   }
