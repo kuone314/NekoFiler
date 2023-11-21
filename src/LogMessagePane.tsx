@@ -13,6 +13,7 @@ export interface LogMessagePeinFunc {
 }
 
 export interface LogInfo {
+  title: string,
   stdout: string,
   stderr: string,
 }
@@ -24,7 +25,7 @@ export function LogMessagePein()
 
 
   const addMessage = (message: LogInfo) => {
-    setLogStr((prevLogStr) => prevLogStr + '\n' + message.stdout + '\n' + message.stderr);
+    setLogStr((prevLogStr) => prevLogStr + '\n' + message.title + '\n' + message.stdout + '\n' + message.stderr);
 
   };
 

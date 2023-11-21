@@ -222,7 +222,6 @@ export const MainPanel = (
 
   const [dialog, execShellCommand] = commandExecuter(
     () => { myGrid.current?.focus() },
-    props.addLogMessage,
   );
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -293,7 +292,7 @@ export const MainPanel = (
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
       accessFile: (fileName: string) => {
         const decoretedPath = '&"./' + fileName + '"';
-        executeShellCommand(decoretedPath, dir);
+        executeShellCommand('Access file', decoretedPath, dir);
       },
       focusOppositePane: props.focusOppositePane,
       getOppositePath: props.getOppositePath,
