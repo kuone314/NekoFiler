@@ -107,7 +107,7 @@ export function MainModeView(
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein();
   const addLogMessage = (message: string) => {
-    logMessagePeinFunc.addMessage(message);
+    logMessagePeinFunc.addMessage({ content: message });
   };
 
   const [updateDlg, Update] = Updater(addLogMessage);

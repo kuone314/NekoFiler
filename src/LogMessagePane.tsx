@@ -9,16 +9,21 @@ import { UnlistenFn, listen } from "@tauri-apps/api/event";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface LogMessagePeinFunc {
-  addMessage: (message: String) => void,
+  addMessage: (message: LogInfo) => void,
 }
+
+export interface LogInfo {
+  content: string,
+}
+
 
 export function LogMessagePein()
   : [JSX.Element, LogMessagePeinFunc,] {
   const [logStr, setLogStr] = useState('');
 
 
-  const addMessage = (message: String) => {
-    setLogStr((prevLogStr) => prevLogStr + '\n' + message);
+  const addMessage = (message: LogInfo) => {
+    setLogStr((prevLogStr) => prevLogStr + '\n' + message.content);
 
   };
 
@@ -26,7 +31,7 @@ export function LogMessagePein()
     let unlisten: UnlistenFn | null;
     (async () => {
       unlisten = await listen('LogMessageEvent', event => {
-        addMessage(event.payload as string);
+        addMessage(event.payload as LogInfo);
       });
     })()
     return () => {

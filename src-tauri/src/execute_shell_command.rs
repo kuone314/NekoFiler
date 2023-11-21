@@ -2,11 +2,16 @@
 use std::process::Command;
 
 use once_cell::sync::Lazy;
-use tauri::Manager;
 use std::collections::VecDeque;
 use std::sync::Mutex;
-static LOG_STACK: Lazy<Mutex<VecDeque<Box<String>>>> =
-    Lazy::new(|| Mutex::new(VecDeque::new()));
+use tauri::Manager;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct LogInfo {
+    content: String,
+}
+
+static LOG_STACK: Lazy<Mutex<VecDeque<Box<String>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
 
 #[tauri::command]
 pub fn execute_shell_command(dir: &str, command: &str) -> () {
@@ -35,5 +40,5 @@ fn execute_shell_command_impl(dir: &str, command: &str) -> Option<String> {
 pub fn push_log_message(app_handle: &tauri::AppHandle) {
     let Ok(mut log_stack) = LOG_STACK.lock() else {return;};
     let Some(message) = log_stack.pop_front() else {return;};
-    let _ = app_handle.emit_all("LogMessageEvent", message);
+    let _ = app_handle.emit_all("LogMessageEvent", LogInfo { content: message.to_string() });
 }
