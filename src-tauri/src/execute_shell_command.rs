@@ -11,7 +11,7 @@ pub struct LogInfo {
     content: String,
 }
 
-static LOG_STACK: Lazy<Mutex<VecDeque<Box<String>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
+static LOG_STACK: Lazy<Mutex<VecDeque<Box<LogInfo>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
 
 #[tauri::command]
 pub fn execute_shell_command(dir: &str, command: &str) -> () {
@@ -24,7 +24,7 @@ pub fn execute_shell_command(dir: &str, command: &str) -> () {
     });
 }
 
-fn execute_shell_command_impl(dir: &str, command: &str) -> Option<String> {
+fn execute_shell_command_impl(dir: &str, command: &str) -> Option<LogInfo> {
     let output = Command::new("Powershell")
         .args(["-WindowStyle", "Hidden"])
         .args(["-Command", &command])
@@ -34,11 +34,13 @@ fn execute_shell_command_impl(dir: &str, command: &str) -> Option<String> {
 
     let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
     let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
-    Some(std_out.to_string() + &std_err.to_string())
+    Some(LogInfo {
+        content: std_out.to_string() + &std_err.to_string(),
+    })
 }
 
 pub fn push_log_message(app_handle: &tauri::AppHandle) {
     let Ok(mut log_stack) = LOG_STACK.lock() else {return;};
     let Some(message) = log_stack.pop_front() else {return;};
-    let _ = app_handle.emit_all("LogMessageEvent", LogInfo { content: message.to_string() });
+    let _ = app_handle.emit_all("LogMessageEvent", message);
 }
