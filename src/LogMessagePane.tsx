@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { css } from "@emotion/react";
 import React from "react";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
+import { Box } from "@mui/material";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,15 +19,36 @@ export interface LogInfo {
   stderr: string,
 }
 
+function LopPane(logInfo: LogInfo) {
+  return <>
+    <Box
+      css={css({
+        width: '100%',
+        display: 'block',
+        flexShrink: 0,
+        border: '1pt solid #000000',
+        overflow: 'scroll',
+        wordBreak: 'break-all',
+        fontSize: '15px',
+      })}
+    >
+      <div css={css({})}>{logInfo.title}</div>
+      <div css={css({})}>{logInfo.stdout}</div>
+      <div css={css({})}>{logInfo.stderr}</div>
+    </Box >
+  </>;
+}
 
-export function LogMessagePein()
+
+export function LogMessagePein(props: {
+  height: number
+})
   : [JSX.Element, LogMessagePeinFunc,] {
-  const [logStr, setLogStr] = useState('');
+  const [logAry, setLogAry] = useState<LogInfo[]>([]);
 
 
   const addMessage = (message: LogInfo) => {
-    setLogStr((prevLogStr) => prevLogStr + '\n' + message.title + '\n' + message.stdout + '\n' + message.stderr);
-
+    setLogAry((prevLogAry) => [...prevLogAry, message]);
   };
 
   useEffect(() => {
@@ -41,24 +63,32 @@ export function LogMessagePein()
     }
   }, [])
 
-  const textareaRef = React.createRef<HTMLTextAreaElement>();
+  const logPaneRef = React.createRef<HTMLDivElement>();
   useEffect(() => {
-    textareaRef.current?.scrollTo(
-      textareaRef.current?.scrollWidth ?? 0,
-      textareaRef.current?.scrollHeight ?? 0)
-  }, [logStr]);
+    logPaneRef.current?.scrollTo(
+      logPaneRef.current?.scrollWidth ?? 0,
+      logPaneRef.current?.scrollHeight ?? 0)
+  }, [logAry]);
 
   const functions = {
     addMessage,
   }
   const element =
-    <textarea
-      css={css({
-        height: '100%',
-      })}
-      value={logStr}
-      disabled={true}
-      ref={textareaRef}
-    />
+    <>
+      <div
+        css={css({
+          height: props.height,
+          width: '100%',
+          overflow: 'scroll'
+        })}
+        ref={logPaneRef}
+      >
+        {
+          logAry.map((logInfo) => {
+            return LopPane(logInfo);
+          })
+        }
+      </div>
+    </>
   return [element, functions];
 }

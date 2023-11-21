@@ -19,6 +19,10 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+const buttonHeight = 50;
+const statusBarHeight = 25;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function GetActive(tab_info: TabsInfo) {
   return tab_info.pathAry[tab_info.activeTabIndex];
 }
@@ -105,7 +109,9 @@ export function MainModeView(
 
   const [separator, setSeparator] = useState<separator>('\\');
 
-  const [logMessagePein, logMessagePeinFunc] = LogMessagePein();
+  const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
+    height: props.height -20 - (buttonHeight * 5 + statusBarHeight),
+  });
   const addLogMessage = (message: LogInfo) => {
     logMessagePeinFunc.addMessage(message);
   };
@@ -201,13 +207,16 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr 0.1fr auto 0.1fr', // button button button button button logPane statusBar
-            height: '100%',
+            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr 0.1fr 0.4f 0.1fr', // button button button button button logPane statusBar
+            // height: '100%',
+            height: props.height - 20,
+            // overflow: 'scroll',
           })}
         >
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
@@ -216,6 +225,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => props.setTabColor(getPath())}>
@@ -224,6 +234,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => props.setKeyBind()}>
@@ -232,6 +243,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={OpenSettingDir}>
@@ -240,6 +252,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => Update()}>
@@ -248,6 +261,7 @@ export function MainModeView(
           {logMessagePein}
           <div // statas bar
             css={css({
+              height: statusBarHeight,
               textAlign: 'right',
             })}
           >
