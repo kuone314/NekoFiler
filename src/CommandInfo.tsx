@@ -12,6 +12,7 @@ import React from 'react';
 
 import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
 import { sleep } from './Utility';
+import { LogInfo } from './LogMessagePane';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const COMMAND_TYPE = {
@@ -148,7 +149,7 @@ type ExecShellCommand = (
 
 export function commandExecuter(
   onDialogClose: () => void,
-  addLogMessage: (message: string) => void,
+  addLogMessage: (message: LogInfo) => void,
 ): [JSX.Element, ExecShellCommand,] {
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const [title, setTitle] = useState<string>('');
@@ -197,8 +198,8 @@ export function commandExecuter(
     separator: separator,
   ) => {
     const fn = (dialog_input_string: string) => {
-      addLogMessage('---');
-      addLogMessage(command_name)
+      addLogMessage({ content: '---' });
+      addLogMessage({ content: command_name })
       execShellCommandImpl(
         script_path,
         ApplySeparator(current_dir, separator),

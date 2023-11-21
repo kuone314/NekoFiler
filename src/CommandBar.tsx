@@ -4,6 +4,7 @@ import { executeShellCommand } from './RustFuncs';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import { LogInfo } from './LogMessagePane';
 
 type Entry = {
   type: 'dir' | 'file';
@@ -14,13 +15,13 @@ type Entry = {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const CommandBar = (props: {
   path: () => string
-  addLogMessage: (message: string) => void,
+  addLogMessage: (message: LogInfo) => void,
 }) => {
   const [str, setStr] = useState<string>("");
 
   const onEnterDown = async () => {
-    props.addLogMessage('---');
-    props.addLogMessage(str);
+    props.addLogMessage({ content: '---' });
+    props.addLogMessage({ content: str });
     executeShellCommand(str, props.path());
     setStr("");
   }

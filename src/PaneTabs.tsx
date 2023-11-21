@@ -14,6 +14,7 @@ import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
 import { ControlledMenu } from '@szhsin/react-menu';
 import { DirName } from './Utility';
+import { LogInfo } from './LogMessagePane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,7 @@ export const PaneTabs = (
     onItemNumChanged: (newItemNum: number) => void,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     getOppositePath: () => string,
-    addLogMessage: (message: string) => void,
+    addLogMessage: (message: LogInfo) => void,
     setTabColor: (trgDir: string) => void,
     separator: separator,
     focusOppositePane: () => void,

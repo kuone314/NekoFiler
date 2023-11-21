@@ -8,7 +8,7 @@ import { PaneTabs } from './PaneTabs';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { LogMessagePein } from './LogMessagePane';
+import { LogInfo, LogMessagePein } from './LogMessagePane';
 import { TabColorSetting } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
@@ -106,8 +106,8 @@ export function MainModeView(
   const [separator, setSeparator] = useState<separator>('\\');
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein();
-  const addLogMessage = (message: string) => {
-    logMessagePeinFunc.addMessage({ content: message });
+  const addLogMessage = (message: LogInfo) => {
+    logMessagePeinFunc.addMessage(message);
   };
 
   const [updateDlg, Update] = Updater(addLogMessage);
@@ -118,7 +118,7 @@ export function MainModeView(
 
   async function OpenSettingDir(): Promise<void> {
     const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
-    if (!settingDir) { addLogMessage("Get setting dir failed."); return; }
+    if (!settingDir) { addLogMessage( { content: "Get setting dir failed." }); return; }
     addTab(settingDir)
   }
 
