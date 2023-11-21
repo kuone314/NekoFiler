@@ -20,8 +20,8 @@ const CommandBar = (props: {
   const [str, setStr] = useState<string>("");
 
   const onEnterDown = async () => {
-    props.addLogMessage({ content: '---' });
-    props.addLogMessage({ content: str });
+    props.addLogMessage({ stdout: '---', stderr: '' });
+    props.addLogMessage({ stdout: str, stderr: '' });
     executeShellCommand(str, props.path());
     setStr("");
   }

@@ -18,7 +18,7 @@ export function Updater(
     invoke<void>("update_filer", { version: targetVersiton }).catch(
       message => {
         const message_str = message as string;
-        addLogMessage({ content: message_str });
+        addLogMessage({ stdout: '', stderr: message_str });
       })
   }
 

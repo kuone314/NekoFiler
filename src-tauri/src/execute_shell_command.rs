@@ -8,7 +8,8 @@ use tauri::Manager;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LogInfo {
-    content: String,
+    stdout: String,
+    stderr: String,
 }
 
 static LOG_STACK: Lazy<Mutex<VecDeque<Box<LogInfo>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
@@ -35,7 +36,8 @@ fn execute_shell_command_impl(dir: &str, command: &str) -> Option<LogInfo> {
     let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
     let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
     Some(LogInfo {
-        content: std_out.to_string() + &std_err.to_string(),
+        stdout: std_out.to_string(),
+        stderr: std_err.to_string(),
     })
 }
 

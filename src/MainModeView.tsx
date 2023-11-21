@@ -118,7 +118,7 @@ export function MainModeView(
 
   async function OpenSettingDir(): Promise<void> {
     const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
-    if (!settingDir) { addLogMessage( { content: "Get setting dir failed." }); return; }
+    if (!settingDir) { addLogMessage( { stdout: '', stderr: "Get setting dir failed." }); return; }
     addTab(settingDir)
   }
 

@@ -198,8 +198,8 @@ export function commandExecuter(
     separator: separator,
   ) => {
     const fn = (dialog_input_string: string) => {
-      addLogMessage({ content: '---' });
-      addLogMessage({ content: command_name })
+      addLogMessage({ stdout: '---', stderr: '' });
+      addLogMessage({ stdout: command_name, stderr: '' })
       execShellCommandImpl(
         script_path,
         ApplySeparator(current_dir, separator),
