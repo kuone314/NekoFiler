@@ -20,6 +20,7 @@ import { basename, normalize } from '@tauri-apps/api/path';
 import { executeShellCommand } from './RustFuncs';
 import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
+import { LogInfo } from './LogMessagePane';
 
 const dummy: never[] = [];
 
@@ -36,7 +37,7 @@ export const MainPanel = (
     // changeTab: (offset: number) => void,
     tabFuncs: TabFuncs,
     getOppositePath: () => string,
-    addLogMessage: (message: string) => void,
+    addLogMessage: (message: LogInfo) => void,
     separator: separator,
     focusOppositePane: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
@@ -221,7 +222,6 @@ export const MainPanel = (
 
   const [dialog, execShellCommand] = commandExecuter(
     () => { myGrid.current?.focus() },
-    props.addLogMessage,
   );
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -292,7 +292,7 @@ export const MainPanel = (
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
       accessFile: (fileName: string) => {
         const decoretedPath = '&"./' + fileName + '"';
-        executeShellCommand(decoretedPath, dir);
+        executeShellCommand('Access file', decoretedPath, dir);
       },
       focusOppositePane: props.focusOppositePane,
       getOppositePath: props.getOppositePath,

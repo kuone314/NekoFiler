@@ -148,7 +148,6 @@ type ExecShellCommand = (
 
 export function commandExecuter(
   onDialogClose: () => void,
-  addLogMessage: (message: string) => void,
 ): [JSX.Element, ExecShellCommand,] {
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const [title, setTitle] = useState<string>('');
@@ -157,6 +156,7 @@ export function commandExecuter(
   const dlgOnOk = useRef<(dlgInput: string) => void>(() => { });
 
   const execShellCommandImpl = async (
+    command_name: string,
     script_file_name: string,
     current_dir: string,
     selecting_item_name_ary: string[],
@@ -185,7 +185,7 @@ export function commandExecuter(
     const command_strs = [path_ary_def, name_ary_def, current_dir_def, opposite_dir_def, dialog_input_def, command_line,];
     const replaced_command_line = command_strs.join('\n');
     console.log(replaced_command_line)
-    executeShellCommand(replaced_command_line, current_dir);
+    executeShellCommand(command_name, replaced_command_line, current_dir);
   }
   const execShellCommand = (
     command_name: string,
@@ -197,9 +197,8 @@ export function commandExecuter(
     separator: separator,
   ) => {
     const fn = (dialog_input_string: string) => {
-      addLogMessage('---');
-      addLogMessage(command_name)
       execShellCommandImpl(
+        command_name,
         script_path,
         ApplySeparator(current_dir, separator),
         selecting_item_name_ary,

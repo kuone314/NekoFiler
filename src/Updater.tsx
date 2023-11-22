@@ -5,17 +5,21 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { CurrentVersion } from './CurrentVersion';
+import { LogInfo } from './LogMessagePane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function Updater(
-  addLogMessage: (message: string) => void,
+  addLogMessage: (message: LogInfo) => void,
 ): [JSX.Element, () => void,] {
   const [latestVersiton, setLatestVersiton] = useState('');
   const [targetVersiton, setTargetVersiton] = useState('');
   const updateImpl = () => {
     invoke<void>("update_filer", { version: targetVersiton }).catch(
-      message => addLogMessage(message))
+      message => {
+        const message_str = message as string;
+        addLogMessage({ title: 'Update failed.', stdout: '', stderr: message_str, });
+      })
   }
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);

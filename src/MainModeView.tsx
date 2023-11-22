@@ -8,7 +8,7 @@ import { PaneTabs } from './PaneTabs';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { LogMessagePein } from './LogMessagePane';
+import { LogInfo, LogMessagePein } from './LogMessagePane';
 import { TabColorSetting } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
@@ -17,6 +17,10 @@ import { Updater } from './Updater';
 import { invoke } from '@tauri-apps/api/tauri';
 
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+const buttonHeight = 50;
+const statusBarHeight = 25;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function GetActive(tab_info: TabsInfo) {
@@ -105,8 +109,10 @@ export function MainModeView(
 
   const [separator, setSeparator] = useState<separator>('\\');
 
-  const [logMessagePein, logMessagePeinFunc] = LogMessagePein();
-  const addLogMessage = (message: string) => {
+  const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
+    height: props.height -20 - (buttonHeight * 5 + statusBarHeight),
+  });
+  const addLogMessage = (message: LogInfo) => {
     logMessagePeinFunc.addMessage(message);
   };
 
@@ -118,7 +124,7 @@ export function MainModeView(
 
   async function OpenSettingDir(): Promise<void> {
     const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
-    if (!settingDir) { addLogMessage("Get setting dir failed."); return; }
+    if (!settingDir) { addLogMessage({ title: "Get setting dir failed.", stdout: '', stderr: "" }); return; }
     addTab(settingDir)
   }
 
@@ -201,13 +207,16 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr 0.1fr auto 0.1fr', // button button button button button logPane statusBar
-            height: '100%',
+            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr 0.1fr 0.4f 0.1fr', // button button button button button logPane statusBar
+            // height: '100%',
+            height: props.height - 20,
+            // overflow: 'scroll',
           })}
         >
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
@@ -216,6 +225,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => props.setTabColor(getPath())}>
@@ -224,6 +234,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => props.setKeyBind()}>
@@ -232,6 +243,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={OpenSettingDir}>
@@ -240,6 +252,7 @@ export function MainModeView(
           <button
             css={css({
               width: '85pt',
+              height: buttonHeight,
               padding: '10px',
             })}
             onClick={() => Update()}>
@@ -248,6 +261,7 @@ export function MainModeView(
           {logMessagePein}
           <div // statas bar
             css={css({
+              height: statusBarHeight,
               textAlign: 'right',
             })}
           >
