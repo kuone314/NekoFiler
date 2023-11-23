@@ -32,9 +32,6 @@ export const MainPanel = (
     onPathChanged: (newPath: string) => void
     onItemNumChanged: (newItemNum: number) => void,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
-    // addNewTab: (newTabPath: string) => void,
-    // removeTab: () => void,
-    // changeTab: (offset: number) => void,
     tabFuncs: TabFuncs,
     getOppositePath: () => string,
     addLogMessage: (message: LogInfo) => void,
