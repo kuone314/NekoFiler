@@ -505,10 +505,6 @@ function IncremantalSearch(
   entries: Entries,
   incremantalSearchingStr: string
 ): number {
-  interface SortInfo {
-    orgIdx: number,
-    matchIdxAry: number[],
-  }
   function MatchIndexAry(
     filename: string,
     incremantalSearchingStr: string
