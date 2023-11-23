@@ -302,13 +302,32 @@ export const MainPanel = (
     }
   );
 
+  const [filter, setFilter] = useState<string>('');
+  const filterBar = <div
+    css={css({
+      display: 'grid',
+      gridTemplateColumns: 'auto auto',
+      textAlign: 'right',
+    })}
+  >
+    <div>Filter:</div>
+    <input
+      css={css({
+        height: '10px',
+      })}
+      type="text"
+      value={filter}
+      onChange={e => setFilter(e.target.value)}
+    />
+  </div>
+
   return (
     <>
       <div
         onKeyDown={handlekeyboardnavigation}
         css={css({
           display: 'grid',
-          gridTemplateRows: 'auto 1fr',
+          gridTemplateRows: 'auto auto 1fr',
           overflow: 'auto',
           width: '100%',
           height: '100%',
@@ -316,6 +335,7 @@ export const MainPanel = (
       >
         {contextMenu()}
         {addressBar}
+        {filterBar}
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
           onDoubleClick={onDoubleClick}
