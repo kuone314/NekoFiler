@@ -22,8 +22,6 @@ import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
 
-const dummy: never[] = [];
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
   props: {
@@ -42,15 +40,14 @@ export const MainPanel = (
 ) => {
   const [dir, setDir] = useState<string>(props.initPath);
   useEffect(() => { setDir(props.initPath) }, [props.initPath]);
-  const [entries, setEntries] = useState<Entries | null>(null);
-  const [initCurrentItemHint, setInitSelectItemHint] = useState<string>('');
+  const [isValidDir, setIsValidDir] = useState<boolean>(false);
 
 
   const accessDirectry = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
       .catch(error => {
         setDir(path);
-        setEntries(null);
+        setIsValidDir(false);
         return null;
       }
       );
@@ -68,29 +65,30 @@ export const MainPanel = (
     const newEntries = await invoke<Entries>("get_entries", { path: newDir })
       .catch(err => { return null; });
 
-    setEntries(newEntries);
     setDir(newDir);
-    setInitSelectItemHint(trgFile);
+    props.onItemNumChanged(newEntries?.length ?? 0);
+    setIsValidDir(newEntries !== null);
+    if (newEntries !== null) {
+      FileListFunctions.initEntries(newEntries, trgFile);
+    }
   }
 
   const UpdateList = async () => {
     const newEntries = await invoke<Entries>("get_entries", { path: dir })
       .catch(err => { return null; });
 
+    props.onItemNumChanged(newEntries?.length ?? 0);
+
     if (!newEntries) {
-      setEntries(null);
+      setIsValidDir(false);
     } else {
-      if (!entries) {
-        setEntries(newEntries);
+      if (!isValidDir) {
+        FileListFunctions.initEntries(newEntries, "");
       } else {
         FileListFunctions.updateEntries(newEntries);
       }
     }
   }
-
-  useEffect(() => {
-    props.onItemNumChanged(entries?.length ?? 0);
-  }, [entries]);
 
   useEffect(() => {
     AccessDirectory(dir, "");
@@ -282,8 +280,6 @@ export const MainPanel = (
   }
   const [fileList, FileListFunctions] = FileList(
     {
-      entries: entries ?? dummy,
-      initCurrentItemHint: initCurrentItemHint,
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
@@ -333,7 +329,7 @@ export const MainPanel = (
           }}
         >
           {
-            entries
+            isValidDir
               ? fileList
               : <div>Directry Unfound.</div>
           }

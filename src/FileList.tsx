@@ -33,6 +33,7 @@ export interface FileListFunc {
   selectingItemName: () => string[],
   incremantalSearch: (searchStr: string) => void,
   accessCurrentItem: () => void,
+  initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
@@ -50,8 +51,6 @@ export interface FileListFunc {
 
 export function FileList(
   props: {
-    entries: Entries,
-    initCurrentItemHint: string,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
@@ -64,15 +63,7 @@ export function FileList(
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initCurrentItemHint);
-  useEffect(() => {
-    setInitSelectItemHint(props.initCurrentItemHint);
-  }, [props.initCurrentItemHint]);
-  useEffect(() => {
-    setInitSelectItemHint("");
-  }, [currentIndex]);
-
-  const [entries, setEntries] = useState<Entries>(props.entries);
+  const [entries, setEntries] = useState<Entries>([]);
   const setupEntries = (srcEntries: Entries) => {
     const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
@@ -89,10 +80,7 @@ export function FileList(
       entries,
       newEntries);
 
-
-    const selectTrg = (initSelectItemHint !== "")
-      ? initSelectItemHint
-      : currentItemName();
+    const selectTrg = currentItemName();
     const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
 
 
@@ -105,9 +93,14 @@ export function FileList(
     setupEntries(entries);
   }, [sortKey]);
 
-  useEffect(() => {
-    setupEntries(props.entries);
-  }, [props.entries, initSelectItemHint]);
+
+  const initEntries = (newEntries: Entries, initItem: string) => {
+    setEntries(newEntries);
+    setCurrentIndex(CalcNewCurrentIndex(newEntries, initItem, currentIndex));
+    setSelectingIndexArray(new Set());
+    setEntries(newEntries);
+    setupEntries(newEntries);
+  }
 
   const updateEntries = (newEntries: Entries) => {
     const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
@@ -400,6 +393,7 @@ export function FileList(
     selectingItemName: selectingItemName,
     incremantalSearch: incremantalSearch,
     accessCurrentItem: accessCurrentItem,
+    initEntries: initEntries,
     updateEntries: updateEntries,
     moveUp: moveUp,
     moveUpSelect: moveUpSelect,
