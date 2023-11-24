@@ -99,6 +99,9 @@ export function FileList(
   }
 
   const updateEntries = (newEntries: Entries) => {
+    // 既にある物の位置は変えない。
+    // 新規の物を下に追加しする。
+    // 新規がある場合は、新規の物のみを選択状態にする。
     const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
     const newEntriesNormalized = newEntries.map(entry => JSON.stringify(entry)).sort();
 
