@@ -64,7 +64,7 @@ export function FileList(
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [entries, setEntries] = useState<Entries>([]);
-  const setupEntries = (srcEntries: Entries) => {
+  const setupEntries = (srcEntries: Entries, selectTrg: string | null) => {
     const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
       switch (sortKey) {
@@ -80,7 +80,6 @@ export function FileList(
       entries,
       newEntries);
 
-    const selectTrg = currentItemName();
     const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
 
 
@@ -90,16 +89,13 @@ export function FileList(
     setCurrentIndex(newIndex);
   }
   useEffect(() => {
-    setupEntries(entries);
+    setupEntries(entries, currentItemName());
   }, [sortKey]);
 
 
   const initEntries = (newEntries: Entries, initItem: string) => {
-    setEntries(newEntries);
-    setCurrentIndex(CalcNewCurrentIndex(newEntries, initItem, currentIndex));
     setSelectingIndexArray(new Set());
-    setEntries(newEntries);
-    setupEntries(newEntries);
+    setupEntries(newEntries, initItem);
   }
 
   const updateEntries = (newEntries: Entries) => {
