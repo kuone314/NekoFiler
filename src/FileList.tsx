@@ -434,6 +434,13 @@ export function FileList(
     });
   }
 
+  const filteredItemNumInfo = () => {
+    const filteredNum = (orgEntries.length - entries.length);
+    if (filteredNum === 0) { return '.' } // 余白を設けるため、空文字にはしない
+    return filteredNum + ' file(s) filterd.'
+  }
+
+
   const functions = {
     selectingItemName: selectingItemName,
     incremantalSearch: incremantalSearch,
@@ -513,7 +520,7 @@ export function FileList(
       onMouseDown={(event) => { onMouseDown(entries.length, event) }}
       onMouseUp={(event) => { onMouseUp(entries.length) }}
       onMouseMove={(event) => { onMouseMove(entries.length, event) }}
-    >. </div>
+    >{filteredItemNumInfo()} </div>
   </div >
 
   return [element, functions];
