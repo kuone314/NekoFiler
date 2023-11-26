@@ -507,26 +507,27 @@ function ToTypeName(entry: Entry) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+export function MatchIndexAry(
+  filename: string,
+  incremantalSearchingStr: string
+): number[] {
+  let result: number[] = [];
+  for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
+    const str = incremantalSearchingStr[idx];
+    const searchStartIdx = result.at(-1) ?? 0;
+    const searchStr = filename.slice(searchStartIdx);
+    const foundIdx = searchStr.indexOf(str);
+    if (foundIdx === -1) { return []; }
+    result.push(searchStartIdx + 1 + foundIdx);
+  }
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function IncremantalSearch(
   entries: Entries,
   incremantalSearchingStr: string
 ): number {
-  function MatchIndexAry(
-    filename: string,
-    incremantalSearchingStr: string
-  ): number[] {
-    let result: number[] = [];
-    for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
-      const str = incremantalSearchingStr[idx];
-      const searchStartIdx = result.at(-1) ?? 0;
-      const searchStr = filename.slice(searchStartIdx);
-      const foundIdx = searchStr.indexOf(str);
-      if (foundIdx === -1) { return []; }
-      result.push(searchStartIdx + 1 + foundIdx);
-    }
-    return result;
-  }
-
   const matchIdxArys = entries
     .map((entry, idx) => {
       return {
