@@ -7,6 +7,7 @@ import React from 'react';
 import { css } from '@emotion/react'
 
 import { FileNameColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
+import { IsValidIndex } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
@@ -129,7 +130,7 @@ export function FileList(
   }
 
   const currentItemName = () => {
-    if (currentIndex < 0 || entries.length <= currentIndex) { return null; }
+    if (!IsValidIndex(entries, currentIndex)) { return null; }
     return entries[currentIndex].name;
   }
 
