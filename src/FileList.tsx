@@ -7,6 +7,7 @@ import React from 'react';
 import { css } from '@emotion/react'
 
 import { FileNameColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
+import { IsValidIndex } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
@@ -33,6 +34,7 @@ export interface FileListFunc {
   selectingItemName: () => string[],
   incremantalSearch: (searchStr: string) => void,
   accessCurrentItem: () => void,
+  initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
@@ -50,8 +52,6 @@ export interface FileListFunc {
 
 export function FileList(
   props: {
-    entries: Entries,
-    initCurrentItemHint: string,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
@@ -64,16 +64,8 @@ export function FileList(
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [initSelectItemHint, setInitSelectItemHint] = useState(props.initCurrentItemHint);
-  useEffect(() => {
-    setInitSelectItemHint(props.initCurrentItemHint);
-  }, [props.initCurrentItemHint]);
-  useEffect(() => {
-    setInitSelectItemHint("");
-  }, [currentIndex]);
-
-  const [entries, setEntries] = useState<Entries>(props.entries);
-  const setupEntries = (srcEntries: Entries) => {
+  const [entries, setEntries] = useState<Entries>([]);
+  const setupEntries = (srcEntries: Entries, selectTrg: string | null) => {
     const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
       switch (sortKey) {
@@ -89,10 +81,6 @@ export function FileList(
       entries,
       newEntries);
 
-
-    const selectTrg = (initSelectItemHint !== "")
-      ? initSelectItemHint
-      : currentItemName();
     const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
 
 
@@ -102,14 +90,19 @@ export function FileList(
     setCurrentIndex(newIndex);
   }
   useEffect(() => {
-    setupEntries(entries);
+    setupEntries(entries, currentItemName());
   }, [sortKey]);
 
-  useEffect(() => {
-    setupEntries(props.entries);
-  }, [props.entries, initSelectItemHint]);
+
+  const initEntries = (newEntries: Entries, initItem: string) => {
+    setSelectingIndexArray(new Set());
+    setupEntries(newEntries, initItem);
+  }
 
   const updateEntries = (newEntries: Entries) => {
+    // 既にある物の位置は変えない。
+    // 新規の物を下に追加しする。
+    // 新規がある場合は、新規の物のみを選択状態にする。
     const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
     const newEntriesNormalized = newEntries.map(entry => JSON.stringify(entry)).sort();
 
@@ -137,7 +130,7 @@ export function FileList(
   }
 
   const currentItemName = () => {
-    if (currentIndex < 0 || entries.length <= currentIndex) { return null; }
+    if (!IsValidIndex(entries, currentIndex)) { return null; }
     return entries[currentIndex].name;
   }
 
@@ -400,6 +393,7 @@ export function FileList(
     selectingItemName: selectingItemName,
     incremantalSearch: incremantalSearch,
     accessCurrentItem: accessCurrentItem,
+    initEntries: initEntries,
     updateEntries: updateEntries,
     moveUp: moveUp,
     moveUpSelect: moveUpSelect,
@@ -505,10 +499,6 @@ function IncremantalSearch(
   entries: Entries,
   incremantalSearchingStr: string
 ): number {
-  interface SortInfo {
-    orgIdx: number,
-    matchIdxAry: number[],
-  }
   function MatchIndexAry(
     filename: string,
     incremantalSearchingStr: string
