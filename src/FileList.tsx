@@ -87,16 +87,18 @@ export function FileList(
       }
     });
 
+    const newFinterdEntries = newEntries.filter(filter.IsMatch);
+
     const newIdxAry = CalcNewSelectIndexAry(
       selectingIndexArray,
       entries,
-      newEntries);
+      newFinterdEntries);
 
-    const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
+    const newIndex = CalcNewCurrentIndex(newFinterdEntries, selectTrg, currentIndex);
 
 
     setOrgEntries(newEntries);
-    setEntries(newEntries);
+    setEntries(newFinterdEntries);
     setSelectingIndexArray(new Set([...newIdxAry]));
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
