@@ -113,15 +113,17 @@ export function FileList(
     setupEntries(newEntries, initItem);
   }
 
-  const updateEntries = (newEntries: Entries) => {
+  const updateEntries = (newOrgEntries: Entries) => {
     // 既にある物の位置は変えない。
     // 新規の物を下に追加しする。
     // 新規がある場合は、新規の物のみを選択状態にする。
     const orgEntriesNormalized = orgEntries.map(entry => JSON.stringify(entry)).sort();
-    const newEntriesNormalized = newEntries.map(entry => JSON.stringify(entry)).sort();
+    const newEntriesNormalized = newOrgEntries.map(entry => JSON.stringify(entry)).sort();
 
     const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
     if (!modified) { return; }
+
+    const newEntries = newOrgEntries.filter(filter.IsMatch);
 
     const inherit = entries
       .map(entry => newEntries.find(newEntry => newEntry.name == entry.name))
@@ -140,7 +142,7 @@ export function FileList(
       : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntriesOrderKeeped);
     setSelectingIndexArray(new Set([...newIdxAry]));
 
-    setOrgEntries(newEntriesOrderKeeped);
+    setOrgEntries(newOrgEntries);
     setEntries(newEntriesOrderKeeped);
   }
 
