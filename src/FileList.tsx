@@ -7,7 +7,7 @@ import React from 'react';
 import { css } from '@emotion/react'
 
 import { FileNameColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
-import { IsValidIndex } from './Utility';
+import { IsValidIndex, LastIndex } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
@@ -73,7 +73,9 @@ export function FileList(
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const [orgEntries, setOrgEntries] = useState<Entries>([]);
   const [entries, setEntries] = useState<Entries>([]);
+
   const setupEntries = (srcEntries: Entries, selectTrg: string | null) => {
     const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
@@ -93,13 +95,14 @@ export function FileList(
     const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
 
 
+    setOrgEntries(newEntries);
     setEntries(newEntries);
     setSelectingIndexArray(new Set([...newIdxAry]));
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
   }
   useEffect(() => {
-    setupEntries(entries, currentItemName());
+    setupEntries(orgEntries, currentItemName());
   }, [sortKey]);
 
 
@@ -112,7 +115,7 @@ export function FileList(
     // 既にある物の位置は変えない。
     // 新規の物を下に追加しする。
     // 新規がある場合は、新規の物のみを選択状態にする。
-    const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
+    const orgEntriesNormalized = orgEntries.map(entry => JSON.stringify(entry)).sort();
     const newEntriesNormalized = newEntries.map(entry => JSON.stringify(entry)).sort();
 
     const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
@@ -135,6 +138,7 @@ export function FileList(
       : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntriesOrderKeeped);
     setSelectingIndexArray(new Set([...newIdxAry]));
 
+    setOrgEntries(newEntriesOrderKeeped);
     setEntries(newEntriesOrderKeeped);
   }
 
