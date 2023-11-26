@@ -21,6 +21,14 @@ export type Entry = {
 export type Entries = Array<Entry>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+export interface IEntryFilter {
+  IsMatch(entry: Entry): boolean;
+}
+class ThrouthFilter implements IEntryFilter {
+  IsMatch(_: Entry): boolean { return true; }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 const SORT_KEY = {
   name: "name",
   type: "type",
@@ -36,6 +44,7 @@ export interface FileListFunc {
   accessCurrentItem: () => void,
   initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
+  setFilter: (filter: IEntryFilter) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -128,6 +137,8 @@ export function FileList(
 
     setEntries(newEntriesOrderKeeped);
   }
+
+  const [filter, setFilter] = useState<IEntryFilter>(new ThrouthFilter);
 
   const currentItemName = () => {
     if (!IsValidIndex(entries, currentIndex)) { return null; }
@@ -395,6 +406,7 @@ export function FileList(
     accessCurrentItem: accessCurrentItem,
     initEntries: initEntries,
     updateEntries: updateEntries,
+    setFilter: setFilter,
     moveUp: moveUp,
     moveUpSelect: moveUpSelect,
     moveDown: moveDown,
