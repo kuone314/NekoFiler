@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
-import { FileList, Entries } from './FileList';
+import { FileList, Entries, IEntryFilter, Entry, MatchIndexAry } from './FileList';
 import { COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE, CommandInfo } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
@@ -303,6 +303,16 @@ export const MainPanel = (
   );
 
   const [filter, setFilter] = useState<string>('');
+  useEffect(() => {
+    class FilterImpl implements IEntryFilter {
+      IsMatch(entry: Entry): boolean {
+        if (filter.length === 0) { return true; }
+        return (MatchIndexAry(entry.name, filter).length !== 0);
+      }
+    }
+    FileListFunctions.setFilter(new FilterImpl);
+  }, [filter]);
+
   const filterBar = <div
     css={css({
       display: 'grid',
