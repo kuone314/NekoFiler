@@ -145,6 +145,32 @@ export function FileList(
   }
 
   const [filter, setFilter] = useState<IEntryFilter>(new ThrouthFilter);
+  useEffect(() => { OnFilterUpdate(); }, [filter]);
+
+  function OnFilterUpdate() {
+    const newEntries = orgEntries.filter(filter.IsMatch);
+
+    const newIndex = (() => {
+      const firstMatchEntryAfterCurrent = orgEntries
+        .slice(orgEntries.findIndex(entry => entry.name === currentItemName()))
+        .find(entry => filter.IsMatch(entry));
+
+      const firstMatchNameAfterCurrent = firstMatchEntryAfterCurrent?.name
+      return (firstMatchNameAfterCurrent !== undefined)
+        ? newEntries.findIndex(entry => entry.name === firstMatchNameAfterCurrent)
+        : LastIndex(newEntries);
+    })();
+
+    const newIdxAry = CalcNewSelectIndexAry(
+      selectingIndexArray,
+      entries,
+      newEntries);
+
+    setEntries(newEntries);
+    setCurrentIndex(newIndex);
+    setSelectingIndexArray(new Set([...newIdxAry]));
+  }
+
 
   const currentItemName = () => {
     if (!IsValidIndex(entries, currentIndex)) { return null; }
