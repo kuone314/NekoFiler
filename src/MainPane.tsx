@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
-import { FileList, Entries } from './FileList';
+import { FileList, Entries, IEntryFilter, Entry, MatchIndexAry } from './FileList';
 import { COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE, CommandInfo } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
@@ -168,8 +168,8 @@ export const MainPanel = (
   }, []);
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
-
-    const validKeyBindInfo = addressBarFunc.isFocus()
+    const isFocusAddressBar = addressBarFunc.isFocus() || isFocusOnFilter;
+    const validKeyBindInfo = isFocusAddressBar
       ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
       : keyBindInfo;
     const command_ary = validKeyBindInfo.filter(cmd => match(keyboard_event, cmd.key));
@@ -192,7 +192,7 @@ export const MainPanel = (
       return;
     }
 
-    if (!addressBarFunc.isFocus() && keyboard_event.key.length === 1) {
+    if (!isFocusAddressBar && keyboard_event.key.length === 1) {
       FileListFunctions.incremantalSearch(keyboard_event.key)
       return;
     }
@@ -302,13 +302,45 @@ export const MainPanel = (
     }
   );
 
+  const [filter, setFilter] = useState<string>('');
+  const [isFocusOnFilter, setIsFocusOnFilter] = useState(false);
+  useEffect(() => {
+    class FilterImpl implements IEntryFilter {
+      IsMatch(entry: Entry): boolean {
+        if (filter.length === 0) { return true; }
+        return (MatchIndexAry(entry.name, filter).length !== 0);
+      }
+    }
+    FileListFunctions.setFilter(new FilterImpl);
+  }, [filter]);
+
+  const filterBar = <div
+    css={css({
+      display: 'grid',
+      gridTemplateColumns: 'auto auto',
+      textAlign: 'right',
+    })}
+  >
+    <div>Filter:</div>
+    <input
+      css={css({
+        height: '10px',
+      })}
+      type="text"
+      value={filter}
+      onChange={e => setFilter(e.target.value)}
+      onFocus={_ => setIsFocusOnFilter(true)}
+      onBlur={_ => setIsFocusOnFilter(false)}
+    />
+  </div>
+
   return (
     <>
       <div
         onKeyDown={handlekeyboardnavigation}
         css={css({
           display: 'grid',
-          gridTemplateRows: 'auto 1fr',
+          gridTemplateRows: 'auto auto 1fr',
           overflow: 'auto',
           width: '100%',
           height: '100%',
@@ -316,6 +348,7 @@ export const MainPanel = (
       >
         {contextMenu()}
         {addressBar}
+        {filterBar}
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
           onDoubleClick={onDoubleClick}

@@ -7,7 +7,7 @@ import React from 'react';
 import { css } from '@emotion/react'
 
 import { FileNameColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
-import { IsValidIndex } from './Utility';
+import { IsValidIndex, LastIndex } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
@@ -19,6 +19,14 @@ export type Entry = {
 };
 
 export type Entries = Array<Entry>;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export interface IEntryFilter {
+  IsMatch(entry: Entry): boolean;
+}
+class ThrouthFilter implements IEntryFilter {
+  IsMatch(_: Entry): boolean { return true; }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const SORT_KEY = {
@@ -36,6 +44,7 @@ export interface FileListFunc {
   accessCurrentItem: () => void,
   initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
+  setFilter: (filter: IEntryFilter) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -64,7 +73,9 @@ export function FileList(
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const [orgEntries, setOrgEntries] = useState<Entries>([]);
   const [entries, setEntries] = useState<Entries>([]);
+
   const setupEntries = (srcEntries: Entries, selectTrg: string | null) => {
     const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
@@ -76,21 +87,24 @@ export function FileList(
       }
     });
 
+    const newFinterdEntries = newEntries.filter(filter.IsMatch);
+
     const newIdxAry = CalcNewSelectIndexAry(
       selectingIndexArray,
       entries,
-      newEntries);
+      newFinterdEntries);
 
-    const newIndex = CalcNewCurrentIndex(newEntries, selectTrg, currentIndex);
+    const newIndex = CalcNewCurrentIndex(newFinterdEntries, selectTrg, currentIndex);
 
 
-    setEntries(newEntries);
+    setOrgEntries(newEntries);
+    setEntries(newFinterdEntries);
     setSelectingIndexArray(new Set([...newIdxAry]));
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex);
   }
   useEffect(() => {
-    setupEntries(entries, currentItemName());
+    setupEntries(orgEntries, currentItemName());
   }, [sortKey]);
 
 
@@ -99,15 +113,17 @@ export function FileList(
     setupEntries(newEntries, initItem);
   }
 
-  const updateEntries = (newEntries: Entries) => {
+  const updateEntries = (newOrgEntries: Entries) => {
     // 既にある物の位置は変えない。
     // 新規の物を下に追加しする。
     // 新規がある場合は、新規の物のみを選択状態にする。
-    const orgEntriesNormalized = entries.map(entry => JSON.stringify(entry)).sort();
-    const newEntriesNormalized = newEntries.map(entry => JSON.stringify(entry)).sort();
+    const orgEntriesNormalized = orgEntries.map(entry => JSON.stringify(entry)).sort();
+    const newEntriesNormalized = newOrgEntries.map(entry => JSON.stringify(entry)).sort();
 
     const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
     if (!modified) { return; }
+
+    const newEntries = newOrgEntries.filter(filter.IsMatch);
 
     const inherit = entries
       .map(entry => newEntries.find(newEntry => newEntry.name == entry.name))
@@ -126,8 +142,37 @@ export function FileList(
       : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntriesOrderKeeped);
     setSelectingIndexArray(new Set([...newIdxAry]));
 
+    setOrgEntries(newOrgEntries);
     setEntries(newEntriesOrderKeeped);
   }
+
+  const [filter, setFilter] = useState<IEntryFilter>(new ThrouthFilter);
+  useEffect(() => { OnFilterUpdate(); }, [filter]);
+
+  function OnFilterUpdate() {
+    const newEntries = orgEntries.filter(filter.IsMatch);
+
+    const newIndex = (() => {
+      const firstMatchEntryAfterCurrent = orgEntries
+        .slice(orgEntries.findIndex(entry => entry.name === currentItemName()))
+        .find(entry => filter.IsMatch(entry));
+
+      const firstMatchNameAfterCurrent = firstMatchEntryAfterCurrent?.name
+      return (firstMatchNameAfterCurrent !== undefined)
+        ? newEntries.findIndex(entry => entry.name === firstMatchNameAfterCurrent)
+        : LastIndex(newEntries);
+    })();
+
+    const newIdxAry = CalcNewSelectIndexAry(
+      selectingIndexArray,
+      entries,
+      newEntries);
+
+    setEntries(newEntries);
+    setCurrentIndex(newIndex);
+    setSelectingIndexArray(new Set([...newIdxAry]));
+  }
+
 
   const currentItemName = () => {
     if (!IsValidIndex(entries, currentIndex)) { return null; }
@@ -389,12 +434,20 @@ export function FileList(
     });
   }
 
+  const filteredItemNumInfo = () => {
+    const filteredNum = (orgEntries.length - entries.length);
+    if (filteredNum === 0) { return '.' } // 余白を設けるため、空文字にはしない
+    return filteredNum + ' file(s) filterd.'
+  }
+
+
   const functions = {
     selectingItemName: selectingItemName,
     incremantalSearch: incremantalSearch,
     accessCurrentItem: accessCurrentItem,
     initEntries: initEntries,
     updateEntries: updateEntries,
+    setFilter: setFilter,
     moveUp: moveUp,
     moveUpSelect: moveUpSelect,
     moveDown: moveDown,
@@ -467,7 +520,7 @@ export function FileList(
       onMouseDown={(event) => { onMouseDown(entries.length, event) }}
       onMouseUp={(event) => { onMouseUp(entries.length) }}
       onMouseMove={(event) => { onMouseMove(entries.length, event) }}
-    >. </div>
+    >{filteredItemNumInfo()} </div>
   </div >
 
   return [element, functions];
@@ -495,26 +548,27 @@ function ToTypeName(entry: Entry) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+export function MatchIndexAry(
+  filename: string,
+  incremantalSearchingStr: string
+): number[] {
+  let result: number[] = [];
+  for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
+    const str = incremantalSearchingStr[idx];
+    const searchStartIdx = result.at(-1) ?? 0;
+    const searchStr = filename.slice(searchStartIdx);
+    const foundIdx = searchStr.indexOf(str);
+    if (foundIdx === -1) { return []; }
+    result.push(searchStartIdx + 1 + foundIdx);
+  }
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function IncremantalSearch(
   entries: Entries,
   incremantalSearchingStr: string
 ): number {
-  function MatchIndexAry(
-    filename: string,
-    incremantalSearchingStr: string
-  ): number[] {
-    let result: number[] = [];
-    for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
-      const str = incremantalSearchingStr[idx];
-      const searchStartIdx = result.at(-1) ?? 0;
-      const searchStr = filename.slice(searchStartIdx);
-      const foundIdx = searchStr.indexOf(str);
-      if (foundIdx === -1) { return []; }
-      result.push(searchStartIdx + 1 + foundIdx);
-    }
-    return result;
-  }
-
   const matchIdxArys = entries
     .map((entry, idx) => {
       return {
