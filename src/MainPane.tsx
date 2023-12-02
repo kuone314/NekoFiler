@@ -305,13 +305,17 @@ export const MainPanel = (
   const [filter, setFilter] = useState<string>('');
   const [isFocusOnFilter, setIsFocusOnFilter] = useState(false);
   useEffect(() => {
-    class FilterImpl implements IEntryFilter {
-      IsMatch(entry: Entry): boolean {
-        if (filter.length === 0) { return true; }
-        return (MatchIndexAry(entry.name, filter).length !== 0);
+    if (filter === '') {
+      FileListFunctions.setFilter(null);
+    } else {
+      class FilterImpl implements IEntryFilter {
+        IsMatch(entry: Entry): boolean {
+          if (filter.length === 0) { return true; }
+          return (MatchIndexAry(entry.name, filter).length !== 0);
+        }
       }
+      FileListFunctions.setFilter(new FilterImpl);
     }
-    FileListFunctions.setFilter(new FilterImpl);
   }, [filter]);
 
   const filterBar = <div

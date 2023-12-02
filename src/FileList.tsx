@@ -24,9 +24,6 @@ export type Entries = Array<Entry>;
 export interface IEntryFilter {
   IsMatch(entry: Entry): boolean;
 }
-class ThrouthFilter implements IEntryFilter {
-  IsMatch(_: Entry): boolean { return true; }
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const SORT_KEY = {
@@ -44,7 +41,7 @@ export interface FileListFunc {
   accessCurrentItem: () => void,
   initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
-  setFilter: (filter: IEntryFilter) => void,
+  setFilter: (filter: IEntryFilter | null) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -87,7 +84,7 @@ export function FileList(
       }
     });
 
-    const newFinterdEntries = newEntries.filter(filter.IsMatch);
+    const newFinterdEntries = filter ? newEntries.filter(filter.IsMatch) : [...newEntries];
 
     const newIdxAry = CalcNewSelectIndexAry(
       selectingIndexArray,
@@ -123,7 +120,7 @@ export function FileList(
     const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
     if (!modified) { return; }
 
-    const newEntries = newOrgEntries.filter(filter.IsMatch);
+    const newEntries = filter ? newOrgEntries.filter(filter.IsMatch) : [...newOrgEntries];
 
     const inherit = entries
       .map(entry => newEntries.find(newEntry => newEntry.name == entry.name))
@@ -146,16 +143,16 @@ export function FileList(
     setEntries(newEntriesOrderKeeped);
   }
 
-  const [filter, setFilter] = useState<IEntryFilter>(new ThrouthFilter);
+  const [filter, setFilter] = useState<IEntryFilter | null>(null);
   useEffect(() => { OnFilterUpdate(); }, [filter]);
 
   function OnFilterUpdate() {
-    const newEntries = orgEntries.filter(filter.IsMatch);
+    const newEntries = filter ? orgEntries.filter(filter.IsMatch) : [...orgEntries];
 
     const newIndex = (() => {
       const firstMatchEntryAfterCurrent = orgEntries
         .slice(orgEntries.findIndex(entry => entry.name === currentItemName()))
-        .find(entry => filter.IsMatch(entry));
+        .find(entry => filter ? filter.IsMatch(entry) : true);
 
       const firstMatchNameAfterCurrent = firstMatchEntryAfterCurrent?.name
       return (firstMatchNameAfterCurrent !== undefined)
