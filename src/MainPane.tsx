@@ -168,8 +168,8 @@ export const MainPanel = (
   }, []);
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
-
-    const validKeyBindInfo = addressBarFunc.isFocus()
+    const isFocusAddressBar = addressBarFunc.isFocus() || isFocusOnFilter;
+    const validKeyBindInfo = isFocusAddressBar
       ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
       : keyBindInfo;
     const command_ary = validKeyBindInfo.filter(cmd => match(keyboard_event, cmd.key));
@@ -192,7 +192,7 @@ export const MainPanel = (
       return;
     }
 
-    if (!addressBarFunc.isFocus() && keyboard_event.key.length === 1) {
+    if (!isFocusAddressBar && keyboard_event.key.length === 1) {
       FileListFunctions.incremantalSearch(keyboard_event.key)
       return;
     }
@@ -303,6 +303,7 @@ export const MainPanel = (
   );
 
   const [filter, setFilter] = useState<string>('');
+  const [isFocusOnFilter, setIsFocusOnFilter] = useState(false);
   useEffect(() => {
     class FilterImpl implements IEntryFilter {
       IsMatch(entry: Entry): boolean {
@@ -328,6 +329,8 @@ export const MainPanel = (
       type="text"
       value={filter}
       onChange={e => setFilter(e.target.value)}
+      onFocus={_ => setIsFocusOnFilter(true)}
+      onBlur={_ => setIsFocusOnFilter(false)}
     />
   </div>
 
