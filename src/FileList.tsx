@@ -440,6 +440,20 @@ export function FileList(
     return filteredNum + ' file(s) filterd.'
   }
 
+  function FileNameWithEmphasis(fileName: string): React.ReactNode {
+    const emphasisIdxAry = MatchIndexAry(fileName, incremantalSearchingStr);
+    const charFlagPairs = fileName.split('').map((str, idx) => {
+      const flag = emphasisIdxAry.includes(idx);
+      return { str, flag };
+    });
+
+    return <>
+      {charFlagPairs.map((pair, idx) => pair.flag
+        ? <b key={idx}>{pair.str}</b>
+        : <span key={idx}>{pair.str}</span>)}
+    </>;
+  }
+
 
   const functions = {
     selectingItemName: selectingItemName,
@@ -506,7 +520,7 @@ export function FileList(
               onDoubleClick={(event) => onRowdoubleclick(idx, event)}
               css={table_color(idx)}
             >
-              <td css={table_border}>{entry.name}</td>
+              <td css={table_border}>{FileNameWithEmphasis(entry.name)}</td>
               <td css={table_border}>{ToTypeName(entry)}</td>
               <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
               <td css={table_border}>{entry.date}</td>
