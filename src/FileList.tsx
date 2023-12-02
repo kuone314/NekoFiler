@@ -555,11 +555,12 @@ export function MatchIndexAry(
   let result: number[] = [];
   for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
     const str = incremantalSearchingStr[idx];
-    const searchStartIdx = result.at(-1) ?? 0;
+    const prevMatchIdx = result.at(-1);
+    const searchStartIdx = (prevMatchIdx === undefined) ? 0 : prevMatchIdx + 1;
     const searchStr = filename.slice(searchStartIdx);
     const foundIdx = searchStr.indexOf(str);
     if (foundIdx === -1) { return []; }
-    result.push(searchStartIdx + 1 + foundIdx);
+    result.push(searchStartIdx + foundIdx);
   }
   return result;
 }
