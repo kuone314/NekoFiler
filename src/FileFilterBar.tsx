@@ -3,6 +3,8 @@ import React from 'react';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
+import { Entry, IEntryFilter, MatchIndexAry } from './FileList';
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,11 +15,26 @@ export interface FileFilterBarFunc {
 
 export function FileFilterBar(
   props: {
-    onFilterChanged: (filter: string) => void,
+    onFilterChanged: (filter: IEntryFilter | null) => void,
   }
 ): [JSX.Element, FileFilterBarFunc] {
   const [filter, setFilter] = useState<string>('');
-  useEffect(() => { props.onFilterChanged(filter); }, [filter]);
+  useEffect(() => {
+    if (filter === '') {
+      props.onFilterChanged(null);
+    } else {
+      class FilterImpl implements IEntryFilter {
+        IsMatch(entry: Entry): boolean {
+          if (filter.length === 0) { return true; }
+          return (MatchIndexAry(entry.name, filter).length !== 0);
+        }
+        GetMatchingIdxAry(fileName: string): number[] {
+          return MatchIndexAry(fileName, filter);
+        }
+      }
+      props.onFilterChanged(new FilterImpl);
+    }
+  }, [filter]);
 
   const [isFocus, setIsFocus] = useState(false);
 
