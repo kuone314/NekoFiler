@@ -21,6 +21,7 @@ import { executeShellCommand } from './RustFuncs';
 import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
+import { FileFilterBar } from './FileFilterBar';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
@@ -168,7 +169,7 @@ export const MainPanel = (
   }, []);
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
-    const isFocusAddressBar = addressBarFunc.isFocus() || isFocusOnFilter;
+    const isFocusAddressBar = addressBarFunc.isFocus() || filterBarFunc.isFocus();
     const validKeyBindInfo = isFocusAddressBar
       ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
       : keyBindInfo;
@@ -302,44 +303,26 @@ export const MainPanel = (
     }
   );
 
-  const [filter, setFilter] = useState<string>('');
-  const [isFocusOnFilter, setIsFocusOnFilter] = useState(false);
-  useEffect(() => {
-    if (filter === '') {
-      FileListFunctions.setFilter(null);
-    } else {
-      class FilterImpl implements IEntryFilter {
-        IsMatch(entry: Entry): boolean {
-          if (filter.length === 0) { return true; }
-          return (MatchIndexAry(entry.name, filter).length !== 0);
-        }
-        GetMatchingIdxAry(fileName: string): number[] {
-          return MatchIndexAry(fileName, filter);
+  const [filterBar, filterBarFunc] = FileFilterBar(
+    {
+      onFilterChanged: (filter) => {
+        if (filter === '') {
+          FileListFunctions.setFilter(null);
+        } else {
+          class FilterImpl implements IEntryFilter {
+            IsMatch(entry: Entry): boolean {
+              if (filter.length === 0) { return true; }
+              return (MatchIndexAry(entry.name, filter).length !== 0);
+            }
+            GetMatchingIdxAry(fileName: string): number[] {
+              return MatchIndexAry(fileName, filter);
+            }
+          }
+          FileListFunctions.setFilter(new FilterImpl);
         }
       }
-      FileListFunctions.setFilter(new FilterImpl);
     }
-  }, [filter]);
-
-  const filterBar = <div
-    css={css({
-      display: 'grid',
-      gridTemplateColumns: 'auto auto',
-      textAlign: 'right',
-    })}
-  >
-    <div>Filter:</div>
-    <input
-      css={css({
-        height: '10px',
-      })}
-      type="text"
-      value={filter}
-      onChange={e => setFilter(e.target.value)}
-      onFocus={_ => setIsFocusOnFilter(true)}
-      onBlur={_ => setIsFocusOnFilter(false)}
-    />
-  </div>
+  );
 
   return (
     <>
