@@ -23,9 +23,7 @@ export type Entries = Array<Entry>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface IEntryFilter {
   IsMatch(entry: Entry): boolean;
-}
-class ThrouthFilter implements IEntryFilter {
-  IsMatch(_: Entry): boolean { return true; }
+  GetMatchingIdxAry(fileName: string): number[];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +42,7 @@ export interface FileListFunc {
   accessCurrentItem: () => void,
   initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
-  setFilter: (filter: IEntryFilter) => void,
+  setFilter: (filter: IEntryFilter | null) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -87,7 +85,7 @@ export function FileList(
       }
     });
 
-    const newFinterdEntries = newEntries.filter(filter.IsMatch);
+    const newFinterdEntries = filter ? newEntries.filter(filter.IsMatch) : [...newEntries];
 
     const newIdxAry = CalcNewSelectIndexAry(
       selectingIndexArray,
@@ -123,7 +121,7 @@ export function FileList(
     const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
     if (!modified) { return; }
 
-    const newEntries = newOrgEntries.filter(filter.IsMatch);
+    const newEntries = filter ? newOrgEntries.filter(filter.IsMatch) : [...newOrgEntries];
 
     const inherit = entries
       .map(entry => newEntries.find(newEntry => newEntry.name == entry.name))
@@ -146,16 +144,16 @@ export function FileList(
     setEntries(newEntriesOrderKeeped);
   }
 
-  const [filter, setFilter] = useState<IEntryFilter>(new ThrouthFilter);
+  const [filter, setFilter] = useState<IEntryFilter | null>(null);
   useEffect(() => { OnFilterUpdate(); }, [filter]);
 
   function OnFilterUpdate() {
-    const newEntries = orgEntries.filter(filter.IsMatch);
+    const newEntries = filter ? orgEntries.filter(filter.IsMatch) : [...orgEntries];
 
     const newIndex = (() => {
       const firstMatchEntryAfterCurrent = orgEntries
         .slice(orgEntries.findIndex(entry => entry.name === currentItemName()))
-        .find(entry => filter.IsMatch(entry));
+        .find(entry => filter ? filter.IsMatch(entry) : true);
 
       const firstMatchNameAfterCurrent = firstMatchEntryAfterCurrent?.name
       return (firstMatchNameAfterCurrent !== undefined)
@@ -440,6 +438,23 @@ export function FileList(
     return filteredNum + ' file(s) filterd.'
   }
 
+  function FileNameWithEmphasis(fileName: string): React.ReactNode {
+    const emphasisIdxAry = (incremantalSearchingStr !== '')
+      ? MatchIndexAry(fileName, incremantalSearchingStr)
+      : (filter !== null) ? filter.GetMatchingIdxAry(fileName)
+        : [];
+    const charFlagPairs = fileName.split('').map((str, idx) => {
+      const flag = emphasisIdxAry.includes(idx);
+      return { str, flag };
+    });
+
+    return <>
+      {charFlagPairs.map((pair, idx) => pair.flag
+        ? <b key={idx}>{pair.str}</b>
+        : <span key={idx}>{pair.str}</span>)}
+    </>;
+  }
+
 
   const functions = {
     selectingItemName: selectingItemName,
@@ -506,7 +521,7 @@ export function FileList(
               onDoubleClick={(event) => onRowdoubleclick(idx, event)}
               css={table_color(idx)}
             >
-              <td css={table_border}>{entry.name}</td>
+              <td css={table_border}>{FileNameWithEmphasis(entry.name)}</td>
               <td css={table_border}>{ToTypeName(entry)}</td>
               <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
               <td css={table_border}>{entry.date}</td>
@@ -555,11 +570,12 @@ export function MatchIndexAry(
   let result: number[] = [];
   for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
     const str = incremantalSearchingStr[idx];
-    const searchStartIdx = result.at(-1) ?? 0;
+    const prevMatchIdx = result.at(-1);
+    const searchStartIdx = (prevMatchIdx === undefined) ? 0 : prevMatchIdx + 1;
     const searchStr = filename.slice(searchStartIdx);
     const foundIdx = searchStr.indexOf(str);
     if (foundIdx === -1) { return []; }
-    result.push(searchStartIdx + 1 + foundIdx);
+    result.push(searchStartIdx + foundIdx);
   }
   return result;
 }
