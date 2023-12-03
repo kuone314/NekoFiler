@@ -23,6 +23,7 @@ export type Entries = Array<Entry>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface IEntryFilter {
   IsMatch(entry: Entry): boolean;
+  GetMatchingIdxAry(fileName: string): number[];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -438,7 +439,10 @@ export function FileList(
   }
 
   function FileNameWithEmphasis(fileName: string): React.ReactNode {
-    const emphasisIdxAry = MatchIndexAry(fileName, incremantalSearchingStr);
+    const emphasisIdxAry = (incremantalSearchingStr !== '')
+      ? MatchIndexAry(fileName, incremantalSearchingStr)
+      : (filter !== null) ? filter.GetMatchingIdxAry(fileName)
+        : [];
     const charFlagPairs = fileName.split('').map((str, idx) => {
       const flag = emphasisIdxAry.includes(idx);
       return { str, flag };

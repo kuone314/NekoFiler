@@ -313,6 +313,9 @@ export const MainPanel = (
           if (filter.length === 0) { return true; }
           return (MatchIndexAry(entry.name, filter).length !== 0);
         }
+        GetMatchingIdxAry(fileName: string): number[] {
+          return MatchIndexAry(fileName, filter);
+        }
       }
       FileListFunctions.setFilter(new FilterImpl);
     }
