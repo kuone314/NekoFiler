@@ -43,6 +43,8 @@ export const BUILDIN_COMMAND_TYPE = {
   toPrevTab: 'toPrevTab',
   toNextTab: 'toNextTab',
   focusAddoressBar: 'focusAddoressBar',
+  focusFilterWithStrMatch: 'focusFilterWithStrMatch',
+  focusFilterWithRegExp: 'focusFilterWithRegExp',
   focusOppositePane: 'focusOppositePane',
 } as const;
 export type BuildinCommandType = typeof BUILDIN_COMMAND_TYPE[keyof typeof BUILDIN_COMMAND_TYPE];

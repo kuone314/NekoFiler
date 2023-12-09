@@ -10,11 +10,11 @@ import { Sequence } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const FileFilterType = {
+export const FileFilterType = {
   str_match: "str_match",
   reg_expr: "reg_expr",
 } as const;
-type FileFilterType = typeof FileFilterType[keyof typeof FileFilterType];
+export type FileFilterType = typeof FileFilterType[keyof typeof FileFilterType];
 
 const toComboItem = (type: FileFilterType) => {
   return { value: type, label: comboLabel(type) };
@@ -28,7 +28,7 @@ const comboLabel = (type: FileFilterType) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileFilterBarFunc {
-  focus: () => void,
+  focus: (filterType: FileFilterType) => void,
   isFocus: () => boolean,
 };
 
@@ -41,7 +41,7 @@ export function FileFilterBar(
   const [filterType, setFilterType] = useState<FileFilterType>('str_match');
   useEffect(() => {
     props.onFilterChanged(createFilter());
-  }, [filter,filterType]);
+  }, [filter, filterType]);
   const createFilter = () => {
     if (filter === '') { return null; }
     class FilterImpl implements IEntryFilter {
@@ -111,7 +111,10 @@ export function FileFilterBar(
   return [
     element,
     {
-      focus: () => inputBoxRef.current?.focus(),
+      focus: (filterType: FileFilterType) => {
+        setFilterType(filterType);
+        inputBoxRef.current?.focus();
+      },
       isFocus: () => isFocus,
     }];
 }
