@@ -40,21 +40,25 @@ export function FileFilterBar(
   const [filter, setFilter] = useState<string>('');
   const [filterType, setFilterType] = useState<FileFilterType>('str_match');
   useEffect(() => {
-    if (filter === '') {
-      props.onFilterChanged(null);
-    } else {
-    class FilterImpl implements IEntryFilter {
-      IsMatch(entry: Entry): boolean {
-        if (filter.length === 0) { return true; }
-        return (MatchIndexAry(entry.name, filter).length !== 0);
-      }
-      GetMatchingIdxAry(fileName: string): number[] {
-        return MatchIndexAry(fileName, filter);
-      }
-    }
-      props.onFilterChanged(new FilterImpl);
-      }
+    props.onFilterChanged(createFilter());
   }, [filter]);
+  const createFilter = () => {
+    if (filter === '') {
+      return null;
+    } else {
+      class FilterImpl implements IEntryFilter {
+        IsMatch(entry: Entry): boolean {
+          if (filter.length === 0) { return true; }
+          return (MatchIndexAry(entry.name, filter).length !== 0);
+        }
+        GetMatchingIdxAry(fileName: string): number[] {
+          return MatchIndexAry(fileName, filter);
+        }
+      }
+      return new FilterImpl;
+    }
+  }
+
 
   const [isFocus, setIsFocus] = useState(false);
 
