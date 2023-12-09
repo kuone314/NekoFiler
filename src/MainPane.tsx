@@ -102,9 +102,11 @@ export const MainPanel = (
   );
 
   const focusAddoressBar = () => {
+    setFocusToListOnContextMenuClosed(false);
     addressBarFunc.focus();
   }
   const focusFilterBar = (filterType: FileFilterType) => {
+    setFocusToListOnContextMenuClosed(false);
     filterBarFunc.focus(filterType);
   }
 
@@ -197,6 +199,7 @@ export const MainPanel = (
     if (command_ary.length >= 2) {
       menuItemAry.current = command_ary;
       setMenuOpen(true);
+      setFocusToListOnContextMenuClosed(true);
       return;
     }
 
@@ -228,11 +231,20 @@ export const MainPanel = (
   );
 
   const [isMenuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!isMenuOpen) {
+      if (focusToListOnContextMenuClosed) {
+        myGrid?.current?.focus();
+      }
+    }
+  }, [isMenuOpen])
+
+  const [focusToListOnContextMenuClosed, setFocusToListOnContextMenuClosed] = useState(false);
   const menuItemAry = useRef<CommandInfo[]>([]);
   const commandSelectMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}
-      onClose={() => { setMenuOpen(false); myGrid?.current?.focus(); }}
+      onClose={() => { setMenuOpen(false); }}
       anchorPoint={{ x: 400, y: 1000 }} // 適当…。
     >
       {
