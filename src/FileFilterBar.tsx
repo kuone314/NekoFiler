@@ -35,6 +35,7 @@ export interface FileFilterBarFunc {
 export function FileFilterBar(
   props: {
     onFilterChanged: (filter: IEntryFilter | null) => void,
+    onEndEdit: () => void,
   }
 ): [JSX.Element, FileFilterBarFunc] {
   const [filter, setFilter] = useState<string>('');
@@ -77,6 +78,13 @@ export function FileFilterBar(
 
   const [isFocus, setIsFocus] = useState(false);
 
+  const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' || event.key === 'Escape') {
+      props.onEndEdit();
+      return;
+    }
+  };
+
   const inputBoxRef = React.createRef<HTMLInputElement>();
   const element = <div
     css={css({
@@ -102,6 +110,7 @@ export function FileFilterBar(
       type="text"
       value={filter}
       onChange={e => setFilter(e.target.value)}
+      onKeyDown={onKeyDown}
       onFocus={_ => setIsFocus(true)}
       onBlur={_ => setIsFocus(false)}
       ref={inputBoxRef}

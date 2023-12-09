@@ -312,7 +312,8 @@ export const MainPanel = (
 
   const [filterBar, filterBarFunc] = FileFilterBar(
     {
-      onFilterChanged: (filter) => FileListFunctions.setFilter(filter)
+      onFilterChanged: (filter) => FileListFunctions.setFilter(filter),
+      onEndEdit: () => myGrid.current?.focus(),
     }
   );
 
