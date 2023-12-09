@@ -41,7 +41,7 @@ export function FileFilterBar(
   const [filterType, setFilterType] = useState<FileFilterType>('str_match');
   useEffect(() => {
     props.onFilterChanged(createFilter());
-  }, [filter]);
+  }, [filter,filterType]);
   const createFilter = () => {
     if (filter === '') { return null; }
     class FilterImpl implements IEntryFilter {
