@@ -43,19 +43,34 @@ export function FileFilterBar(
     props.onFilterChanged(createFilter());
   }, [filter]);
   const createFilter = () => {
-    if (filter === '') {
-      return null;
-    } else {
-      class FilterImpl implements IEntryFilter {
-        IsMatch(entry: Entry): boolean {
-          if (filter.length === 0) { return true; }
-          return (MatchIndexAry(entry.name, filter).length !== 0);
-        }
-        GetMatchingIdxAry(fileName: string): number[] {
-          return MatchIndexAry(fileName, filter);
-        }
+    if (filter === '') { return null; }
+    class FilterImpl implements IEntryFilter {
+      IsMatch(entry: Entry): boolean {
+        if (filter.length === 0) { return true; }
+        return (MatchIndexAry(entry.name, filter).length !== 0);
       }
-      return new FilterImpl;
+      GetMatchingIdxAry(fileName: string): number[] {
+        return MatchIndexAry(fileName, filter);
+      }
+    }
+
+    class RegExprFilter implements IEntryFilter {
+      IsMatch(entry: Entry): boolean {
+        return (new RegExp(filter)).test(entry.name);
+      }
+      GetMatchingIdxAry(fileName: string): number[] {
+        const regExp = new RegExp(filter);
+        const res = regExp.exec(fileName);
+        if (res === null) { return []; }
+        const idx = res.index;
+        const len = res[0].length;
+        return Sequence(idx, len);
+      }
+    }
+
+    switch (filterType) {
+      case 'str_match': return new FilterImpl;
+      case 'reg_expr': return new RegExprFilter;
     }
   }
 
