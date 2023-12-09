@@ -389,7 +389,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
     },
     {
       command_name: 'focusFilter(RegExp)',
-      key: 'ctrl+shift+f',
+      key: 'ctrl+f',
       dialog_type: 'none',
       action: {
         type: 'build_in',
