@@ -11,6 +11,18 @@ export function LastIndex<T>(ary: T[]): number {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+export function Sequence(stt: number, size: number): number[] {
+  if (size <= 0) { return []; }
+
+  let result = [] ;
+  let new_ary = new Set<number>();
+  for (let idx = 0; idx < size; idx++) {
+    result.push(stt + idx);
+  }
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
