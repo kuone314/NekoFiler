@@ -21,7 +21,7 @@ import { executeShellCommand } from './RustFuncs';
 import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
-import { FileFilterBar } from './FileFilterBar';
+import { FileFilterBar, FileFilterType } from './FileFilterBar';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
@@ -104,6 +104,11 @@ export const MainPanel = (
   const focusAddoressBar = () => {
     addressBarFunc.focus();
   }
+  const focusFilterBar = (filterType: FileFilterType) => {
+    filterBarFunc.focus(filterType);
+  }
+
+
 
   const addNewTab = () => { props.tabFuncs.addNewTab(dir); }
   const removeTab = () => { props.tabFuncs.removeTab(); }
@@ -137,6 +142,8 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.toPrevTab: toPrevTab(); return;
       case BUILDIN_COMMAND_TYPE.toNextTab: toNextTab(); return;
       case BUILDIN_COMMAND_TYPE.focusAddoressBar: focusAddoressBar(); return;
+      case BUILDIN_COMMAND_TYPE.focusFilterWithStrMatch: focusFilterBar('str_match'); return;
+      case BUILDIN_COMMAND_TYPE.focusFilterWithRegExp: focusFilterBar('reg_expr'); return;
       case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
     }
   }
@@ -305,7 +312,8 @@ export const MainPanel = (
 
   const [filterBar, filterBarFunc] = FileFilterBar(
     {
-      onFilterChanged: (filter) => FileListFunctions.setFilter(filter)
+      onFilterChanged: (filter) => FileListFunctions.setFilter(filter),
+      onEndEdit: () => myGrid.current?.focus(),
     }
   );
 

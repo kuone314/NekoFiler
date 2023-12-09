@@ -10,11 +10,11 @@ import { Sequence } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const FileFilterType = {
+export const FileFilterType = {
   str_match: "str_match",
   reg_expr: "reg_expr",
 } as const;
-type FileFilterType = typeof FileFilterType[keyof typeof FileFilterType];
+export type FileFilterType = typeof FileFilterType[keyof typeof FileFilterType];
 
 const toComboItem = (type: FileFilterType) => {
   return { value: type, label: comboLabel(type) };
@@ -28,20 +28,21 @@ const comboLabel = (type: FileFilterType) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileFilterBarFunc {
-  focus: () => void,
+  focus: (filterType: FileFilterType) => void,
   isFocus: () => boolean,
 };
 
 export function FileFilterBar(
   props: {
     onFilterChanged: (filter: IEntryFilter | null) => void,
+    onEndEdit: () => void,
   }
 ): [JSX.Element, FileFilterBarFunc] {
   const [filter, setFilter] = useState<string>('');
   const [filterType, setFilterType] = useState<FileFilterType>('str_match');
   useEffect(() => {
     props.onFilterChanged(createFilter());
-  }, [filter,filterType]);
+  }, [filter, filterType]);
   const createFilter = () => {
     if (filter === '') { return null; }
     class FilterImpl implements IEntryFilter {
@@ -77,6 +78,13 @@ export function FileFilterBar(
 
   const [isFocus, setIsFocus] = useState(false);
 
+  const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' || event.key === 'Escape') {
+      props.onEndEdit();
+      return;
+    }
+  };
+
   const inputBoxRef = React.createRef<HTMLInputElement>();
   const element = <div
     css={css({
@@ -102,6 +110,7 @@ export function FileFilterBar(
       type="text"
       value={filter}
       onChange={e => setFilter(e.target.value)}
+      onKeyDown={onKeyDown}
       onFocus={_ => setIsFocus(true)}
       onBlur={_ => setIsFocus(false)}
       ref={inputBoxRef}
@@ -111,7 +120,10 @@ export function FileFilterBar(
   return [
     element,
     {
-      focus: () => inputBoxRef.current?.focus(),
+      focus: (filterType: FileFilterType) => {
+        setFilterType(filterType);
+        inputBoxRef.current?.focus();
+      },
       isFocus: () => isFocus,
     }];
 }

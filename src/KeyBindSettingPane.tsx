@@ -240,6 +240,8 @@ export function KeyBindEditor(
       case 'toPrevTab': return 'toPrevTab';
       case 'toNextTab': return 'toNextTab';
       case 'focusAddoressBar': return 'focusAddoressBar';
+      case 'focusFilterWithStrMatch': return 'focusFilterWithStrMatch';
+      case 'focusFilterWithRegExp': return 'focusFilterWithRegExp';
       case 'focusOppositePane': return 'focusOppositePane';
     }
   }

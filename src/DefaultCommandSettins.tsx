@@ -378,6 +378,26 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       valid_on_addressbar: false,
     },
     {
+      command_name: 'focusFilter(StrMatch)',
+      key: 'ctrl+f',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'focusFilterWithStrMatch',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'focusFilter(RegExp)',
+      key: 'ctrl+shift+f',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'focusFilterWithRegExp',
+      },
+      valid_on_addressbar: true,
+    },
+    {
       command_name: 'focusOppositePane',
       key: 'tab',
       dialog_type: 'none',
