@@ -7,6 +7,7 @@ import { css } from '@emotion/react'
 import { CurrentVersion } from './CurrentVersion';
 import { LogInfo } from './LogMessagePane';
 
+import { v4 as uuidv4 } from 'uuid';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function Updater(
@@ -18,7 +19,12 @@ export function Updater(
     invoke<void>("update_filer", { version: targetVersiton }).catch(
       message => {
         const message_str = message as string;
-        addLogMessage({ title: 'Update failed.', stdout: '', stderr: message_str, });
+        addLogMessage({
+          title: 'Update failed.',
+          stdout: '',
+          stderr: message_str,
+          id: uuidv4(),
+        });
       })
   }
 
