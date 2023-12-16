@@ -50,6 +50,8 @@ impl Executer {
     }
 
     fn execute(&mut self) -> Option<()> {
+        self.push_log_stack();
+
         let output = Command::new("Powershell")
             .args(["-WindowStyle", "Hidden"])
             .args(["-Command", &self.command])

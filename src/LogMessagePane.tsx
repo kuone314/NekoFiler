@@ -49,7 +49,7 @@ export function LogMessagePein(props: {
 
 
   const addMessage = (message: LogInfo) => {
-    setLogAry((prevLogAry) => [...prevLogAry, message]);
+    setLogAry((prevLogAry) => [...prevLogAry.filter(log => log.id !== message.id), message]);
   };
 
   useEffect(() => {
