@@ -15,33 +15,64 @@ pub struct LogInfo {
 
 static LOG_STACK: Lazy<Mutex<VecDeque<Box<LogInfo>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct Executer {
+    title: String,
+    dir: String,
+    command: String,
+    stdout: String,
+    stderr: String,
+}
+
+impl Executer {
+    fn new(title: &str, dir: &str, command: &str) -> Executer {
+        Executer {
+            title: title.to_string(),
+            dir: dir.to_string(),
+            stdout: "".to_string(),
+            stderr: "".to_string(),
+            command: command.to_string(),
+        }
+    }
+
+    fn push_log_stack(&self) -> () {
+        let Ok(mut log_stack) = LOG_STACK.lock() else {return;};
+        log_stack.push_back(Box::new(LogInfo {
+            title: self.title.to_string(),
+            stdout: self.stdout.to_string(),
+            stderr: self.stderr.to_string(),
+        }));
+    }
+
+    fn execute(&mut self) -> Option<()> {
+        let output = Command::new("Powershell")
+            .args(["-WindowStyle", "Hidden"])
+            .args(["-Command", &self.command])
+            .current_dir(&self.dir)
+            .output()
+            .ok()?;
+
+        let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
+        let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
+        self.stdout = std_out.to_string();
+        self.stderr = std_err.to_string();
+        self.push_log_stack();
+
+        Some(())
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
 pub fn execute_shell_command(title: &str, dir: &str, command: &str) -> () {
     let dir = dir.to_owned();
     let command = command.to_owned();
     let title = title.to_owned();
+
     std::thread::spawn(move || {
-        let Some(output) = execute_shell_command_impl(&title, &dir, &command) else{return;};
-        let Ok(mut log_stack) = LOG_STACK.lock() else {return;};
-        log_stack.push_back(Box::new(output));
+        let mut executer = Executer::new(&title, &dir, &command);
+        executer.execute();
     });
-}
-
-fn execute_shell_command_impl(title: &str, dir: &str, command: &str) -> Option<LogInfo> {
-    let output = Command::new("Powershell")
-        .args(["-WindowStyle", "Hidden"])
-        .args(["-Command", &command])
-        .current_dir(dir)
-        .output()
-        .ok()?;
-
-    let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
-    let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
-    Some(LogInfo {
-        title: title.to_string(),
-        stdout: std_out.to_string(),
-        stderr: std_err.to_string(),
-    })
 }
 
 pub fn notify_command_log(app_handle: &tauri::AppHandle) {
