@@ -44,7 +44,7 @@ fn execute_shell_command_impl(title: &str, dir: &str, command: &str) -> Option<L
     })
 }
 
-pub fn push_log_message(app_handle: &tauri::AppHandle) {
+pub fn notify_command_log(app_handle: &tauri::AppHandle) {
     let Ok(mut log_stack) = LOG_STACK.lock() else {return;};
     let Some(message) = log_stack.pop_front() else {return;};
     let _ = app_handle.emit_all("LogMessageEvent", message);
