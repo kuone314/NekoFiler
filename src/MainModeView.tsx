@@ -18,6 +18,8 @@ import { invoke } from '@tauri-apps/api/tauri';
 
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
+import { v4 as uuidv4 } from 'uuid';
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const buttonHeight = 50;
 const statusBarHeight = 25;
@@ -110,7 +112,7 @@ export function MainModeView(
   const [separator, setSeparator] = useState<separator>('\\');
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
-    height: props.height -20 - (buttonHeight * 5 + statusBarHeight),
+    height: props.height - 20 - (buttonHeight * 5 + statusBarHeight),
   });
   const addLogMessage = (message: LogInfo) => {
     logMessagePeinFunc.addMessage(message);
@@ -124,7 +126,14 @@ export function MainModeView(
 
   async function OpenSettingDir(): Promise<void> {
     const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
-    if (!settingDir) { addLogMessage({ title: "Get setting dir failed.", stdout: '', stderr: "" }); return; }
+    if (!settingDir) {
+      addLogMessage({
+        title: "Get setting dir failed.",
+        stdout: '',
+        stderr: "",
+        id: uuidv4(),
+      }); return;
+    }
     addTab(settingDir)
   }
 

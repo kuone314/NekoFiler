@@ -15,6 +15,7 @@ export interface LogMessagePeinFunc {
 
 export interface LogInfo {
   title: string,
+  id: string,
   stdout: string,
   stderr: string,
 }

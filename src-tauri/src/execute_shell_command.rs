@@ -5,10 +5,12 @@ use once_cell::sync::Lazy;
 use std::collections::VecDeque;
 use std::sync::Mutex;
 use tauri::Manager;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LogInfo {
     title: String,
+    id: String,
     stdout: String,
     stderr: String,
 }
@@ -20,6 +22,7 @@ struct Executer {
     title: String,
     dir: String,
     command: String,
+    id: String,
     stdout: String,
     stderr: String,
 }
@@ -32,6 +35,7 @@ impl Executer {
             stdout: "".to_string(),
             stderr: "".to_string(),
             command: command.to_string(),
+            id: Uuid::new_v4().to_string(),
         }
     }
 
@@ -41,6 +45,7 @@ impl Executer {
             title: self.title.to_string(),
             stdout: self.stdout.to_string(),
             stderr: self.stderr.to_string(),
+            id: self.id.to_string(),
         }));
     }
 
