@@ -69,10 +69,7 @@ function LopPane(
         fontSize: '15px',
       })}
     >
-      <div
-        onClick={onClick}
-        css={css({})}
-      >
+      <div onClick={onClick}>
         {logInfo.title}
         {icon(logPaneInfo.isOpen)}
       </div>
