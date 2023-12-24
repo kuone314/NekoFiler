@@ -87,9 +87,9 @@ export function LogMessagePein(props: {
         ref={logPaneRef}
       >
         {
-          logAry.map((logInfo) => {
-            return LopPane(logInfo);
-          })
+          logAry.map((logInfo, idx) => <div key={idx} >{
+            LopPane(logInfo)
+          }</div>)
         }
       </div>
     </>
