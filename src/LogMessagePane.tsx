@@ -91,7 +91,15 @@ export function LogMessagePein(props: {
 
 
   const addMessage = (message: LogInfo) => {
-    setLogAry((prevLogAry) => [...prevLogAry.filter(log => log.logInfo.id !== message.id), { isOpen: true, isCommandOpen: false, logInfo: message }]);
+    setLogAry((prevLogAry) => {
+      const idx = prevLogAry.findIndex(logPaneInfo => logPaneInfo.logInfo.id == message.id);
+      if (idx === -1) { return [...prevLogAry, { isOpen: true, isCommandOpen: false, logInfo: message }]; }
+
+      const newLogPane = prevLogAry[idx];
+      newLogPane.logInfo = message;
+      prevLogAry.splice(idx, 1);
+      return [...prevLogAry, newLogPane];
+    });
   };
 
   useEffect(() => {
