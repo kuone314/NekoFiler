@@ -7,6 +7,7 @@ import React from "react";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { Box } from "@mui/material";
 
+import { IoIosArrowDropright, IoIosArrowDropdown } from "react-icons/io";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface LogMessagePeinFunc {
@@ -34,10 +35,16 @@ function LopPane(
 ) {
   const logInfo = logPaneInfo.logInfo;
 
+  const icon = (isOpen: boolean) => {
+    return isOpen
+      ? <IoIosArrowDropdown />
+      : <IoIosArrowDropright />
+  }
+
   const deteal = () => {
     return <>
       <div onClick={onCommandClick} >
-        command
+        command{icon(logPaneInfo.isCommandOpen)}
       </div>
       {
         logPaneInfo.isCommandOpen
@@ -67,6 +74,7 @@ function LopPane(
         css={css({})}
       >
         {logInfo.title}
+        {icon(logPaneInfo.isOpen)}
       </div>
       {
         logPaneInfo.isOpen
