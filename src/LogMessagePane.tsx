@@ -25,7 +25,9 @@ export interface LogInfo {
   stderr: string,
 }
 
-function LopPane(logPaneInfo: LogPaneInfo) {
+function LopPane(
+  logPaneInfo: LogPaneInfo,
+) {
   const logInfo = logPaneInfo.logInfo;
 
   return <>
@@ -93,7 +95,9 @@ export function LogMessagePein(props: {
       >
         {
           logAry.map((logInfo, idx) => <div key={idx} >{
-            LopPane(logInfo)
+            LopPane(
+              logInfo,
+            )
           }</div>)
         }
       </div>
