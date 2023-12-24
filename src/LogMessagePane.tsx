@@ -29,12 +29,14 @@ export interface LogInfo {
 
 function LopPane(
   logPaneInfo: LogPaneInfo,
+  onClick: () => void,
+  onCommandClick: () => void,
 ) {
   const logInfo = logPaneInfo.logInfo;
 
   const deteal = () => {
     return <>
-      <div>
+      <div onClick={onCommandClick} >
         command
       </div>
       {
@@ -60,7 +62,12 @@ function LopPane(
         fontSize: '15px',
       })}
     >
-      <div css={css({})}>{logInfo.title}</div>
+      <div
+        onClick={onClick}
+        css={css({})}
+      >
+        {logInfo.title}
+      </div>
       {
         logPaneInfo.isOpen
           ? deteal()
@@ -101,6 +108,18 @@ export function LogMessagePein(props: {
       logPaneRef.current?.scrollHeight ?? 0)
   }, [logAry]);
 
+  const toggleLogPaneOpne = (idx: number) => {
+    const newLogAry = [...logAry]
+    newLogAry[idx].isOpen = !logAry[idx].isOpen;
+    setLogAry(newLogAry);
+  }
+
+  const toggleLogPaneCommandOpne = (idx: number) => {
+    const newLogAry = [...logAry]
+    newLogAry[idx].isCommandOpen = !logAry[idx].isCommandOpen;
+    setLogAry(newLogAry);
+  }
+
   const functions = {
     addMessage,
   }
@@ -118,6 +137,8 @@ export function LogMessagePein(props: {
           logAry.map((logInfo, idx) => <div key={idx} >{
             LopPane(
               logInfo,
+              () => toggleLogPaneOpne(idx),
+              () => toggleLogPaneCommandOpne(idx),
             )
           }</div>)
         }
