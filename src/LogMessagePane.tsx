@@ -115,11 +115,12 @@ export function LogMessagePein(props: {
   }, [])
 
   const logPaneRef = React.createRef<HTMLDivElement>();
-  useEffect(() => {
+  useEffect(() => { scrollToBottom() }, [logAry]);
+  const scrollToBottom = () => {
     logPaneRef.current?.scrollTo(
       logPaneRef.current?.scrollWidth ?? 0,
       logPaneRef.current?.scrollHeight ?? 0)
-  }, [logAry]);
+  }
 
   const toggleLogPaneOpne = (idx: number) => {
     const newLogAry = [...logAry]
