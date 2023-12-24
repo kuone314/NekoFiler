@@ -14,6 +14,8 @@ export interface LogMessagePeinFunc {
 }
 
 export interface LogPaneInfo {
+  isOpen: boolean,
+  isCommandOpen: boolean,
   logInfo: LogInfo,
 }
 export interface LogInfo {
@@ -36,7 +38,9 @@ function LopPane(
         command
       </div>
       {
-        logInfo.command
+        logPaneInfo.isCommandOpen
+          ? <div>{logInfo.command}</div>
+          : <></>
       }
       <div>rc:{(logInfo.rc !== null) ? logInfo.rc : ''}</div>
       <div css={css({})}>{logInfo.stdout}</div>
@@ -57,7 +61,11 @@ function LopPane(
       })}
     >
       <div css={css({})}>{logInfo.title}</div>
-      {deteal()}
+      {
+        logPaneInfo.isOpen
+          ? deteal()
+          : <></>
+      }
     </Box >
   </>;
 }
@@ -71,7 +79,7 @@ export function LogMessagePein(props: {
 
 
   const addMessage = (message: LogInfo) => {
-    setLogAry((prevLogAry) => [...prevLogAry.filter(log => log.logInfo.id !== message.id), { logInfo: message }]);
+    setLogAry((prevLogAry) => [...prevLogAry.filter(log => log.logInfo.id !== message.id), { isOpen: true, isCommandOpen: false, logInfo: message }]);
   };
 
   useEffect(() => {
