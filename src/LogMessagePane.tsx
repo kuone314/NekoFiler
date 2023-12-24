@@ -32,6 +32,13 @@ function LopPane(
 
   const deteal = () => {
     return <>
+      <div>
+        command
+      </div>
+      {
+        logInfo.command
+      }
+      <div>rc:{(logInfo.rc !== null) ? logInfo.rc : ''}</div>
       <div css={css({})}>{logInfo.stdout}</div>
       <div css={css({})}>{logInfo.stderr}</div>
     </>
