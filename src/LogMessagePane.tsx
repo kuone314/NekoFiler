@@ -30,6 +30,13 @@ function LopPane(
 ) {
   const logInfo = logPaneInfo.logInfo;
 
+  const deteal = () => {
+    return <>
+      <div css={css({})}>{logInfo.stdout}</div>
+      <div css={css({})}>{logInfo.stderr}</div>
+    </>
+  }
+
   return <>
     <Box
       css={css({
@@ -43,8 +50,7 @@ function LopPane(
       })}
     >
       <div css={css({})}>{logInfo.title}</div>
-      <div css={css({})}>{logInfo.stdout}</div>
-      <div css={css({})}>{logInfo.stderr}</div>
+      {deteal()}
     </Box >
   </>;
 }
