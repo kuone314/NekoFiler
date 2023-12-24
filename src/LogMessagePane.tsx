@@ -35,6 +35,11 @@ function LopPane(
 ) {
   const logInfo = logPaneInfo.logInfo;
 
+  const isError = () => {
+    const rc = logInfo.rc ?? 0;
+    return logInfo.stderr !== '' || rc !== 0;
+  }
+
   const icon = (isOpen: boolean) => {
     return isOpen
       ? <IoIosArrowDropdown />
@@ -69,8 +74,20 @@ function LopPane(
         fontSize: '15px',
       })}
     >
-      <div onClick={onClick}>
-        {logInfo.title}
+      <div
+        onClick={onClick}
+        css={css({
+          display: 'flex',
+          flexDirection: 'row',
+        })}
+      >
+        <div
+          css={css({
+            color: isError() ? 'red' : 'black',
+          })}
+        >
+          {logInfo.title}
+        </div>
         {icon(logPaneInfo.isOpen)}
       </div>
       {
