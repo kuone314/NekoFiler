@@ -11,8 +11,10 @@ use uuid::Uuid;
 pub struct LogInfo {
     title: String,
     id: String,
+    command: String,
     stdout: String,
     stderr: String,
+    rc: Option<i32>,
 }
 
 static LOG_STACK: Lazy<Mutex<VecDeque<Box<LogInfo>>>> = Lazy::new(|| Mutex::new(VecDeque::new()));
@@ -25,6 +27,7 @@ struct Executer {
     id: String,
     stdout: String,
     stderr: String,
+    return_code: Option<i32>,
 }
 
 impl Executer {
@@ -36,6 +39,7 @@ impl Executer {
             stderr: "".to_string(),
             command: command.to_string(),
             id: Uuid::new_v4().to_string(),
+            return_code: None,
         }
     }
 
@@ -46,6 +50,8 @@ impl Executer {
             stdout: self.stdout.to_string(),
             stderr: self.stderr.to_string(),
             id: self.id.to_string(),
+            command: self.command.to_string(),
+            rc: self.return_code,
         }));
     }
 
@@ -63,6 +69,7 @@ impl Executer {
         let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);
         self.stdout = std_out.to_string();
         self.stderr = std_err.to_string();
+        self.return_code = output.status.code();
         self.push_log_stack();
 
         Some(())

@@ -24,6 +24,8 @@ export function Updater(
           stdout: '',
           stderr: message_str,
           id: uuidv4(),
+          command: '',
+          rc: null
         });
       })
   }

@@ -132,6 +132,8 @@ export function MainModeView(
         stdout: '',
         stderr: "",
         id: uuidv4(),
+        command: '',
+        rc: null
       }); return;
     }
     addTab(settingDir)
