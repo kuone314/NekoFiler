@@ -43,17 +43,17 @@ function LopPane(
 
   const deteal = () => {
     return <>
-      <div onClick={onCommandClick} >
+      <div onClick={onCommandClick} css={css({ userSelect: 'text' })}>
         command{icon(logPaneInfo.isCommandOpen)}
       </div>
       {
         logPaneInfo.isCommandOpen
-          ? <div>{logInfo.command}</div>
+          ? <div css={css({ userSelect: 'text' })}>{logInfo.command}</div>
           : <></>
       }
       <div>rc:{(logInfo.rc !== null) ? logInfo.rc : ''}</div>
-      <div css={css({})}>{logInfo.stdout}</div>
-      <div css={css({})}>{logInfo.stderr}</div>
+      <div css={css({ userSelect: 'text' })}>{logInfo.stdout}</div>
+      <div css={css({ userSelect: 'text' })}>{logInfo.stderr}</div>
     </>
   }
 
