@@ -88,6 +88,7 @@ export function LogMessagePein(props: {
 })
   : [JSX.Element, LogMessagePeinFunc,] {
   const [logAry, setLogAry] = useState<LogPaneInfo[]>([]);
+  const [requireScrollToBottom, setRequireScrollToBottom] = useState(false);
 
 
   const addMessage = (message: LogInfo) => {
@@ -100,6 +101,7 @@ export function LogMessagePein(props: {
       prevLogAry.splice(idx, 1);
       return [...prevLogAry, newLogPane];
     });
+    setRequireScrollToBottom(true);
   };
 
   useEffect(() => {
@@ -115,7 +117,10 @@ export function LogMessagePein(props: {
   }, [])
 
   const logPaneRef = React.createRef<HTMLDivElement>();
-  useEffect(() => { scrollToBottom() }, [logAry]);
+  useEffect(() => {
+    if (requireScrollToBottom) { scrollToBottom(); }
+    setRequireScrollToBottom(false);
+  }, [requireScrollToBottom]);
   const scrollToBottom = () => {
     logPaneRef.current?.scrollTo(
       logPaneRef.current?.scrollWidth ?? 0,
