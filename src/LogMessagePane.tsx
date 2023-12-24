@@ -13,6 +13,9 @@ export interface LogMessagePeinFunc {
   addMessage: (message: LogInfo) => void,
 }
 
+export interface LogPaneInfo {
+  logInfo: LogInfo,
+}
 export interface LogInfo {
   title: string,
   command: string,
@@ -22,7 +25,9 @@ export interface LogInfo {
   stderr: string,
 }
 
-function LopPane(logInfo: LogInfo) {
+function LopPane(logPaneInfo: LogPaneInfo) {
+  const logInfo = logPaneInfo.logInfo;
+
   return <>
     <Box
       css={css({
@@ -47,11 +52,11 @@ export function LogMessagePein(props: {
   height: number
 })
   : [JSX.Element, LogMessagePeinFunc,] {
-  const [logAry, setLogAry] = useState<LogInfo[]>([]);
+  const [logAry, setLogAry] = useState<LogPaneInfo[]>([]);
 
 
   const addMessage = (message: LogInfo) => {
-    setLogAry((prevLogAry) => [...prevLogAry.filter(log => log.id !== message.id), message]);
+    setLogAry((prevLogAry) => [...prevLogAry.filter(log => log.logInfo.id !== message.id), { logInfo: message }]);
   };
 
   useEffect(() => {
