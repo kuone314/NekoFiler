@@ -48,20 +48,20 @@ export function FileFilterBar(
     class FilterImpl implements IEntryFilter {
       IsMatch(entry: Entry): boolean {
         if (filter.length === 0) { return true; }
-        return (MatchIndexAry(entry.name, filter).length !== 0);
+        return (MatchIndexAry(entry.name.toLowerCase(), filter).length !== 0);
       }
       GetMatchingIdxAry(fileName: string): number[] {
-        return MatchIndexAry(fileName, filter);
+        return MatchIndexAry(fileName.toLowerCase(), filter);
       }
     }
 
     class RegExprFilter implements IEntryFilter {
       IsMatch(entry: Entry): boolean {
-        return (new RegExp(filter)).test(entry.name);
+        return (new RegExp(filter)).test(entry.name.toLowerCase());
       }
       GetMatchingIdxAry(fileName: string): number[] {
         const regExp = new RegExp(filter);
-        const res = regExp.exec(fileName);
+        const res = regExp.exec(fileName.toLowerCase());
         if (res === null) { return []; }
         const idx = res.index;
         const len = res[0].length;
