@@ -512,7 +512,7 @@ export function FileList(
       </thead>
       {
         entries.map((entry, idx) => {
-          return <tbody key={'LIst' + idx}>
+          return <tbody key={'List' + idx}>
             <tr
               ref={(idx === currentIndex) ? current_row : null}
               onMouseDown={(event) => { onMouseDown(idx, event) }}
