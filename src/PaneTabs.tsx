@@ -13,7 +13,7 @@ import { TabColor, TabColorSetting } from './TabColorSetting';
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
 import { ControlledMenu } from '@szhsin/react-menu';
-import { DirName } from './Utility';
+import { DirName, Sequence } from './Utility';
 import { LogInfo } from './LogMessagePane';
 
 
@@ -53,22 +53,17 @@ export const PaneTabs = (
     props.onTabsChanged(newTabAry, addPosIdx + 1);
   }
   const removeTab = (trgIdx: number) => {
-    if (tabAry.length === 1) { return; }
-    if (trgIdx >= tabAry.length) { return; }
-    if (tabAry[trgIdx].pined) { return; }
-
-    let newTabAry = Array.from(tabAry);
-    newTabAry.splice(trgIdx, 1);
-
-    const newTabIdx = (activeTabIdx >= newTabAry.length) ? newTabAry.length - 1 : activeTabIdx;
-    props.onTabsChanged(newTabAry, newTabIdx);
+    const remainTabList = Sequence(0, tabAry.length).filter(idx => idx != trgIdx)
+    removeTabs(remainTabList);
   }
 
   const removeTabs = (remainIdxAry: number[]) => {
-    if (remainIdxAry.length === 0) { return; }
+    const pinedIdxList = Sequence(0, tabAry.length).filter(idx => tabAry[idx].pined);
+    const actualRemainIdxAry = [...new Set(remainIdxAry.concat(pinedIdxList))].sort();
+    if (actualRemainIdxAry.length === 0) { return; }
 
-    let newTabAry = remainIdxAry.map(idx => tabAry[idx]);
-    const newTabIdx = remainIdxAry
+    let newTabAry = actualRemainIdxAry.map(idx => tabAry[idx]);
+    const newTabIdx = actualRemainIdxAry
       .map((orgIdx, idx) => { return { idx, dist: Math.abs(orgIdx - activeTabIdx) } })
       .reduce((pre, cur) => (pre.dist < cur.dist) ? pre : cur)
       .idx;
