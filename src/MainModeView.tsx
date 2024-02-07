@@ -213,7 +213,7 @@ export function MainModeView(
           <CommandBar
             path={getPath}
             addLogMessage={addLogMessage}
-          />
+            focusToFileList={() => grid[currentPaneIndex].current?.focus()} />
         </div>
         <div
           css={css({

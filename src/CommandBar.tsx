@@ -16,6 +16,7 @@ type Entry = {
 const CommandBar = (props: {
   path: () => string
   addLogMessage: (message: LogInfo) => void,
+  focusToFileList: () => void,
 }) => {
   const [str, setStr] = useState<string>("");
 
@@ -23,11 +24,9 @@ const CommandBar = (props: {
     executeShellCommand('Command Bar',str, props.path());
     setStr("");
   }
-  const onEscapeDown = () => {
-  }
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') { onEnterDown(); return; }
-    if (event.key === 'Escape') { onEscapeDown(); return; }
+    if (event.key === 'Escape') { props.focusToFileList(); return; }
   };
 
   return (
