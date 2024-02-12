@@ -139,6 +139,14 @@ export function MainModeView(
     addTab(settingDir)
   }
 
+  const [commandBar, commandBarFunc] = CommandBar(
+    {
+      path: getPath,
+      addLogMessage: addLogMessage,
+      focusToFileList: () => grid[currentPaneIndex].current?.focus(),
+    }
+  )
+
   function ErrorFallback({
     error,
     resetErrorBoundary }: FallbackProps
@@ -205,15 +213,13 @@ export function MainModeView(
                     separator={separator}
                     gridRef={grid[idx]}
                     focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
+                    focusCommandBar={() => commandBarFunc.focus()}
                   />
                 </ErrorBoundary>
               </div>
             })
           }
-          <CommandBar
-            path={getPath}
-            addLogMessage={addLogMessage}
-          />
+          {commandBar}
         </div>
         <div
           css={css({

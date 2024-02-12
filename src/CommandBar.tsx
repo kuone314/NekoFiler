@@ -13,24 +13,32 @@ type Entry = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const CommandBar = (props: {
-  path: () => string
-  addLogMessage: (message: LogInfo) => void,
-}) => {
+export interface CommandBarFuncs {
+  focus: () => void,
+}
+
+
+export function CommandBar(
+  props: {
+    path: () => string
+    addLogMessage: (message: LogInfo) => void,
+    focusToFileList: () => void,
+  }
+): [JSX.Element, CommandBarFuncs,] {
   const [str, setStr] = useState<string>("");
 
   const onEnterDown = async () => {
-    executeShellCommand('Command Bar',str, props.path());
+    executeShellCommand('Command Bar', str, props.path());
     setStr("");
-  }
-  const onEscapeDown = () => {
   }
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') { onEnterDown(); return; }
-    if (event.key === 'Escape') { onEscapeDown(); return; }
+    if (event.key === 'Escape') { props.focusToFileList(); return; }
   };
 
-  return (
+  const ref = React.createRef<HTMLInputElement>();
+
+  const elm = (
     <div style={
       {
         color: '#ff0201',
@@ -39,6 +47,7 @@ const CommandBar = (props: {
       }
     }>
       <input
+        ref={ref}
         type="text"
         placeholder='Input PowerSehll command.(e.g. echo Foo)'
         value={str}
@@ -50,6 +59,12 @@ const CommandBar = (props: {
       />
     </div>
   );
+  return [
+    elm,
+    {
+      focus: () => { ref.current?.focus() }
+    }
+  ];
 }
 
 export default CommandBar;

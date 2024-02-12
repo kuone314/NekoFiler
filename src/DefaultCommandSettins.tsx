@@ -408,6 +408,16 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       valid_on_addressbar: true,
     },
     {
+      command_name: 'focusCommandBar',
+      key: 'Ctrl+@',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'focusCommandBar',
+      },
+      valid_on_addressbar: true,
+    },
+    {
       command_name: 'PowerShell',
       key: 'ctrl+@',
       dialog_type: 'none',

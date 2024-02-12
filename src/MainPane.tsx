@@ -36,6 +36,7 @@ export const MainPanel = (
     addLogMessage: (message: LogInfo) => void,
     separator: separator,
     focusOppositePane: () => void,
+    focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
   }
 ) => {
@@ -109,6 +110,10 @@ export const MainPanel = (
     setFocusToListOnContextMenuClosed(false);
     filterBarFunc.focus(filterType);
   }
+  const focusCommandBar = () => {
+    setFocusToListOnContextMenuClosed(false);
+    props.focusCommandBar();
+  }
 
 
 
@@ -147,6 +152,7 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.focusFilterWithStrMatch: focusFilterBar('str_match'); return;
       case BUILDIN_COMMAND_TYPE.focusFilterWithRegExp: focusFilterBar('reg_expr'); return;
       case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
+      case BUILDIN_COMMAND_TYPE.focusCommandBar: focusCommandBar(); return;
     }
   }
 
