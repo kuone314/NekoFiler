@@ -41,6 +41,7 @@ export const PaneTabs = (
     setTabColor: (trgDir: string) => void,
     separator: separator,
     focusOppositePane: () => void,
+    focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
   },
 ) => {
@@ -239,6 +240,7 @@ export const PaneTabs = (
           addLogMessage={props.addLogMessage}
           separator={props.separator}
           focusOppositePane={props.focusOppositePane}
+          focusCommandBar={props.focusCommandBar}
           gridRef={props.gridRef}
           key={activeTabIdx}
         />

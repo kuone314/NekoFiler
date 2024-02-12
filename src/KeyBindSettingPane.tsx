@@ -243,6 +243,7 @@ export function KeyBindEditor(
       case 'focusFilterWithStrMatch': return 'focusFilterWithStrMatch';
       case 'focusFilterWithRegExp': return 'focusFilterWithRegExp';
       case 'focusOppositePane': return 'focusOppositePane';
+      case 'focusCommandBar': return 'focusCommandBar';
     }
   }
   const toComboItem = (type: BuildinCommandType) => {

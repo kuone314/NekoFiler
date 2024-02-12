@@ -46,6 +46,7 @@ export const BUILDIN_COMMAND_TYPE = {
   focusFilterWithStrMatch: 'focusFilterWithStrMatch',
   focusFilterWithRegExp: 'focusFilterWithRegExp',
   focusOppositePane: 'focusOppositePane',
+  focusCommandBar: 'focusCommandBar',
 } as const;
 export type BuildinCommandType = typeof BUILDIN_COMMAND_TYPE[keyof typeof BUILDIN_COMMAND_TYPE];
 export function ToBuildinCommandType(src: string): BuildinCommandType | null {
