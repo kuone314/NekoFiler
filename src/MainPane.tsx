@@ -222,7 +222,14 @@ export const MainPanel = (
 
   const accessParentDir = async () => {
     const parentDir = await normalize(dir + props.separator + '..');
-    const dirName = await basename(dir);
+
+    const dirName = await basename(dir).catch(_ => {
+      // dir が ドライブ自体(e.g. C:)のケース。
+      // 空のパスを指定する事で、ドライブ一覧を出す。
+      AccessDirectory("", dir); return null;
+    });
+    if (dirName === null) { return; }
+
     AccessDirectory(parentDir, dirName);
   };
 
