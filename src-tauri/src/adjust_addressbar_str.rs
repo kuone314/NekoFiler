@@ -8,7 +8,15 @@ pub struct AdjustedAddressbarStr {
 }
 #[tauri::command]
 pub fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String> {
-    let Ok(path) = dunce::canonicalize(&str.trim()) else {
+    let str = &str.trim();
+    if str.is_empty() {
+        return Ok(AdjustedAddressbarStr {
+            dir: "".to_string(),
+            filename: "".to_string(),
+        });
+    }
+
+    let Ok(path) = dunce::canonicalize(str) else {
         return Err("unfond".to_string());
     };
 
