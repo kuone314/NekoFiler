@@ -548,11 +548,11 @@ function ToTypeName(entry: Entry) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function MatchIndexAry(
   filename: string,
-  incremantalSearchingStr: string
+  matcherStr: string
 ): number[] {
   let result: number[] = [];
-  for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
-    const str = incremantalSearchingStr[idx];
+  for (let idx = 0; idx < matcherStr.length; idx++) {
+    const str = matcherStr[idx];
     const prevMatchIdx = result.at(-1);
     const searchStartIdx = (prevMatchIdx === undefined) ? 0 : prevMatchIdx + 1;
     const searchStr = filename.slice(searchStartIdx);
