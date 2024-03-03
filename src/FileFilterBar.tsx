@@ -4,7 +4,7 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import Select from 'react-select'
-import { Entry, IEntryFilter, MatchIndexAry } from './FileList';
+import { Entry, IEntryFilter } from './FileList';
 import { Sequence } from './Utility';
 
 
@@ -128,4 +128,22 @@ export function FileFilterBar(
       },
       isFocus: () => isFocus,
     }];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export function MatchIndexAry(
+  filename: string,
+  matcherStr: string
+): number[] {
+  let result: number[] = [];
+  for (let idx = 0; idx < matcherStr.length; idx++) {
+    const str = matcherStr[idx];
+    const prevMatchIdx = result.at(-1);
+    const searchStartIdx = (prevMatchIdx === undefined) ? 0 : prevMatchIdx + 1;
+    const searchStr = filename.slice(searchStartIdx);
+    const foundIdx = searchStr.indexOf(str);
+    if (foundIdx === -1) { return []; }
+    result.push(searchStartIdx + foundIdx);
+  }
+  return result;
 }
