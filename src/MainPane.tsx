@@ -222,7 +222,14 @@ export const MainPanel = (
 
   const accessParentDir = async () => {
     const parentDir = await normalize(dir + props.separator + '..');
-    const dirName = await basename(dir);
+
+    const dirName = await basename(dir).catch(_ => {
+      // dir が ドライブ自体(e.g. C:)のケース。
+      // 空のパスを指定する事で、ドライブ一覧を出す。
+      AccessDirectory("", dir); return null;
+    });
+    if (dirName === null) { return; }
+
     AccessDirectory(parentDir, dirName);
   };
 
@@ -308,7 +315,7 @@ export const MainPanel = (
     {
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
-      accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
+      accessDirectry: (dirName: string) => accessDirectry(nameToPath(dirName)),
       accessFile: (fileName: string) => {
         const decoretedPath = '&"./' + fileName + '"';
         executeShellCommand('Access file', decoretedPath, dir);
@@ -318,6 +325,10 @@ export const MainPanel = (
       gridRef: myGrid,
     }
   );
+
+  const nameToPath = (name: string) => (dir.length === 0)
+    ? name
+    : (dir + props.separator + name);
 
   const [addressBar, addressBarFunc] = AddressBar(
     {
