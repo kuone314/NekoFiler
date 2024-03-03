@@ -308,7 +308,7 @@ export const MainPanel = (
     {
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
-      accessDirectry: (dirName: string) => accessDirectry(dir + props.separator + dirName),
+      accessDirectry: (dirName: string) => accessDirectry(nameToPath(dirName)),
       accessFile: (fileName: string) => {
         const decoretedPath = '&"./' + fileName + '"';
         executeShellCommand('Access file', decoretedPath, dir);
@@ -318,6 +318,10 @@ export const MainPanel = (
       gridRef: myGrid,
     }
   );
+
+  const nameToPath = (name: string) => (dir.length === 0)
+    ? name
+    : (dir + props.separator + name);
 
   const [addressBar, addressBarFunc] = AddressBar(
     {
