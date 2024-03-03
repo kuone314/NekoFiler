@@ -227,16 +227,16 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       },
       valid_on_addressbar: false,
     },
-    {
-      command_name: 'clearSelection',
-      key: 'Escape',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'clearSelection',
-      },
-      valid_on_addressbar: false,
-    },
+    // {
+    //   command_name: 'clearSelection',
+    //   key: 'Escape',
+    //   dialog_type: 'none',
+    //   action: {
+    //     type: 'build_in',
+    //     command: 'clearSelection',
+    //   },
+    //   valid_on_addressbar: false,
+    // },
     {
       command_name: 'toggleSelection',
       key: 'Space',
@@ -377,23 +377,54 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       },
       valid_on_addressbar: false,
     },
+
     {
-      command_name: 'focusFilter(StrMatch)',
+      command_name: 'clearFilter',
+      key: 'Escape',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'clearFilter',
+      },
+      valid_on_addressbar: false,
+    },
+    {
+      command_name: 'deleteFilterSingleSingle',
+      key: 'backspace',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'deleteFilterSingleSingle',
+      },
+      valid_on_addressbar: false,
+    },
+    {
+      command_name: 'focusFilterBar',
       key: 'ctrl+f',
       dialog_type: 'none',
       action: {
         type: 'build_in',
-        command: 'focusFilterWithStrMatch',
+        command: 'focusFilterBar',
       },
       valid_on_addressbar: true,
     },
     {
-      command_name: 'focusFilter(RegExp)',
+      command_name: 'Set Filter StrMatch',
       key: 'ctrl+f',
       dialog_type: 'none',
       action: {
         type: 'build_in',
-        command: 'focusFilterWithRegExp',
+        command: 'setFilterStrMatch',
+      },
+      valid_on_addressbar: true,
+    },
+    {
+      command_name: 'Set Filter RegExp',
+      key: 'ctrl+f',
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'setFilterRegExp',
       },
       valid_on_addressbar: true,
     },

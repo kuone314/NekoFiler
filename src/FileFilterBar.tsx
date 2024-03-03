@@ -29,7 +29,10 @@ const comboLabel = (type: FileFilterType) => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileFilterBarFunc {
   addFilterString: (str: string) => void,
-  focus: (filterType: FileFilterType) => void,
+  deleteFilterSingleSingle: () => void,
+  clearFilter: () => void,
+  focus: () => void,
+  setType: (filterType: FileFilterType) => void,
   isFocus: () => boolean,
 };
 
@@ -122,10 +125,10 @@ export function FileFilterBar(
     element,
     {
       addFilterString: (str: string) => setFilter(filter + str),
-      focus: (filterType: FileFilterType) => {
-        setFilterType(filterType);
-        inputBoxRef.current?.focus();
-      },
+      deleteFilterSingleSingle: () => setFilter(filter.slice(0, -1)),
+      clearFilter: () => setFilter(``),
+      focus: () => inputBoxRef.current?.focus(),
+      setType: (filterType: FileFilterType) => setFilterType(filterType),
       isFocus: () => isFocus,
     }];
 }
