@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
-import { FileList, Entries, IEntryFilter, Entry, MatchIndexAry } from './FileList';
+import { FileList, Entries } from './FileList';
 import { COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE, CommandInfo } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
