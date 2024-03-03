@@ -210,7 +210,7 @@ export const MainPanel = (
     }
 
     if (!isFocusAddressBar && keyboard_event.key.length === 1) {
-      FileListFunctions.incremantalSearch(keyboard_event.key)
+      filterBarFunc.addFilterString(keyboard_event.key)
       return;
     }
   };

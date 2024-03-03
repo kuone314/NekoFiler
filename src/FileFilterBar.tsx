@@ -28,6 +28,7 @@ const comboLabel = (type: FileFilterType) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileFilterBarFunc {
+  addFilterString: (str: string) => void,
   focus: (filterType: FileFilterType) => void,
   isFocus: () => boolean,
 };
@@ -120,6 +121,7 @@ export function FileFilterBar(
   return [
     element,
     {
+      addFilterString: (str: string) => setFilter(filter + str),
       focus: (filterType: FileFilterType) => {
         setFilterType(filterType);
         inputBoxRef.current?.focus();
