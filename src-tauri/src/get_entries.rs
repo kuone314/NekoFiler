@@ -4,6 +4,9 @@ use std::{
     os::windows::fs::FileTypeExt,
 };
 
+use winapi::um::winbase::GetLogicalDriveStringsA;
+use winapi::um::winnt::CHAR;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileInfo {
@@ -17,6 +20,21 @@ pub struct FileInfo {
 use std::os::windows::prelude::MetadataExt;
 #[tauri::command]
 pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
+    if path.is_empty() {
+        // Windows用 ドライブ一覧の表示
+        // Linux対応するなら、この辺の処理の変更が要るはず。
+        return Ok(drive_list()
+            .into_iter()
+            .map(|drive| FileInfo {
+                name: drive,
+                is_dir: true,
+                extension: "".to_string(),
+                size: 0,
+                date: "".to_string(),
+            })
+            .collect());
+    }
+
     let entries = fs::read_dir(path).map_err(|e| format!("{}", e))?;
 
     let res = entries
@@ -53,4 +71,29 @@ fn get_date_str(file_data: &Metadata) -> Option<String> {
 
     let local_time: DateTime<Local> = modified_time.into();
     Some(local_time.format("%Y/%m/%d %H:%M:%S").to_string())
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+fn drive_list() -> Vec<String> {
+    let (buffer, len) = get_logical_drive_strings();
+
+    let raw_ary: Vec<u8> = buffer
+        .into_iter()
+        .take(len as usize)
+        .map(|val| val as u8)
+        .collect();
+
+    raw_ary
+        .split(|&x| x == 0)
+        .filter(|x| !x.is_empty())
+        .map(|drive| String::from_utf8(drive.to_vec()).unwrap())
+        .collect()
+}
+
+fn get_logical_drive_strings() -> ([i8; 255], u32) {
+    unsafe {
+        let mut buffer: [CHAR; 255] = [0; 255];
+        let len = GetLogicalDriveStringsA(255, buffer.as_mut_ptr());
+        return (buffer, len);
+    }
 }
