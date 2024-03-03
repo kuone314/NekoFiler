@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
-import { FileList, Entries, IEntryFilter, Entry, MatchIndexAry } from './FileList';
+import { FileList, Entries } from './FileList';
 import { COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE, CommandInfo } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
@@ -106,9 +106,9 @@ export const MainPanel = (
     setFocusToListOnContextMenuClosed(false);
     addressBarFunc.focus();
   }
-  const focusFilterBar = (filterType: FileFilterType) => {
+  const focusFilterBar = () => {
     setFocusToListOnContextMenuClosed(false);
-    filterBarFunc.focus(filterType);
+    filterBarFunc.focus();
   }
   const focusCommandBar = () => {
     setFocusToListOnContextMenuClosed(false);
@@ -149,8 +149,11 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.toPrevTab: toPrevTab(); return;
       case BUILDIN_COMMAND_TYPE.toNextTab: toNextTab(); return;
       case BUILDIN_COMMAND_TYPE.focusAddoressBar: focusAddoressBar(); return;
-      case BUILDIN_COMMAND_TYPE.focusFilterWithStrMatch: focusFilterBar('str_match'); return;
-      case BUILDIN_COMMAND_TYPE.focusFilterWithRegExp: focusFilterBar('reg_expr'); return;
+      case BUILDIN_COMMAND_TYPE.focusFilterBar: focusFilterBar(); return;
+      case BUILDIN_COMMAND_TYPE.deleteFilterSingleSingle: filterBarFunc.deleteFilterSingleSingle(); return;
+      case BUILDIN_COMMAND_TYPE.clearFilter: filterBarFunc.clearFilter(); return;
+      case BUILDIN_COMMAND_TYPE.setFilterStrMatch: filterBarFunc.setType(`str_match`); return;
+      case BUILDIN_COMMAND_TYPE.setFilterRegExp: filterBarFunc.setType(`reg_expr`); return;
       case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
       case BUILDIN_COMMAND_TYPE.focusCommandBar: focusCommandBar(); return;
     }
@@ -210,7 +213,7 @@ export const MainPanel = (
     }
 
     if (!isFocusAddressBar && keyboard_event.key.length === 1) {
-      FileListFunctions.incremantalSearch(keyboard_event.key)
+      filterBarFunc.addFilterString(keyboard_event.key)
       return;
     }
   };

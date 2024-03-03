@@ -43,8 +43,11 @@ export const BUILDIN_COMMAND_TYPE = {
   toPrevTab: 'toPrevTab',
   toNextTab: 'toNextTab',
   focusAddoressBar: 'focusAddoressBar',
-  focusFilterWithStrMatch: 'focusFilterWithStrMatch',
-  focusFilterWithRegExp: 'focusFilterWithRegExp',
+  focusFilterBar: 'focusFilterBar',
+  deleteFilterSingleSingle:'deleteFilterSingleSingle',
+  clearFilter:'clearFilter',
+  setFilterStrMatch: 'setFilterStrMatch',
+  setFilterRegExp: 'setFilterRegExp',
   focusOppositePane: 'focusOppositePane',
   focusCommandBar: 'focusCommandBar',
 } as const;

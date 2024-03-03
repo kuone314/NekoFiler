@@ -38,7 +38,6 @@ type SortKey = typeof SORT_KEY[keyof typeof SORT_KEY];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileListFunc {
   selectingItemName: () => string[],
-  incremantalSearch: (searchStr: string) => void,
   accessCurrentItem: () => void,
   initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
@@ -215,7 +214,6 @@ export function FileList(
 
     setAdjustMargin(defaultAdjustMargin);
     setCurrentIndex(newIndex)
-    setincremantalSearchingStr('')
 
     if (!select) { return }
 
@@ -260,18 +258,6 @@ export function FileList(
     adjustScroll();
   }, [currentIndex]);
 
-  const [incremantalSearchingStr, setincremantalSearchingStr] = useState('');
-  const incremantalSearch = (key: string) => {
-    const nextSearchStr = incremantalSearchingStr + key;
-
-    const idx = IncremantalSearch(entries, nextSearchStr);
-    if (idx === -1) { return }
-
-    setAdjustMargin(defaultAdjustMargin);
-    setCurrentIndex(idx)
-    setincremantalSearchingStr(nextSearchStr)
-  }
-
   interface MouseSelectInfo {
     startIndex: number,
     shiftKey: boolean,
@@ -280,7 +266,6 @@ export function FileList(
   const [mouseSelectInfo, setMouseSelectInfo] = useState<MouseSelectInfo | null>(null);
   const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
     if (event.buttons !== 1) { return; }
-    setincremantalSearchingStr('');
     const info = {
       startIndex: row_idx,
       shiftKey: event.shiftKey,
@@ -439,10 +424,9 @@ export function FileList(
   }
 
   function FileNameWithEmphasis(fileName: string): React.ReactNode {
-    const emphasisIdxAry = (incremantalSearchingStr !== '')
-      ? MatchIndexAry(fileName, incremantalSearchingStr)
-      : (filter !== null) ? filter.GetMatchingIdxAry(fileName)
-        : [];
+    const emphasisIdxAry = (filter !== null)
+      ? filter.GetMatchingIdxAry(fileName)
+      : [];
     const charFlagPairs = fileName.split('').map((str, idx) => {
       const flag = emphasisIdxAry.includes(idx);
       return { str, flag };
@@ -458,7 +442,6 @@ export function FileList(
 
   const functions = {
     selectingItemName: selectingItemName,
-    incremantalSearch: incremantalSearch,
     accessCurrentItem: accessCurrentItem,
     initEntries: initEntries,
     updateEntries: updateEntries,
@@ -560,54 +543,6 @@ function ToTypeName(entry: Entry) {
     : entry.extension.length === 0
       ? '-'
       : entry.extension
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-export function MatchIndexAry(
-  filename: string,
-  incremantalSearchingStr: string
-): number[] {
-  let result: number[] = [];
-  for (let idx = 0; idx < incremantalSearchingStr.length; idx++) {
-    const str = incremantalSearchingStr[idx];
-    const prevMatchIdx = result.at(-1);
-    const searchStartIdx = (prevMatchIdx === undefined) ? 0 : prevMatchIdx + 1;
-    const searchStr = filename.slice(searchStartIdx);
-    const foundIdx = searchStr.indexOf(str);
-    if (foundIdx === -1) { return []; }
-    result.push(searchStartIdx + foundIdx);
-  }
-  return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-function IncremantalSearch(
-  entries: Entries,
-  incremantalSearchingStr: string
-): number {
-  const matchIdxArys = entries
-    .map((entry, idx) => {
-      return {
-        orgIdx: idx,
-        matchIdxAry: MatchIndexAry(entry.name.toLowerCase(), incremantalSearchingStr.toLowerCase())
-      };
-    })
-    .filter(item => item.matchIdxAry.length !== 0);
-  if (matchIdxArys.length === 0) { return -1; }
-
-  matchIdxArys.sort((info_1, info_2) => {
-    for (let idx = 0; idx < info_1.matchIdxAry.length; idx++) {
-      const matchIdx_1 = info_1.matchIdxAry[idx];
-      const matchIdx_2 = info_2.matchIdxAry[idx];
-      if (matchIdx_1 === matchIdx_2) { continue; }
-
-      if (matchIdx_1 < matchIdx_2) { return -1; }
-      if (matchIdx_1 > matchIdx_2) { return +1; }
-    }
-    return 0;
-  });
-
-  return matchIdxArys[0].orgIdx;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
