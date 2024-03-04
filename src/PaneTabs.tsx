@@ -72,33 +72,24 @@ export const PaneTabs = (
   }
 
   const removeOtherTabs = (remainIdx: number) => {
-    let remaiIdxAry = tabAry
-      .map((tab, idx) => { return { tab, orgIdx: idx } })
-      .filter(item => item.tab.pined || item.orgIdx === remainIdx)
-      .map(item => item.orgIdx);
-    removeTabs(remaiIdxAry);
+    const remainTabList = [remainIdx];
+    removeTabs(remainTabList);
   }
 
   const removeAllRightTabs = (baseIdx: number) => {
-    let remaiIdxAry = tabAry
-      .map((tab, idx) => { return { tab, orgIdx: idx } })
-      .filter(item => item.tab.pined || item.orgIdx <= baseIdx)
-      .map(item => item.orgIdx);
-    removeTabs(remaiIdxAry);
+    const remainTabList = Sequence(0, baseIdx + 1);
+    removeTabs(remainTabList);
   }
 
   const removeAllLeftTabs = (baseIdx: number) => {
-    let remaiIdxAry = tabAry
-      .map((tab, idx) => { return { tab, orgIdx: idx } })
-      .filter(item => item.tab.pined || item.orgIdx >= baseIdx)
-      .map(item => item.orgIdx);
-    removeTabs(remaiIdxAry);
-
+    const remainTabList = Sequence(baseIdx, tabAry.length - baseIdx);
+    removeTabs(remainTabList);
   }
 
   const changeTab = (offset: number) => {
     const new_val = (activeTabIdx + offset + tabAry.length) % tabAry.length;
     props.onTabsChanged(tabAry, new_val);
+
   }
   const togglePined = (idx: number) => {
     let newTabAry = Array.from(tabAry);
