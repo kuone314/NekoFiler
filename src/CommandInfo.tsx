@@ -44,12 +44,13 @@ export const BUILDIN_COMMAND_TYPE = {
   toNextTab: 'toNextTab',
   focusAddoressBar: 'focusAddoressBar',
   focusFilterBar: 'focusFilterBar',
-  deleteFilterSingleSingle:'deleteFilterSingleSingle',
-  clearFilter:'clearFilter',
+  deleteFilterSingleSingle: 'deleteFilterSingleSingle',
+  clearFilter: 'clearFilter',
   setFilterStrMatch: 'setFilterStrMatch',
   setFilterRegExp: 'setFilterRegExp',
   focusOppositePane: 'focusOppositePane',
   focusCommandBar: 'focusCommandBar',
+  setKeyBind: 'setKeyBind',
 } as const;
 export type BuildinCommandType = typeof BUILDIN_COMMAND_TYPE[keyof typeof BUILDIN_COMMAND_TYPE];
 export function ToBuildinCommandType(src: string): BuildinCommandType | null {
@@ -77,16 +78,28 @@ export type CommandInfo = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
-  const key_ary = command_key.split('+').map(key => key.toLocaleLowerCase());
-  if (key_ary.includes('ctrl') !== keyboard_event.ctrlKey) { return false; }
-  if (key_ary.includes('alt') !== keyboard_event.altKey) { return false; }
-  if (key_ary.includes('shift') !== keyboard_event.shiftKey) { return false; }
+ 
+  return toKeyStr(keyboard_event).toLowerCase() === command_key.toLowerCase();
+}
 
-  const setting_key = key_ary[key_ary.length - 1].toLocaleLowerCase();
-  if (setting_key === keyboard_event.key.toLocaleLowerCase()) { return true; }
-  if (keyboard_event.key === ' ' && setting_key === 'space') { return true; }
+export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) => {
+  if (!keyEvnet) { return ''; }
 
-  return false;
+  const strAry = [];
+  if (keyEvnet.ctrlKey) { strAry.push('ctrl'); }
+  if (keyEvnet.altKey) { strAry.push('alt'); }
+  if (keyEvnet.shiftKey) { strAry.push('shift'); }
+
+  const key = keyEvnet.key;
+  if (!['Control', 'Alt', 'Shift',].find(item => item === key)) {
+    const rowKeyStr = (() => {
+      if (key === ' ') { return 'Space'; }
+      if (key.length === 1) { return key.toUpperCase(); }
+      return key;
+    })();
+    strAry.push(rowKeyStr);
+  }
+  return strAry.join('+');
 }
 
 export class CommandInfoVersiton {

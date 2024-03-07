@@ -14,7 +14,7 @@ export function LastIndex<T>(ary: T[]): number {
 export function Sequence(stt: number, size: number): number[] {
   if (size <= 0) { return []; }
 
-  let result = [] ;
+  let result = [];
   let new_ary = new Set<number>();
   for (let idx = 0; idx < size; idx++) {
     result.push(stt + idx);
@@ -34,3 +34,33 @@ export function DirName(dirPath: string): string {
   if (splited[0].length !== 0) { return splited[0]; }
   return splited[1];
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export const alfabetList = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z',
+];

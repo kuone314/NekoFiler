@@ -35,7 +35,7 @@ export function MainModeView(
     height: number,
     tabColorSetting: TabColorSetting[],
     setTabColor: (tabColorSettingTrgDir: string) => void,
-    setKeyBind: () => void,
+    setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
   }
 ) {
   const [tabsPathAry, setTabsPathAry] = useState<TabsInfo[]>([]);
@@ -214,6 +214,7 @@ export function MainModeView(
                     gridRef={grid[idx]}
                     focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
                     focusCommandBar={() => commandBarFunc.focus()}
+                    setKeyBind={props.setKeyBind}
                   />
                 </ErrorBoundary>
               </div>
@@ -254,7 +255,7 @@ export function MainModeView(
               height: buttonHeight,
               padding: '10px',
             })}
-            onClick={() => props.setKeyBind()}>
+            onClick={() => props.setKeyBind(null)}>
             Set KeyBind
           </button>
           <button

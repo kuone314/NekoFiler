@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType } from './CommandInfo';
+import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType, toKeyStr } from './CommandInfo';
 import { invoke } from '@tauri-apps/api';
 import { IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
@@ -18,10 +18,11 @@ const dlgHeightMagin = 60;
 export function KeyBindSettingPane(
   props: {
     height: number
+    keySetTrg: React.KeyboardEvent<HTMLDivElement> | null
     finishSetting: () => void
   }
 ) {
-  const [trgKey, setTrgKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
+  const [trgKey, setTrgKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(props.keySetTrg);
   const [trgKeyStr, setTrgKeyStr] = useState('');
   useEffect(() => {
     setTrgKeyStr(toKeyStr(trgKey));
@@ -105,7 +106,7 @@ export function KeyBindSettingPane(
       <div>
         <input
           defaultValue={trgKeyStr}
-          onKeyDown={event => setTrgKey(event)}
+          onKeyDown={event => { setTrgKey(event); event.preventDefault(); }}
         />
         <button
           onClick={() => setTrgKey(null)}
@@ -220,31 +221,7 @@ export function KeyBindEditor(
 
   const [buildinCommandType, setBuildinCommandType] = useState<BuildinCommandType | null>('accessCurrentItem');
   const comboLabel = (type: BuildinCommandType) => {
-    switch (type) {
-      case 'accessCurrentItem': return 'accessCurrentItem';
-      case 'accessParentDir': return 'accessParentDir';
-      case 'moveUp': return 'moveUp';
-      case 'moveUpSelect': return 'moveUpSelect';
-      case 'moveDown': return 'moveDown';
-      case 'moveDownSelect': return 'moveDownSelect';
-      case 'moveTop': return 'moveTop';
-      case 'moveTopSelect': return 'moveTopSelect';
-      case 'moveBottom': return 'moveBottom';
-      case 'moveBottomSelect': return 'moveBottomSelect';
-      case 'selectAll': return 'selectAll';
-      case 'clearSelection': return 'clearSelection';
-      case 'toggleSelection': return 'toggleSelection';
-      case 'selectCurrentOnly': return 'selectCurrentOnly';
-      case 'addNewTab': return 'addNewTab';
-      case 'removeTab': return 'removeTab';
-      case 'toPrevTab': return 'toPrevTab';
-      case 'toNextTab': return 'toNextTab';
-      case 'focusAddoressBar': return 'focusAddoressBar';
-      case 'focusFilterWithStrMatch': return 'focusFilterWithStrMatch';
-      case 'focusFilterWithRegExp': return 'focusFilterWithRegExp';
-      case 'focusOppositePane': return 'focusOppositePane';
-      case 'focusCommandBar': return 'focusCommandBar';
-    }
+    return type;
   }
   const toComboItem = (type: BuildinCommandType) => {
     return { value: type, label: comboLabel(type) };
@@ -327,7 +304,7 @@ export function KeyBindEditor(
           <input
             type="text"
             defaultValue={keyStr}
-            onKeyDown={event => setKey(event)}
+            onKeyDown={event => { setKey(event); event.preventDefault(); }}
           />
         </div>
         <div>
@@ -436,25 +413,4 @@ export function KeyBindEditor(
   }
 
   return [dialogElement, EditStart];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) => {
-  if (!keyEvnet) { return ''; }
-
-  const strAry = [];
-  if (keyEvnet.ctrlKey) { strAry.push('ctrl'); }
-  if (keyEvnet.altKey) { strAry.push('alt'); }
-  if (keyEvnet.shiftKey) { strAry.push('shift'); }
-
-  const key = keyEvnet.key;
-  if (!['Control', 'Alt', 'Shift',].find(item => item === key)) {
-    const rowKeyStr = (() => {
-      if (key === ' ') { return 'Space'; }
-      if (key.length === 1) { return key.toUpperCase(); }
-      return key;
-    })();
-    strAry.push(rowKeyStr);
-  }
-  return strAry.join('+');
 }
