@@ -38,6 +38,7 @@ export const MainPanel = (
     focusOppositePane: () => void,
     focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
+    setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
   }
 ) => {
   const [dir, setDir] = useState<string>(props.initPath);
@@ -125,7 +126,10 @@ export const MainPanel = (
   const toPrevTab = () => { props.tabFuncs.changeTab(-1); }
   const toNextTab = () => { props.tabFuncs.changeTab(+1); }
 
-  const execBuildInCommand = (commandName: string) => {
+  const execBuildInCommand = (
+    commandName: string,
+    srcKey: React.KeyboardEvent<HTMLDivElement> | null
+  ) => {
     switch (commandName) {
       case BUILDIN_COMMAND_TYPE.accessCurrentItem: FileListFunctions.accessCurrentItem(); return;
       case BUILDIN_COMMAND_TYPE.accessParentDir: accessParentDir(); return;
@@ -156,12 +160,16 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.setFilterRegExp: filterBarFunc.setType(`reg_expr`); return;
       case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
       case BUILDIN_COMMAND_TYPE.focusCommandBar: focusCommandBar(); return;
+      case BUILDIN_COMMAND_TYPE.setKeyBind: props.setKeyBind(srcKey); return;
     }
   }
 
-  const execCommand = (command: CommandInfo) => {
+  const execCommand = (
+    command: CommandInfo,
+    srcKey: React.KeyboardEvent<HTMLDivElement> | null
+  ) => {
     if (command.action.type === COMMAND_TYPE.build_in) {
-      execBuildInCommand(command.action.command);
+      execBuildInCommand(command.action.command, srcKey);
       return
     }
 
@@ -201,11 +209,12 @@ export const MainPanel = (
     }
 
     if (command_ary.length === 1) {
-      execCommand(command_ary[0])
+      execCommand(command_ary[0], keyboard_event)
       return;
     }
 
     if (command_ary.length >= 2) {
+      setSrcKey(keyboard_event);
       menuItemAry.current = command_ary;
       setMenuOpen(true);
       setFocusToListOnContextMenuClosed(true);
@@ -247,6 +256,7 @@ export const MainPanel = (
   );
 
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [srcKey, setSrcKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
   useEffect(() => {
     if (!isMenuOpen) {
       if (focusToListOnContextMenuClosed) {
@@ -266,7 +276,7 @@ export const MainPanel = (
       {
         menuItemAry.current.map((command, idx) => {
           return <MenuItem
-            onClick={e => execCommand(command)}
+            onClick={e => execCommand(command, srcKey)}
             key={idx}
           >
             {command.command_name}

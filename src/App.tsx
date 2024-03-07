@@ -23,6 +23,7 @@ type Mode = typeof Mode[keyof typeof Mode];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const App = () => {
   const [mode, setMode] = useState<Mode>(Mode.main);
+  const [keySetTrg, setKeySetTrg] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
 
   const [aplHeight, setAplHeight] = useState(document.documentElement.clientHeight);
   window.addEventListener('resize', (event) => {
@@ -45,7 +46,7 @@ const App = () => {
           height={aplHeight}
           tabColorSetting={tabColorSetting}
           setTabColor={(trgDir) => { setTabColorSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
-          setKeyBind={() => setMode(Mode.setKeyBindSettings)}
+          setKeyBind={(trgKey: React.KeyboardEvent<HTMLDivElement> | null) => {setKeySetTrg(trgKey);setMode(Mode.setKeyBindSettings)}}
         />
       case Mode.setTabColor:
         return <TabColorSettingPane
@@ -61,6 +62,7 @@ const App = () => {
       case Mode.setKeyBindSettings:
         return <KeyBindSettingPane
           height={aplHeight - 20}
+          keySetTrg={keySetTrg}
           finishSetting={() => setMode(Mode.main)}
         />
     }

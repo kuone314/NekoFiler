@@ -43,6 +43,7 @@ export const PaneTabs = (
     focusOppositePane: () => void,
     focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
+    setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
   },
 ) => {
   const tabAry = props.pathAry.pathAry;
@@ -234,6 +235,7 @@ export const PaneTabs = (
           focusCommandBar={props.focusCommandBar}
           gridRef={props.gridRef}
           key={activeTabIdx}
+          setKeyBind={props.setKeyBind}
         />
       </div>
     </>

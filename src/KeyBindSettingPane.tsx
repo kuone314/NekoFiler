@@ -18,10 +18,11 @@ const dlgHeightMagin = 60;
 export function KeyBindSettingPane(
   props: {
     height: number
+    keySetTrg: React.KeyboardEvent<HTMLDivElement> | null
     finishSetting: () => void
   }
 ) {
-  const [trgKey, setTrgKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
+  const [trgKey, setTrgKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(props.keySetTrg);
   const [trgKeyStr, setTrgKeyStr] = useState('');
   useEffect(() => {
     setTrgKeyStr(toKeyStr(trgKey));
