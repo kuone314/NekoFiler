@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api';
 import JSON5 from 'json5'
 
 import { CommandInfo, CommandInfoVersiton, } from './CommandInfo';
+import { alfabetList } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -470,11 +471,6 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
     },
   ];
 
-  const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: defined }, null, 2);
-  (async () => {
-    await invoke<void>("write_setting_file", { filename: "key_bind.json5", content: data })
-  })();
-
   (async () => {
     const script = `\
 Set-Clipboard $selecting_item_path_ary;
@@ -661,8 +657,25 @@ Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current
   })();
 
 
-const setCommandCommandList =
+  const setCommandCommandList: CommandInfo[] = alfabetList.map(key => (
+    {
+      command_name: 'setKeyBind',
+      key: 'ctrl+' + key,
+      dialog_type: 'none',
+      action: {
+        type: 'build_in',
+        command: 'setKeyBind',
+      },
+      valid_on_addressbar: false,
+    }
+  ));
+  const result = defined.concat(setCommandCommandList);
+  const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: result }, null, 2);
+  (async () => {
+    await invoke<void>("write_setting_file", { filename: "key_bind.json5", content: data })
+  })();
 
-  return defined;
+
+  return result;
 }
 
