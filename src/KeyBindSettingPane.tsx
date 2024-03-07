@@ -220,31 +220,7 @@ export function KeyBindEditor(
 
   const [buildinCommandType, setBuildinCommandType] = useState<BuildinCommandType | null>('accessCurrentItem');
   const comboLabel = (type: BuildinCommandType) => {
-    switch (type) {
-      case 'accessCurrentItem': return 'accessCurrentItem';
-      case 'accessParentDir': return 'accessParentDir';
-      case 'moveUp': return 'moveUp';
-      case 'moveUpSelect': return 'moveUpSelect';
-      case 'moveDown': return 'moveDown';
-      case 'moveDownSelect': return 'moveDownSelect';
-      case 'moveTop': return 'moveTop';
-      case 'moveTopSelect': return 'moveTopSelect';
-      case 'moveBottom': return 'moveBottom';
-      case 'moveBottomSelect': return 'moveBottomSelect';
-      case 'selectAll': return 'selectAll';
-      case 'clearSelection': return 'clearSelection';
-      case 'toggleSelection': return 'toggleSelection';
-      case 'selectCurrentOnly': return 'selectCurrentOnly';
-      case 'addNewTab': return 'addNewTab';
-      case 'removeTab': return 'removeTab';
-      case 'toPrevTab': return 'toPrevTab';
-      case 'toNextTab': return 'toNextTab';
-      case 'focusAddoressBar': return 'focusAddoressBar';
-      case 'focusFilterWithStrMatch': return 'focusFilterWithStrMatch';
-      case 'focusFilterWithRegExp': return 'focusFilterWithRegExp';
-      case 'focusOppositePane': return 'focusOppositePane';
-      case 'focusCommandBar': return 'focusCommandBar';
-    }
+    return type;
   }
   const toComboItem = (type: BuildinCommandType) => {
     return { value: type, label: comboLabel(type) };
