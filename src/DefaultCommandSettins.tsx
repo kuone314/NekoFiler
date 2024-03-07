@@ -6,7 +6,7 @@ import { CommandInfo, CommandInfoVersiton, } from './CommandInfo';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function GenerateDefaultCommandSeting(): CommandInfo[] {
-  const result: CommandInfo[] = [
+  const defined: CommandInfo[] = [
     {
       command_name: 'Copy to clopboard',
       key: 'ctrl+c',
@@ -470,7 +470,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
     },
   ];
 
-  const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: result }, null, 2);
+  const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: defined }, null, 2);
   (async () => {
     await invoke<void>("write_setting_file", { filename: "key_bind.json5", content: data })
   })();
@@ -661,6 +661,8 @@ Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current
   })();
 
 
-  return result;
+const setCommandCommandList =
+
+  return defined;
 }
 
