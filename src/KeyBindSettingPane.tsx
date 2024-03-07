@@ -105,7 +105,7 @@ export function KeyBindSettingPane(
       <div>
         <input
           defaultValue={trgKeyStr}
-          onKeyDown={event => setTrgKey(event)}
+          onKeyDown={event => { setTrgKey(event); event.preventDefault(); }}
         />
         <button
           onClick={() => setTrgKey(null)}
@@ -303,7 +303,7 @@ export function KeyBindEditor(
           <input
             type="text"
             defaultValue={keyStr}
-            onKeyDown={event => setKey(event)}
+            onKeyDown={event => { setKey(event); event.preventDefault(); }}
           />
         </div>
         <div>
