@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType } from './CommandInfo';
+import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType, toKeyStr } from './CommandInfo';
 import { invoke } from '@tauri-apps/api';
 import { IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
@@ -412,25 +412,4 @@ export function KeyBindEditor(
   }
 
   return [dialogElement, EditStart];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) => {
-  if (!keyEvnet) { return ''; }
-
-  const strAry = [];
-  if (keyEvnet.ctrlKey) { strAry.push('ctrl'); }
-  if (keyEvnet.altKey) { strAry.push('alt'); }
-  if (keyEvnet.shiftKey) { strAry.push('shift'); }
-
-  const key = keyEvnet.key;
-  if (!['Control', 'Alt', 'Shift',].find(item => item === key)) {
-    const rowKeyStr = (() => {
-      if (key === ' ') { return 'Space'; }
-      if (key.length === 1) { return key.toUpperCase(); }
-      return key;
-    })();
-    strAry.push(rowKeyStr);
-  }
-  return strAry.join('+');
 }

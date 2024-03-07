@@ -89,6 +89,26 @@ export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, comma
   return false;
 }
 
+export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) => {
+  if (!keyEvnet) { return ''; }
+
+  const strAry = [];
+  if (keyEvnet.ctrlKey) { strAry.push('ctrl'); }
+  if (keyEvnet.altKey) { strAry.push('alt'); }
+  if (keyEvnet.shiftKey) { strAry.push('shift'); }
+
+  const key = keyEvnet.key;
+  if (!['Control', 'Alt', 'Shift',].find(item => item === key)) {
+    const rowKeyStr = (() => {
+      if (key === ' ') { return 'Space'; }
+      if (key.length === 1) { return key.toUpperCase(); }
+      return key;
+    })();
+    strAry.push(rowKeyStr);
+  }
+  return strAry.join('+');
+}
+
 export class CommandInfoVersiton {
   static first = 1;
   static add_valid_on_addressbar = 2;
