@@ -78,16 +78,8 @@ export type CommandInfo = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
-  const key_ary = command_key.split('+').map(key => key.toLocaleLowerCase());
-  if (key_ary.includes('ctrl') !== keyboard_event.ctrlKey) { return false; }
-  if (key_ary.includes('alt') !== keyboard_event.altKey) { return false; }
-  if (key_ary.includes('shift') !== keyboard_event.shiftKey) { return false; }
-
-  const setting_key = key_ary[key_ary.length - 1].toLocaleLowerCase();
-  if (setting_key === keyboard_event.key.toLocaleLowerCase()) { return true; }
-  if (keyboard_event.key === ' ' && setting_key === 'space') { return true; }
-
-  return false;
+ 
+  return toKeyStr(keyboard_event).toLowerCase() === command_key.toLowerCase();
 }
 
 export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) => {
