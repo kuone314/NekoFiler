@@ -94,6 +94,7 @@ export const MainPanel = (
   }
 
   useEffect(() => {
+    filterBarFunc.clearFilter();
     AccessDirectory(dir, "");
     props.onPathChanged(dir);
   }, [dir]);
