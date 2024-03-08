@@ -53,12 +53,32 @@ function LopPane(
       </div>
       {
         logPaneInfo.isCommandOpen
-          ? <div css={css({ userSelect: 'text' })}>{logInfo.command}</div>
+          ? <textarea
+            css={css({ userSelect: 'text', fontSize: '18px', })}
+            rows={15}
+            cols={1000}
+            value={logInfo.command} />
           : <></>
       }
       <div>rc:{(logInfo.rc !== null) ? logInfo.rc : ''}</div>
-      <div css={css({ userSelect: 'text' })}>{logInfo.stdout}</div>
-      <div css={css({ userSelect: 'text' })}>{logInfo.stderr}</div>
+      {
+        logInfo.stdout
+          ? <textarea
+            css={css({ userSelect: 'text', fontSize: '18px', })}
+            rows={10}
+            cols={1000}
+            value={logInfo.stdout} />
+          : <></>
+      }
+      {
+        logInfo.stderr
+          ? <textarea
+            css={css({ userSelect: 'text', fontSize: '18px', })}
+            rows={10}
+            cols={1000}
+            value={logInfo.stderr} />
+          : <></>
+      }
     </>
   }
 
