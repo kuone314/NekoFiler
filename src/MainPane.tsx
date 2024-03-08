@@ -94,6 +94,7 @@ export const MainPanel = (
   }
 
   useEffect(() => {
+    filterBarFunc.clearFilter();
     AccessDirectory(dir, "");
     props.onPathChanged(dir);
   }, [dir]);
@@ -221,7 +222,11 @@ export const MainPanel = (
       return;
     }
 
-    if (!isFocusAddressBar && keyboard_event.key.length === 1) {
+    const isSingleKey = // Shiftの押下は、とりあえず許容する事にしておく。
+      !keyboard_event.ctrlKey &&
+      !keyboard_event.altKey &&
+      keyboard_event.key.length === 1;
+    if (isSingleKey && !isFocusAddressBar) {
       filterBarFunc.addFilterString(keyboard_event.key)
       return;
     }
