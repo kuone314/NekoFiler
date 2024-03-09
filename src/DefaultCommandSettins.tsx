@@ -512,9 +512,14 @@ for ($index = 0; $index -lt $selecting_item_path_ary.count; $index++) {
 
   (async () => {
     const script = `
-for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
-  $selecting_item_path = $selecting_item_path_ary[$index];
+$item_count = $selecting_item_path_ary.count;
+for ($index=0; $index -lt $dialog_input_str_ary.count; $index++){
+  $selecting_item_name = $selecting_item_name_ary[$index%$item_count];
+  $selecting_item_path = $selecting_item_path_ary[$index%$item_count];
   $dialog_input_str = $dialog_input_str_ary[$index];
+  $log = $selecting_item_name + " -> " + $dialog_input_str;
+  echo $log;
+
   Copy-Item -Recurse -Path $selecting_item_path -Destination $dialog_input_str
 }\
 `;
