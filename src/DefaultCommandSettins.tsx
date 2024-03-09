@@ -49,6 +49,16 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       valid_on_addressbar: false,
     },
     {
+      command_name: 'Copy and Replace Content',
+      key: 'ctrl+c',
+      dialog_type: 'reference_selection',
+      action: {
+        type: 'power_shell',
+        command: 'script/Copy and Replace Content.ps1',
+      },
+      valid_on_addressbar: false,
+    },
+    {
       command_name: 'Copy to opposite dirctory',
       key: 'ctrl+c',
       dialog_type: 'reference_selection',
@@ -525,6 +535,47 @@ for ($index=0; $index -lt $dialog_input_str_ary.count; $index++){
 `;
     await invoke<void>("write_setting_file", {
       filename: "script/Create Copy.ps1",
+      content: script
+    })
+  })();
+
+  (async () => {
+    const script = `
+function GetBackMatchingCharactersCount {
+  param (
+    [string]$str1,
+    [string]$str2
+  )
+
+  $upper = [Math]::Min($str1.Length, $str2.Length)
+  for ($backIdx = 0; $backIdx -lt $upper; $backIdx++) {
+    $idx1 = $str1.Length - 1 - $backIdx
+    $idx2 = $str2.Length - 1 - $backIdx
+
+    if ($str1[$idx1] -ne $str2[$idx2]) {
+      return $backIdx
+    }
+  }
+
+  return $upper
+}
+
+$item_count = $selecting_item_path_ary.count;
+for ($index = 0; $index -lt $dialog_input_str_ary.count; $index++) {
+  $selecting_item_name = $selecting_item_name_ary[$index % $item_count];
+  $selecting_item_path = $selecting_item_path_ary[$index % $item_count];
+  $dialog_input_str = $dialog_input_str_ary[$index];
+  $log = $selecting_item_name + " -> " + $dialog_input_str;
+  echo $log;
+
+  $matchNum = GetBackMatchingCharactersCount -str1 $selecting_item_name -str2 $dialog_input_str;
+  $replaceSrc = $selecting_item_name.Substring(0, $selecting_item_name.Length - $matchNum);
+  $replaceDst = $dialog_input_str.Substring(0, $dialog_input_str.Length - $matchNum);
+  Get-Content  -Encoding UTF8 $selecting_item_path | ForEach-Object { $_ -replace $replaceSrc, $replaceDst } | Out-File -Encoding UTF8 $dialog_input_str -NoClobber
+}
+`;
+    await invoke<void>("write_setting_file", {
+      filename: "script/Copy and Replace Content.ps1",
       content: script
     })
   })();
