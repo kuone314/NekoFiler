@@ -29,18 +29,22 @@ class TabColorSettingVersiton {
   static add_start_with = 2;
   static add_setting_name = 3;
   static add_frame_highlightv = 4;
-  static latest = TabColorSettingVersiton.add_frame_highlightv;
+  static add_directry_hierarchy = 5;
+  static latest = TabColorSettingVersiton.add_directry_hierarchy;
 }
 
 export async function writeTabColorSetting(setting: TabColorSetting[]) {
   const data = JSON5.stringify({ version: TabColorSettingVersiton.latest, data: setting }, null, 2);
   await invoke<String>(
-    "write_setting_file", { filename: "tab_color.json5", content: data });
+    "write_setting_file", { filename: "device_specific/tab_color.json5", content: data });
 }
 async function readTabColorSettingStr(): Promise<string> {
-  const result = await invoke<string | null>("read_setting_file", { filename: "tab_color.json5" })
+  const result = await invoke<string | null>("read_setting_file", { filename: "device_specific/tab_color.json5" })
     .catch(_ => "");
   if (result === null) {
+    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'tab_color.json5' })
+      .catch(_ => "");
+    if (oldFileStr !== null) { return oldFileStr; }
     return "";
   }
   return result;

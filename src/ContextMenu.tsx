@@ -14,19 +14,23 @@ export type ContextMenuInfo = {
 
 class ContextMenuInfoVersiton {
   static first = 1;
-  static latest = ContextMenuInfoVersiton.first;
+  static add_directry_hierarchy = 2;
+  static latest = ContextMenuInfoVersiton.add_directry_hierarchy;
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
   const data = JSON5.stringify({ version: ContextMenuInfoVersiton.latest, data: setting }, null, 2);
   await invoke<String>(
-    "write_setting_file", { filename: "context_menu.json5", content: data });
+    "write_setting_file", { filename: "General/context_menu.json5", content: data });
 }
 
 async function readContextMenuSettingStr(): Promise<string> {
-  const result = await invoke<string | null>("read_setting_file", { filename: "context_menu.json5" })
+  const result = await invoke<string | null>("read_setting_file", { filename: "General/context_menu.json5" })
     .catch(_ => "");
   if (result === null) {
+    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'context_menu.json5' })
+      .catch(_ => "");
+    if (oldFileStr !== null) { return oldFileStr; }
     return "";
   }
   return result;

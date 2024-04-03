@@ -21,19 +21,23 @@ interface BookMarkItem {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class BookMarkItemVersiton {
   static first = 1;
-  static latest = BookMarkItemVersiton.first;
+  static add_directry_hierarchy = 2;
+  static latest = BookMarkItemVersiton.add_directry_hierarchy;
 }
 
 export async function writeBookMarkItem(setting: BookMarkItem[]) {
   const data = JSON5.stringify({ version: BookMarkItemVersiton.latest, data: setting }, null, 2);
   await invoke<String>(
-    "write_setting_file", { filename: "bookmark.json5", content: data });
+    "write_setting_file", { filename: "device_specific/bookmark.json5", content: data });
 }
 
 async function readBookMarkItemSettingStr(): Promise<string> {
-  const result = await invoke<string | null>("read_setting_file", { filename: 'bookmark.json5' })
+  const result = await invoke<string | null>("read_setting_file", { filename: 'device_specific/bookmark.json5' })
     .catch(_ => "");
   if (result === null) {
+    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'bookmark.json5' })
+      .catch(_ => "");
+    if (oldFileStr !== null) { return oldFileStr; }
     return "";
   }
   return result;
