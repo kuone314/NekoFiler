@@ -14,7 +14,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/Copy to clopboard.ps1',
+        command: 'General/script/Copy to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -24,7 +24,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/Cut to clopboard.ps1',
+        command: 'General/script/Cut to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -34,7 +34,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/Past from clopboard.ps1',
+        command: 'General/script/Past from clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -44,7 +44,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'script/Create Copy.ps1',
+        command: 'General/script/Create Copy.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -54,7 +54,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'script/Copy and Replace Content.ps1',
+        command: 'General/script/Copy and Replace Content.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -64,7 +64,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'script/Copy to opposite dirctory.ps1',
+        command: 'General/script/Copy to opposite dirctory.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -74,7 +74,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/Move to opposite dirctory.ps1',
+        command: 'General/script/Move to opposite dirctory.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -84,7 +84,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/Delete file.ps1',
+        command: 'General/script/Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -104,7 +104,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/Delete file.ps1',
+        command: 'General/script/Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -114,7 +114,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/Copy file path.ps1',
+        command: 'General/script/Copy file path.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -124,7 +124,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-        command: 'script/New File.ps1',
+        command: 'General/script/New File.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -134,7 +134,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-        command: 'script/New Folder.ps1',
+        command: 'General/script/New Folder.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -144,7 +144,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'script/Rename.ps1',
+        command: 'General/script/Rename.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -465,7 +465,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/StartUpPowerShell.ps1',
+        command: 'General/script/StartUpPowerShell.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -475,7 +475,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'script/StartUpAdminPowerShell.ps1',
+        command: 'General/script/StartUpAdminPowerShell.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -486,7 +486,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
 Set-Clipboard $selecting_item_path_ary;
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Copy file path.ps1",
+      filename: "General/script/Copy file path.ps1",
       content: script
     })
   })();
@@ -502,7 +502,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 [System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Copy to clopboard.ps1",
+      filename: "General/script/Copy to clopboard.ps1",
       content: script
     })
   })();
@@ -515,7 +515,7 @@ for ($index = 0; $index -lt $selecting_item_path_ary.count; $index++) {
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Copy to opposite dirctory.ps1",
+      filename: "General/script/Copy to opposite dirctory.ps1",
       content: script
     })
   })();
@@ -534,7 +534,7 @@ for ($index=0; $index -lt $dialog_input_str_ary.count; $index++){
 }\
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Create Copy.ps1",
+      filename: "General/script/Create Copy.ps1",
       content: script
     })
   })();
@@ -575,7 +575,7 @@ for ($index = 0; $index -lt $dialog_input_str_ary.count; $index++) {
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Copy and Replace Content.ps1",
+      filename: "General/script/Copy and Replace Content.ps1",
       content: script
     })
   })();
@@ -591,7 +591,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 [System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Cut to clopboard.ps1",
+      filename: "General/script/Cut to clopboard.ps1",
       content: script
     })
   })();
@@ -601,7 +601,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 Remove-Item $selecting_item_path_ary -Recurse;
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Delete file.ps1",
+      filename: "General/script/Delete file.ps1",
       content: script
     })
   })();
@@ -611,7 +611,7 @@ Remove-Item $selecting_item_path_ary -Recurse;
 Move-Item -Path $selecting_item_path_ary -Destination $opposite_dir
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Move to opposite dirctory.ps1",
+      filename: "General/script/Move to opposite dirctory.ps1",
       content: script
     })
   })();
@@ -621,7 +621,7 @@ Move-Item -Path $selecting_item_path_ary -Destination $opposite_dir
 $dialog_input_str_ary | % { New-Item $_ -type file };
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/New File.ps1",
+      filename: "General/script/New File.ps1",
       content: script
     })
   })();
@@ -631,7 +631,7 @@ $dialog_input_str_ary | % { New-Item $_ -type file };
 $dialog_input_str_ary | % { New-Item $_ -type Directory };
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/New Folder.ps1",
+      filename: "General/script/New Folder.ps1",
       content: script
     })
   })();
@@ -675,7 +675,7 @@ foreach ($filePath in $files) {
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Past from clopboard.ps1",
+      filename: "General/script/Past from clopboard.ps1",
       content: script
     })
   })();
@@ -687,7 +687,7 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/Rename.ps1",
+      filename: "General/script/Rename.ps1",
       content: script
     })
   })();
@@ -697,7 +697,7 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
  Start-Process PowerShell
 `;
     await invoke<void>("write_setting_file", {
-      filename: "script/StartUpPowerShell.ps1",
+      filename: "General/script/StartUpPowerShell.ps1",
       content: script
     })
   })();
@@ -707,7 +707,7 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
 Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current_dir"
  `;
     await invoke<void>("write_setting_file", {
-      filename: "script/StartUpAdminPowerShell.ps1",
+      filename: "General/script/StartUpAdminPowerShell.ps1",
       content: script
     })
   })();
