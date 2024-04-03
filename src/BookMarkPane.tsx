@@ -30,11 +30,19 @@ export async function writeBookMarkItem(setting: BookMarkItem[]) {
     "write_setting_file", { filename: "bookmark.json5", content: data });
 }
 
+async function readBookMarkItemSettingStr(): Promise<string> {
+  const result = await invoke<string | null>("read_setting_file", { filename: 'bookmark.json5' })
+    .catch(_ => "");
+  if (result === null) {
+    return "";
+  }
+  return result;
+}
+
 export async function readBookMarkItem(): Promise<BookMarkItem[]> {
   try {
-    const settingStr = await invoke<String>("read_setting_file", { filename: 'bookmark.json5' })
-      .catch(_ => "");
-    if (!settingStr || settingStr === "") { return []; }
+    const settingStr = await readBookMarkItemSettingStr();
+    if (settingStr === "") { return []; }
 
     const result = JSON5.parse(settingStr.toString()) as { version: number, data: BookMarkItem[] };
     if (result.version > BookMarkItemVersiton.latest) { return []; }

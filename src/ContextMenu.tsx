@@ -23,10 +23,18 @@ export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
     "write_setting_file", { filename: "context_menu.json5", content: data });
 }
 
-export async function readContextMenuSetting(): Promise<ContextMenuInfo[]> {
-  const setting_str = await invoke<String>("read_setting_file", { filename: "context_menu.json5" })
+async function readContextMenuSettingStr(): Promise<string> {
+  const result = await invoke<string | null>("read_setting_file", { filename: "context_menu.json5" })
     .catch(_ => "");
-  if (!setting_str || setting_str === "") { return GenerateDefaultSeting(); }
+  if (result === null) {
+    return "";
+  }
+  return result;
+}
+
+export async function readContextMenuSetting(): Promise<ContextMenuInfo[]> {
+  const setting_str = await readContextMenuSettingStr();
+  if (setting_str === "") { return GenerateDefaultSeting(); }
 
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: ContextMenuInfo[] };
   if (setting_ary.version > ContextMenuInfoVersiton.latest) { return []; }

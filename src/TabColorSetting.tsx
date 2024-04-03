@@ -37,12 +37,19 @@ export async function writeTabColorSetting(setting: TabColorSetting[]) {
   await invoke<String>(
     "write_setting_file", { filename: "tab_color.json5", content: data });
 }
+async function readTabColorSettingStr(): Promise<string> {
+  const result = await invoke<string | null>("read_setting_file", { filename: "tab_color.json5" })
+    .catch(_ => "");
+  if (result === null) {
+    return "";
+  }
+  return result;
+}
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
   try {
-    const settingStr = await invoke<String>("read_setting_file", { filename: 'tab_color.json5' })
-      .catch(_ => "");
-    if (!settingStr || settingStr === "") { return GenerateDefaultCommandSeting(); }
+    const settingStr = await readTabColorSettingStr();
+    if (settingStr === "") { return GenerateDefaultCommandSeting(); }
 
     const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
     if (result.version > TabColorSettingVersiton.latest) { return []; }
@@ -96,7 +103,7 @@ function MatchImpl(setting: TabColorSetting, path: string): boolean {
   return false;
 }
 
- export function Match(setting: TabColorSetting, path: string): boolean {
+export function Match(setting: TabColorSetting, path: string): boolean {
   const path_ary = Object.values(SEPARATOR)
     .map(separator => ApplySeparator(path, separator) + separator);
   return !!path_ary.find(path => MatchImpl(setting, path));

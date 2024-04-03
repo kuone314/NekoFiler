@@ -78,7 +78,7 @@ export type CommandInfo = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
- 
+
   return toKeyStr(keyboard_event).toLowerCase() === command_key.toLowerCase();
 }
 
@@ -115,10 +115,18 @@ export async function writeCommandsSetting(setting: CommandInfo[]) {
     "write_setting_file", { filename: "key_bind.json5", content: data });
 }
 
-export async function readCommandsSetting(): Promise<CommandInfo[]> {
-  const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" })
+async function readCommandSettingStr(): Promise<string> {
+  const result = await invoke<string | null>("read_setting_file", { filename: "key_bind.json5" })
     .catch(_ => "");
-  if (!setting_str || setting_str === "") { return GenerateDefaultCommandSeting(); }
+  if (result === null) {
+    return "";
+  }
+  return result;
+}
+
+export async function readCommandsSetting(): Promise<CommandInfo[]> {
+  const setting_str = await readCommandSettingStr();
+  if (setting_str === "") { return GenerateDefaultCommandSeting(); }
 
 
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
