@@ -102,7 +102,7 @@ export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) =
   return strAry.join('+');
 }
 
-export class CommandInfoVersiton {
+class CommandInfoVersiton {
   static first = 1;
   static add_valid_on_addressbar = 2;
   static read_script_from_file = 3;
@@ -149,9 +149,7 @@ export async function readCommandsSetting(): Promise<CommandInfo[]> {
   }
 
   if (setting_ary.version < CommandInfoVersiton.latest) {
-    const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: setting_ary.data }, null, 2);
-    await invoke<String>(
-      "write_setting_file", { filename: "key_bind.json5", content: data });
+    writeCommandsSetting(setting_ary.data);
   }
 
   return setting_ary.data;

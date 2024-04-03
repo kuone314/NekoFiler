@@ -40,9 +40,7 @@ export async function readContextMenuSetting(): Promise<ContextMenuInfo[]> {
   if (setting_ary.version > ContextMenuInfoVersiton.latest) { return []; }
 
   if (setting_ary.version < ContextMenuInfoVersiton.latest) {
-    const data = JSON5.stringify({ version: ContextMenuInfoVersiton.latest, data: setting_ary.data }, null, 2);
-    await invoke<String>(
-      "write_setting_file", { filename: "context_menu.json5", content: data });
+    writeContextMenuSetting(setting_ary.data);
   }
 
   return setting_ary.data;
@@ -113,5 +111,7 @@ function GenerateDefaultSeting(): ContextMenuInfo[] {
       command: 'script/StartUpAdminPowerShell.ps1',
     },
   ];
+
+  writeContextMenuSetting(result);
   return result;
 }

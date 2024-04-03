@@ -16,6 +16,12 @@ class FileNameColorSettingVersiton {
   static latest = FileNameColorSettingVersiton.first;
 }
 
+export async function writeFileNameColorSetting(setting: FileNameColorSetting[]) {
+  const data = JSON5.stringify({ version: FileNameColorSettingVersiton.latest, data: setting }, null, 2);
+  await invoke<String>(
+    "write_setting_file", { filename: "file_name_color.json5", content: data });
+}
+
 async function readFileNameColorSettingStr(): Promise<string> {
   const result = await invoke<string | null>("read_setting_file", { filename: "file_name_color.json5" })
     .catch(_ => "");
@@ -30,6 +36,10 @@ export async function readFileNameColorSetting(): Promise<FileNameColorSetting[]
   if (settingStr === "") { return GenerateDefaultCommandSeting(); }
 
   const result = JSON5.parse(settingStr.toString()) as { version: number, data: FileNameColorSetting[] };
+  if (result.version < FileNameColorSettingVersiton.latest) {
+    writeFileNameColorSetting(result.data);
+  }
+
   return result.data;
 }
 
@@ -87,11 +97,7 @@ function GenerateDefaultCommandSeting(): FileNameColorSetting[] {
     },
   ];
 
-  const data = JSON5.stringify({ version: FileNameColorSettingVersiton.latest, data: result }, null, 2);
-  (async () => {
-    await invoke<void>("write_setting_file", { filename: "file_name_color.json5", content: data })
-  })();
-
+  writeFileNameColorSetting(result);
   return result;
 }
 

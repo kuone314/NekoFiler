@@ -47,6 +47,10 @@ export async function readBookMarkItem(): Promise<BookMarkItem[]> {
     const result = JSON5.parse(settingStr.toString()) as { version: number, data: BookMarkItem[] };
     if (result.version > BookMarkItemVersiton.latest) { return []; }
 
+    if (result.version < BookMarkItemVersiton.latest) {
+      writeBookMarkItem(result.data);
+    }
+
     return result.data;
   } catch {
     return [];
