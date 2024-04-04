@@ -13,15 +13,37 @@ export interface FileNameColorSetting {
 
 class FileNameColorSettingVersiton {
   static first = 1;
-  static latest = FileNameColorSettingVersiton.first;
+  static add_directry_hierarchy = 2;
+  static latest = FileNameColorSettingVersiton.add_directry_hierarchy;
+}
+
+export async function writeFileNameColorSetting(setting: FileNameColorSetting[]) {
+  const data = JSON5.stringify({ version: FileNameColorSettingVersiton.latest, data: setting }, null, 2);
+  await invoke<String>(
+    "write_setting_file", { filename: "General/file_name_color.json5", content: data });
+}
+
+async function readFileNameColorSettingStr(): Promise<string> {
+  const result = await invoke<string | null>("read_setting_file", { filename: "General/file_name_color.json5" })
+    .catch(_ => "");
+  if (result === null) {
+    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'file_name_color.json5' })
+      .catch(_ => "");
+    if (oldFileStr !== null) { return oldFileStr; }
+    return "";
+  }
+  return result;
 }
 
 export async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
-  const settingStr = await invoke<String>("read_setting_file", { filename: 'file_name_color.json5' })
-    .catch(_ => "");
-  if (!settingStr || settingStr === "") { return GenerateDefaultCommandSeting(); }
+  const settingStr = await readFileNameColorSettingStr();
+  if (settingStr === "") { return GenerateDefaultCommandSeting(); }
 
   const result = JSON5.parse(settingStr.toString()) as { version: number, data: FileNameColorSetting[] };
+  if (result.version < FileNameColorSettingVersiton.latest) {
+    writeFileNameColorSetting(result.data);
+  }
+
   return result.data;
 }
 
@@ -79,11 +101,7 @@ function GenerateDefaultCommandSeting(): FileNameColorSetting[] {
     },
   ];
 
-  const data = JSON5.stringify({ version: FileNameColorSettingVersiton.latest, data: result }, null, 2);
-  (async () => {
-    await invoke<void>("write_setting_file", { filename: "file_name_color.json5", content: data })
-  })();
-
+  writeFileNameColorSetting(result);
   return result;
 }
 

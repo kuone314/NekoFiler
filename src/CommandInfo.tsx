@@ -78,7 +78,7 @@ export type CommandInfo = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
- 
+
   return toKeyStr(keyboard_event).toLowerCase() === command_key.toLowerCase();
 }
 
@@ -102,23 +102,35 @@ export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) =
   return strAry.join('+');
 }
 
-export class CommandInfoVersiton {
+class CommandInfoVersiton {
   static first = 1;
   static add_valid_on_addressbar = 2;
   static read_script_from_file = 3;
-  static latest = CommandInfoVersiton.read_script_from_file;
+  static add_directry_hierarchy = 4;
+  static latest = CommandInfoVersiton.add_directry_hierarchy;
 }
 
 export async function writeCommandsSetting(setting: CommandInfo[]) {
   const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: setting }, null, 2);
   await invoke<String>(
-    "write_setting_file", { filename: "key_bind.json5", content: data });
+    "write_setting_file", { filename: "General/key_bind.json5", content: data });
+}
+
+async function readCommandSettingStr(): Promise<string> {
+  const result = await invoke<string | null>("read_setting_file", { filename: "General/key_bind.json5" })
+    .catch(_ => "");
+  if (result === null) {
+    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'key_bind.json5' })
+      .catch(_ => "");
+    if (oldFileStr !== null) { return oldFileStr; }
+    return "";
+  }
+  return result;
 }
 
 export async function readCommandsSetting(): Promise<CommandInfo[]> {
-  const setting_str = await invoke<String>("read_setting_file", { filename: "key_bind.json5" })
-    .catch(_ => "");
-  if (!setting_str || setting_str === "") { return GenerateDefaultCommandSeting(); }
+  const setting_str = await readCommandSettingStr();
+  if (setting_str === "") { return GenerateDefaultCommandSeting(); }
 
 
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
@@ -140,10 +152,22 @@ export async function readCommandsSetting(): Promise<CommandInfo[]> {
     }
   }
 
+  if (setting_ary.version < CommandInfoVersiton.add_directry_hierarchy) {
+    const shellCommands = setting_ary.data
+      .filter(setting => setting.action.type === COMMAND_TYPE.power_shell);
+    for (const setting of shellCommands) {
+      const script = await invoke<String>(
+        "read_setting_file",
+        { filename: setting.action.command });
+      invoke<String>(
+        "write_setting_file",
+        { filename: "General/" + setting.action.command, content: script });
+      setting.action.command = "General/" + setting.action.command;
+    }
+  }
+
   if (setting_ary.version < CommandInfoVersiton.latest) {
-    const data = JSON5.stringify({ version: CommandInfoVersiton.latest, data: setting_ary.data }, null, 2);
-    await invoke<String>(
-      "write_setting_file", { filename: "key_bind.json5", content: data });
+    writeCommandsSetting(setting_ary.data);
   }
 
   return setting_ary.data;

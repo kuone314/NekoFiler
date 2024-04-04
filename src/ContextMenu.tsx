@@ -14,27 +14,37 @@ export type ContextMenuInfo = {
 
 class ContextMenuInfoVersiton {
   static first = 1;
-  static latest = ContextMenuInfoVersiton.first;
+  static add_directry_hierarchy = 2;
+  static latest = ContextMenuInfoVersiton.add_directry_hierarchy;
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
   const data = JSON5.stringify({ version: ContextMenuInfoVersiton.latest, data: setting }, null, 2);
   await invoke<String>(
-    "write_setting_file", { filename: "context_menu.json5", content: data });
+    "write_setting_file", { filename: "General/context_menu.json5", content: data });
+}
+
+async function readContextMenuSettingStr(): Promise<string> {
+  const result = await invoke<string | null>("read_setting_file", { filename: "General/context_menu.json5" })
+    .catch(_ => "");
+  if (result === null) {
+    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'context_menu.json5' })
+      .catch(_ => "");
+    if (oldFileStr !== null) { return oldFileStr; }
+    return "";
+  }
+  return result;
 }
 
 export async function readContextMenuSetting(): Promise<ContextMenuInfo[]> {
-  const setting_str = await invoke<String>("read_setting_file", { filename: "context_menu.json5" })
-    .catch(_ => "");
-  if (!setting_str || setting_str === "") { return GenerateDefaultSeting(); }
+  const setting_str = await readContextMenuSettingStr();
+  if (setting_str === "") { return GenerateDefaultSeting(); }
 
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: ContextMenuInfo[] };
   if (setting_ary.version > ContextMenuInfoVersiton.latest) { return []; }
 
   if (setting_ary.version < ContextMenuInfoVersiton.latest) {
-    const data = JSON5.stringify({ version: ContextMenuInfoVersiton.latest, data: setting_ary.data }, null, 2);
-    await invoke<String>(
-      "write_setting_file", { filename: "context_menu.json5", content: data });
+    writeContextMenuSetting(setting_ary.data);
   }
 
   return setting_ary.data;
@@ -105,5 +115,7 @@ function GenerateDefaultSeting(): ContextMenuInfo[] {
       command: 'script/StartUpAdminPowerShell.ps1',
     },
   ];
+
+  writeContextMenuSetting(result);
   return result;
 }
