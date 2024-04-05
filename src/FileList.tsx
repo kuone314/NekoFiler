@@ -369,7 +369,7 @@ export function FileList(
 
   const table_color = (row_idx: number) => {
     const backgroundColor = () => {
-      return (selectingIndexArray.has(row_idx)) ? '#0090ff'
+      return (selectingIndexArray.has(row_idx)) ? '#8cc0e8'
         : (row_idx % 2) ? '#dddddd' : '#ffffff';
     }
 
