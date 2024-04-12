@@ -7,9 +7,14 @@ use std::{
 use winapi::um::winbase::GetLogicalDriveStringsA;
 use winapi::um::winnt::CHAR;
 
+
+mod get_file_icon;
+use get_file_icon::get_file_icon;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileInfo {
+    icon: Option<String>, // BMPのBite列
     name: String,
     is_dir: bool,
     extension: String,
@@ -18,6 +23,7 @@ pub struct FileInfo {
 }
 
 use std::os::windows::prelude::MetadataExt;
+
 #[tauri::command]
 pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
     if path.is_empty() {
@@ -26,6 +32,7 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
         return Ok(drive_list()
             .into_iter()
             .map(|drive| FileInfo {
+                icon: get_file_icon(&drive),
                 name: drive,
                 is_dir: true,
                 extension: "".to_string(),
@@ -54,6 +61,7 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
             let date = get_date_str(&md).unwrap_or_default();
 
             Some(FileInfo {
+                icon: get_file_icon(&(path.to_owned() + &"\\".to_owned() + &name.to_owned())),
                 name,
                 is_dir: type_.is_dir() || type_.is_symlink_dir(),
                 extension,
