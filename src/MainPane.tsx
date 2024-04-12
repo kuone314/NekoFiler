@@ -26,6 +26,7 @@ import { FileFilterBar, FileFilterType } from './FileFilterBar';
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
   props: {
+    isActive: boolean,
     initPath: string,
     pined: boolean,
     onPathChanged: (newPath: string) => void
@@ -331,6 +332,7 @@ export const MainPanel = (
   }
   const [fileList, FileListFunctions] = FileList(
     {
+      isActive: props.isActive,
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(nameToPath(dirName)),
