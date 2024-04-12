@@ -59,6 +59,7 @@ export interface FileListFunc {
 
 export function FileList(
   props: {
+    isActive: boolean,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
@@ -370,7 +371,8 @@ export function FileList(
 
   const table_color = (row_idx: number) => {
     const backgroundColor = () => {
-      return (selectingIndexArray.has(row_idx)) ? '#8cc0e8'
+      const isSelectionColor = props.isActive && selectingIndexArray.has(row_idx);
+      return isSelectionColor ? '#8cc0e8'
         : (row_idx % 2) ? '#dddddd' : '#ffffff';
     }
 
@@ -392,7 +394,7 @@ export function FileList(
     return css({
       background: backgroundColor(),
       color: stringColor(),
-      border: (row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
+      border: (props.isActive && row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
     });
   }
   const table_border = css({

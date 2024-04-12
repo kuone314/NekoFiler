@@ -30,6 +30,7 @@ export interface TabFuncs {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const PaneTabs = (
   props: {
+    isActive: boolean,
     height: number,
     pathAry: TabsInfo,
     tabColorSetting: TabColorSetting[]
@@ -213,6 +214,7 @@ export const PaneTabs = (
           >+</Button>
         </div >
         <MainPanel
+          isActive={props.isActive}
           initPath={tabAry[activeTabIdx].path}
           pined={tabAry[activeTabIdx].pined}
           onPathChanged={onPathChanged}

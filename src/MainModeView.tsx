@@ -189,10 +189,11 @@ export function MainModeView(
         >
           {
             tabsPathAry.map((pathAry, idx) => {
+              const isActive = idx === currentPaneIndex;
               return <div
                 style={
                   {
-                    border: (idx === currentPaneIndex) ? '2px solid #ff0000' : '2px solid #ffffff',
+                    border: isActive ? '2px solid #ff0000' : '2px solid #ffffff',
                     overflow: 'auto',
                   }
                 }
@@ -201,6 +202,7 @@ export function MainModeView(
               >
                 <ErrorBoundary FallbackComponent={ErrorFallback}>
                   <PaneTabs
+                    isActive={isActive}
                     height={paneHeight}
                     pathAry={pathAry}
                     tabColorSetting={props.tabColorSetting}
