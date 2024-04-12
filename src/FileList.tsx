@@ -11,6 +11,7 @@ import { IsValidIndex, LastIndex } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
+  icon: string | null,
   name: string,
   is_dir: boolean,
   extension: string,
@@ -473,8 +474,14 @@ export function FileList(
         }
       }
     >
+      <colgroup>
+        <col css={{ width: '1px' }} />
+      </colgroup>
       <thead css={[table_resizable, fix_table_header]} ref={table_header}>
         <tr>
+          <th
+            css={{ width: '10' }}
+          />{/* icon */}
           <th
             onClick={() => setSortKey(SORT_KEY.name)}
             css={[table_resizable, table_header_color, table_header_font(SORT_KEY.name),]}
@@ -504,6 +511,9 @@ export function FileList(
               onDoubleClick={(event) => onRowdoubleclick(idx, event)}
               css={table_color(idx)}
             >
+              <td>
+                <img src={`data:image/bmp;base64,${entry.icon}`} />
+              </td>
               <td css={table_border}>{FileNameWithEmphasis(entry.name)}</td>
               <td css={table_border}>{ToTypeName(entry)}</td>
               <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
