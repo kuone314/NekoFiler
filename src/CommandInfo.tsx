@@ -76,6 +76,8 @@ export type CommandInfo = {
   }
 };
 
+export const scriptDirPath = "general/script/";
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
 
@@ -107,7 +109,8 @@ class CommandInfoVersiton {
   static add_valid_on_addressbar = 2;
   static read_script_from_file = 3;
   static add_directry_hierarchy = 4;
-  static latest = CommandInfoVersiton.add_directry_hierarchy;
+  static fix_scripts_path = 5;
+  static latest = CommandInfoVersiton.fix_scripts_path;
 }
 
 export async function writeCommandsSetting(setting: CommandInfo[]) {
@@ -166,6 +169,18 @@ export async function readCommandsSetting(): Promise<CommandInfo[]> {
     }
   }
 
+  if (setting_ary.version < CommandInfoVersiton.fix_scripts_path) {
+    const shellCommands = setting_ary.data
+      .filter(setting => setting.action.type === COMMAND_TYPE.power_shell);
+    for (const setting of shellCommands) {
+      const flag = setting.action.command.toLowerCase().startsWith(scriptDirPath.toLowerCase());
+      const newPath = flag
+        ? setting.action.command.substring(scriptDirPath.length)
+        : "../../" + setting.action.command;
+      setting.action.command = newPath;
+    }
+  }
+
   if (setting_ary.version < CommandInfoVersiton.latest) {
     writeCommandsSetting(setting_ary.data);
   }
@@ -207,7 +222,7 @@ export function commandExecuter(
     opposite_dir: string,
     separator: separator,
   ) => {
-    const command_line = await invoke<String>("read_setting_file", { filename: script_file_name });
+    const command_line = await invoke<String>("read_setting_file", { filename: scriptDirPath + script_file_name });
 
     const path_ary = selecting_item_name_ary
       .map(path => decoratePath(current_dir + separator + path))

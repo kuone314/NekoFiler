@@ -14,7 +14,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'General/script/Copy to clopboard.ps1',
+        command: 'Copy to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -24,7 +24,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'General/script/Cut to clopboard.ps1',
+        command: 'Cut to clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -34,7 +34,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'General/script/Past from clopboard.ps1',
+        command: 'Past from clopboard.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -44,7 +44,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'General/script/Create Copy.ps1',
+        command: 'Create Copy.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -54,7 +54,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'General/script/Copy and Replace Content.ps1',
+        command: 'Copy and Replace Content.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -64,7 +64,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'General/script/Copy to opposite dirctory.ps1',
+        command: 'Copy to opposite dirctory.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -74,7 +74,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'General/script/Move to opposite dirctory.ps1',
+        command: 'Move to opposite dirctory.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -84,7 +84,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'General/script/Delete file.ps1',
+        command: 'Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -104,7 +104,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'General/script/Delete file.ps1',
+        command: 'Delete file.ps1',
       },
       valid_on_addressbar: false,
     },
@@ -114,7 +114,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'none',
       action: {
         type: 'power_shell',
-        command: 'General/script/Copy file path.ps1',
+        command: 'Copy file path.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -124,7 +124,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-        command: 'General/script/New File.ps1',
+        command: 'New File.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -134,7 +134,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'multi_line',
       action: {
         type: 'power_shell',
-        command: 'General/script/New Folder.ps1',
+        command: 'New Folder.ps1',
       },
       valid_on_addressbar: true,
     },
@@ -144,7 +144,7 @@ export function GenerateDefaultCommandSeting(): CommandInfo[] {
       dialog_type: 'reference_selection',
       action: {
         type: 'power_shell',
-        command: 'General/script/Rename.ps1',
+        command: 'Rename.ps1',
       },
       valid_on_addressbar: true,
     },
