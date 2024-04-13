@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType, toKeyStr } from './CommandInfo';
+import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType, toKeyStr, scriptDirPath } from './CommandInfo';
 import { invoke } from '@tauri-apps/api';
 import { IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
@@ -34,7 +34,7 @@ export function KeyBindSettingPane(
   function writSettings() {
     writeCommandsSetting(keyBindSettings);
     editedScriptContents.forEach((content, path) => {
-      invoke<String>("write_setting_file", { filename: path, content: content });
+      invoke<String>("write_setting_file", { filename: scriptDirPath + path, content: content });
     })
   }
 
@@ -404,7 +404,7 @@ export function KeyBindEditor(
     } else {
       if (commandInfo.action.type === 'power_shell') {
         (async () => {
-          setScriptContent(await invoke<string>("read_setting_file", { filename: commandInfo.action.command }))
+          setScriptContent(await invoke<string>("read_setting_file", { filename: scriptDirPath + commandInfo.action.command }))
         })()
       }
     }
