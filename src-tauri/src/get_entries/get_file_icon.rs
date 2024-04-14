@@ -18,6 +18,8 @@ use winapi::um::wingdi::{GetObjectW, BITMAP};
 use winapi::um::winuser::{DrawIconEx, GetIconInfo, ICONINFO};
 
 use winapi::um::shellapi::SHFILEINFOW;
+use winapi::um::wingdi::PatBlt;
+use winapi::um::wingdi::WHITENESS;
 use winapi::um::wingdi::{BITMAPFILEHEADER, BI_RGB};
 use winapi::um::winuser::DestroyIcon;
 
@@ -109,6 +111,8 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
         };
 
         let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
+        let h_old_bmp = SelectObject(hdc_mem.data, h_bitmap as *mut _);
+        PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, WHITENESS);
 
         let h_old_obj = SelectObject(hdc_mem.data, h_bitmap as *mut _);
         let ret = DrawIconEx(
