@@ -18,74 +18,101 @@ use winapi::um::wingdi::{GetObjectW, BITMAP};
 use winapi::um::winuser::{DrawIconEx, GetIconInfo, ICONINFO};
 
 use winapi::um::shellapi::SHFILEINFOW;
-use winapi::um::winuser::DestroyIcon;
 use winapi::um::wingdi::{BITMAPFILEHEADER, BI_RGB};
+use winapi::um::winuser::DestroyIcon;
 
 pub fn get_file_icon(filepath: &str) -> Option<String> {
     let icon = extract_icon_from_file(&filepath)?;
-    let bitmap = icon_to_bitmap(icon)?;
-    unsafe {
-        DestroyIcon(icon);
-    }
-    let bites = bitmap_to_bites(bitmap)?;
-    unsafe {
-        DeleteObject(bitmap as *mut _);
-    }
+    let bitmap = icon_to_bitmap(icon.data)?;
+    let bites = bitmap_to_bites(bitmap.data)?;
     Some(base64::encode(&bites))
 }
 
-fn extract_icon_from_file(file_name: &str) -> Option<HICON> {
+struct AutoRelease<T> {
+    data: T,
+    release_func: fn(&mut T),
+}
+impl<T> Drop for AutoRelease<T> {
+    fn drop(&mut self) {
+        (self.release_func)(&mut self.data);
+    }
+}
+
+fn extract_icon_from_file(file_name: &str) -> Option<AutoRelease<HICON>> {
     unsafe {
         let file_name = std::ffi::OsStr::new(file_name)
             .encode_wide()
             .chain(std::iter::once(0))
             .collect::<Vec<_>>();
+
         let mut sfi: SHFILEINFOW = mem::zeroed();
-        if SHGetFileInfoW(
+        let ret = SHGetFileInfoW(
             file_name.as_ptr(),
             0,
             &mut sfi as *mut SHFILEINFOW,
             mem::size_of::<SHFILEINFOW>() as u32,
             SHGFI_ICON | SHGFI_SMALLICON,
-        ) != 0
-        {
-            Some(sfi.hIcon)
-        } else {
-            None
+        );
+        if ret == 0 {
+            return None;
         }
+        Some(AutoRelease {
+            data: sfi.hIcon,
+            release_func: |data| {
+                DestroyIcon(*data);
+            },
+        })
     }
 }
 
-fn icon_to_bitmap(h_icon: HICON) -> Option<HBITMAP> {
+fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
     let icon_info = unsafe {
         let mut icon_info: ICONINFO = mem::zeroed();
         if GetIconInfo(h_icon, &mut icon_info as *mut ICONINFO) == 0 {
             return None;
         }
-        icon_info
+        AutoRelease {
+            data: icon_info,
+            release_func: |data| {
+                DeleteObject(data.hbmMask as *mut _);
+                DeleteObject(data.hbmColor as *mut _);
+            },
+        }
     };
 
     let bmp = unsafe {
         let mut bmp: BITMAP = mem::zeroed();
-        if GetObjectW(
-            icon_info.hbmColor as *mut _,
+        let ret = GetObjectW(
+            icon_info.data.hbmColor as *mut _,
             mem::size_of::<BITMAP>() as i32,
             &mut bmp as *mut BITMAP as *mut _,
-        ) == 0
-        {
+        );
+        if ret == 0 {
             return None;
         }
         bmp
     };
 
     unsafe {
-        let hdc_screen = GetDC(ptr::null_mut());
-        let hdc_mem = CreateCompatibleDC(hdc_screen);
-        let h_bitmap = CreateCompatibleBitmap(hdc_screen, bmp.bmWidth, bmp.bmHeight);
+        let hdc_screen = AutoRelease {
+            data: GetDC(ptr::null_mut()),
+            release_func: |data| {
+                ReleaseDC(ptr::null_mut(), *data);
+            },
+        };
 
-        let h_old_obj = SelectObject(hdc_mem, h_bitmap as *mut _);
-        if DrawIconEx(
-            hdc_mem,
+        let hdc_mem = AutoRelease {
+            data: CreateCompatibleDC(hdc_screen.data),
+            release_func: |data| {
+                DeleteDC(*data);
+            },
+        };
+
+        let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
+
+        let h_old_obj = SelectObject(hdc_mem.data, h_bitmap as *mut _);
+        let ret = DrawIconEx(
+            hdc_mem.data,
             0,
             0,
             h_icon,
@@ -94,30 +121,29 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<HBITMAP> {
             0,
             ptr::null_mut(),
             3,
-        ) != 0
-        {
-            SelectObject(hdc_mem, h_old_obj as *mut _);
-            DeleteDC(hdc_mem);
-            ReleaseDC(ptr::null_mut(), hdc_screen);
-            DeleteObject(icon_info.hbmMask as *mut _);
-            DeleteObject(icon_info.hbmColor as *mut _);
-            Some(h_bitmap)
-        } else {
-            DeleteDC(hdc_mem);
-            None
+        );
+        SelectObject(hdc_mem.data, h_old_obj as *mut _);
+        if ret == 0 {
+            return None;
         }
+        Some(AutoRelease {
+            data: h_bitmap,
+            release_func: |data| {
+                DeleteObject(*data as *mut _);
+            },
+        })
     }
 }
 
 fn bitmap_to_bites(h_bitmap: HBITMAP) -> Option<Vec<u8>> {
     let bmp = unsafe {
         let mut bmp: BITMAP = mem::zeroed();
-        if GetObjectW(
+        let ret = GetObjectW(
             h_bitmap as *mut _,
             mem::size_of::<BITMAP>() as i32,
             &mut bmp as *mut BITMAP as *mut _,
-        ) == 0
-        {
+        );
+        if ret == 0 {
             return None;
         }
         bmp
