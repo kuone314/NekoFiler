@@ -8,7 +8,6 @@ use std::{
 use winapi::um::winbase::GetLogicalDriveStringsA;
 use winapi::um::winnt::CHAR;
 
-
 mod get_file_icon;
 use get_file_icon::get_file_icon;
 
