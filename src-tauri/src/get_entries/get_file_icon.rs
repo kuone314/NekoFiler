@@ -112,7 +112,7 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
         };
 
         let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
-        let h_old_bmp = SelectObject(hdc_mem.data, h_bitmap as *mut _);
+        SelectObject(hdc_mem.data, h_bitmap as *mut _);
         PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, WHITENESS);
 
         let h_old_obj = SelectObject(hdc_mem.data, h_bitmap as *mut _);
