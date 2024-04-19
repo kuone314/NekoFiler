@@ -2,11 +2,11 @@ use chrono::prelude::*;
 use std::{
     fs::{self, Metadata},
     os::windows::fs::FileTypeExt,
+    path::PathBuf,
 };
 
 use winapi::um::winbase::GetLogicalDriveStringsA;
 use winapi::um::winnt::CHAR;
-
 
 mod get_file_icon;
 use get_file_icon::get_file_icon;
@@ -32,7 +32,7 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
         return Ok(drive_list()
             .into_iter()
             .map(|drive| FileInfo {
-                icon: get_file_icon(&drive),
+                icon: get_file_icon(&PathBuf::from(&drive)),
                 name: drive,
                 is_dir: true,
                 extension: "".to_string(),
@@ -42,7 +42,8 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
             .collect());
     }
 
-    let entries = fs::read_dir(path).map_err(|e| format!("{}", e))?;
+    let path = PathBuf::from(path);
+    let entries = fs::read_dir(&path).map_err(|e| format!("{}", e))?;
 
     let res = entries
         .filter_map(|entry| -> Option<FileInfo> {
@@ -61,7 +62,7 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
             let date = get_date_str(&md).unwrap_or_default();
 
             Some(FileInfo {
-                icon: get_file_icon(&(path.to_owned() + &"\\".to_owned() + &name.to_owned())),
+                icon: get_file_icon(&path.join(&name)),
                 name,
                 is_dir: type_.is_dir() || type_.is_symlink_dir(),
                 extension,

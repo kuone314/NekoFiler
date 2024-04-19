@@ -5,6 +5,7 @@ use winapi::um::wingdi::DeleteObject;
 
 use std::mem;
 use std::os::windows::ffi::OsStrExt;
+use std::path::PathBuf;
 use std::ptr;
 use winapi::um::wingdi::{
     CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, GetDIBits, SelectObject, BITMAPINFO,
@@ -23,7 +24,7 @@ use winapi::um::wingdi::WHITENESS;
 use winapi::um::wingdi::{BITMAPFILEHEADER, BI_RGB};
 use winapi::um::winuser::DestroyIcon;
 
-pub fn get_file_icon(filepath: &str) -> Option<String> {
+pub fn get_file_icon(filepath: &PathBuf) -> Option<String> {
     let icon = extract_icon_from_file(&filepath)?;
     let bitmap = icon_to_bitmap(icon.data)?;
     let bites = bitmap_to_bites(bitmap.data)?;
@@ -40,9 +41,9 @@ impl<T> Drop for AutoRelease<T> {
     }
 }
 
-fn extract_icon_from_file(file_name: &str) -> Option<AutoRelease<HICON>> {
+fn extract_icon_from_file(file_name: &PathBuf) -> Option<AutoRelease<HICON>> {
     unsafe {
-        let file_name = std::ffi::OsStr::new(file_name)
+        let file_name = std::ffi::OsStr::new(&file_name.to_str()?)
             .encode_wide()
             .chain(std::iter::once(0))
             .collect::<Vec<_>>();
@@ -111,7 +112,7 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
         };
 
         let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
-        let h_old_bmp = SelectObject(hdc_mem.data, h_bitmap as *mut _);
+        SelectObject(hdc_mem.data, h_bitmap as *mut _);
         PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, WHITENESS);
 
         let h_old_obj = SelectObject(hdc_mem.data, h_bitmap as *mut _);
