@@ -51,6 +51,13 @@ pub fn get_entries(path: &str) -> Result<Vec<FileInfo>, String> {
             let name = entry.file_name().to_string_lossy().to_string();
             let type_ = entry.file_type().ok()?;
             let md = entry.metadata().ok()?;
+
+            let attributes = md.file_attributes();
+            let is_system_file = attributes & winapi::um::winnt::FILE_ATTRIBUTE_SYSTEM != 0;
+            if is_system_file {
+                return None;
+            }
+
             let fsize = md.file_size();
             let extension = entry
                 .path()
