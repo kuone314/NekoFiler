@@ -24,6 +24,10 @@ use winapi::um::wingdi::WHITENESS;
 use winapi::um::wingdi::{BITMAPFILEHEADER, BI_RGB};
 use winapi::um::winuser::DestroyIcon;
 
+use winapi::um::shellapi::{SHGFI_OVERLAYINDEX, SHGFI_SYSICONINDEX};
+use winapi::um::commctrl::{ImageList_GetIcon, HIMAGELIST, ILD_NORMAL, INDEXTOOVERLAYMASK};
+
+
 pub fn get_file_icon(filepath: &PathBuf) -> Option<String> {
     let icon = extract_icon_from_file(&filepath)?;
     let bitmap = icon_to_bitmap(icon.data)?;
@@ -42,25 +46,39 @@ impl<T> Drop for AutoRelease<T> {
 }
 
 fn extract_icon_from_file(file_name: &PathBuf) -> Option<AutoRelease<HICON>> {
+    let file_name = std::ffi::OsStr::new(&file_name.to_str()?)
+        .encode_wide()
+        .chain(std::iter::once(0))
+        .collect::<Vec<_>>();
     unsafe {
-        let file_name = std::ffi::OsStr::new(&file_name.to_str()?)
-            .encode_wide()
-            .chain(std::iter::once(0))
-            .collect::<Vec<_>>();
-
-        let mut sfi: SHFILEINFOW = mem::zeroed();
-        let ret = SHGetFileInfoW(
+        let mut shfi: SHFILEINFOW = std::mem::zeroed();
+        let handle = SHGetFileInfoW(
             file_name.as_ptr(),
-            0,
-            &mut sfi as *mut SHFILEINFOW,
-            mem::size_of::<SHFILEINFOW>() as u32,
-            SHGFI_ICON | SHGFI_SMALLICON,
+            0x0000020, // FILE_ATTRIBUTE_ARCHIVE
+            &mut shfi,
+            std::mem::size_of::<SHFILEINFOW>() as u32,
+            SHGFI_SMALLICON | SHGFI_SYSICONINDEX | SHGFI_OVERLAYINDEX | SHGFI_ICON,
         );
-        if ret == 0 {
+
+        if handle == 0 {
             return None;
         }
+
+        let handle = handle as HIMAGELIST;
+        DestroyIcon(shfi.hIcon);
+
+        let d_no = shfi.iIcon;
+        let index = d_no & 0x00FFFFFF;
+        let sub_index = (d_no & 0x0F000000) >> 24;
+
+        let hicon = ImageList_GetIcon(
+            handle,
+            index as i32,
+            INDEXTOOVERLAYMASK(sub_index as u32) | ILD_NORMAL,
+        );
+
         Some(AutoRelease {
-            data: sfi.hIcon,
+            data: hicon,
             release_func: |data| {
                 DestroyIcon(*data);
             },
