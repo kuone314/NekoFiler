@@ -24,7 +24,7 @@ serde_json = "1.0"
 tauri = {version = "1.1", features = ["api-all"]}
 tempdir = "0.3.7"
 uuid = "1.6.1"
-winapi = {version = "0.3.9", features = ["timezoneapi","winbase","shellapi"]}
+winapi = {version = "0.3.9", features = ["timezoneapi","winbase","shellapi","commctrl"]}
 base64 = "0.13.0"
 
 [features]
