@@ -27,3 +27,4 @@ dist-ssr
 
 AmaterasuFilerSettings
 amaterasu_filer.exe
+/src-tauri/Cargo.lock
