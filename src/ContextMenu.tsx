@@ -2,6 +2,8 @@
 import { invoke } from '@tauri-apps/api';
 import { CommandInfo, CommandType, DialogType } from './CommandInfo';
 import JSON5 from 'json5'
+import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
+import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -12,36 +14,30 @@ export type ContextMenuInfo = {
   command: string,
 };
 
-class ContextMenuInfoVersion {
+class Version {
   static oldest = 2;
-  static latest = ContextMenuInfoVersion.oldest;
+  static latest = Version.oldest;
+}
+
+class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
+  filePath = "General/context_menu.json5";
+  latestVersion = Version.oldest;
+  IsValidVersion = (version: number) => {
+    if (version < Version.oldest) { return false; }
+    if (version > Version.latest) { return false; }
+    return true;
+  };
+  UpgradeSetting = (readVersion: number, readSetting: ContextMenuInfo[]) => readSetting;
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
-  const data = JSON5.stringify({ version: ContextMenuInfoVersion.latest, data: setting }, null, 2);
-  await invoke<String>(
-    "write_setting_file", { filename: "General/context_menu.json5", content: data });
+  writeSettings(new SettingInfo, setting);
 }
 
-async function readContextMenuSettingStr(): Promise<string> {
-  const result = await invoke<string | null>("read_setting_file", { filename: "General/context_menu.json5" })
-    .catch(_ => "");
-
-  return result ?? "";
-}
 
 export async function readContextMenuSetting(): Promise<ContextMenuInfo[]> {
-  const setting_str = await readContextMenuSettingStr();
-  if (setting_str === "") { return GenerateDefaultSeting(); }
-
-  const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: ContextMenuInfo[] };
-  if (setting_ary.version > ContextMenuInfoVersion.latest) { return []; }
-
-  if (setting_ary.version < ContextMenuInfoVersion.latest) {
-    writeContextMenuSetting(setting_ary.data);
-  }
-
-  return setting_ary.data;
+  const read = await readSettings(new SettingInfo);
+  return read ?? GenerateDefaultSeting();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

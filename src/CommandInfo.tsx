@@ -12,6 +12,7 @@ import React from 'react';
 
 import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
 import { sleep } from './Utility';
+import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const COMMAND_TYPE = {
@@ -104,36 +105,30 @@ export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) =
   return strAry.join('+');
 }
 
-class CommandInfoVersion {
+class Version {
   static oldest = 5;
-  static latest = CommandInfoVersion.oldest;
+  static latest = Version.oldest;
+}
+
+class SettingInfo implements ISettingInfo<CommandInfo[]> {
+  filePath = "General/key_bind.json5";
+  latestVersion = Version.oldest;
+  IsValidVersion = (version: number) => {
+    if (version < Version.oldest) { return false; }
+    if (version > Version.latest) { return false; }
+    return true;
+  };
+  UpgradeSetting = (readVersion: number, readSetting: CommandInfo[]) => readSetting;
 }
 
 export async function writeCommandsSetting(setting: CommandInfo[]) {
-  const data = JSON5.stringify({ version: CommandInfoVersion.latest, data: setting }, null, 2);
-  await invoke<String>(
-    "write_setting_file", { filename: "General/key_bind.json5", content: data });
+  writeSettings(new SettingInfo, setting);
 }
 
-async function readCommandSettingStr(): Promise<string> {
-  const result = await invoke<string | null>("read_setting_file", { filename: "General/key_bind.json5" })
-    .catch(_ => "");
-  return result ?? "";
-}
 
 export async function readCommandsSetting(): Promise<CommandInfo[]> {
-  const setting_str = await readCommandSettingStr();
-  if (setting_str === "") { return GenerateDefaultCommandSeting(); }
-
-
-  const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: CommandInfo[] };
-  if (setting_ary.version > CommandInfoVersion.latest) { return []; }
-
-  if (setting_ary.version < CommandInfoVersion.latest) {
-    writeCommandsSetting(setting_ary.data);
-  }
-
-  return setting_ary.data;
+  const read = await readSettings(new SettingInfo);
+  return read ?? GenerateDefaultCommandSeting();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@ import JSON5 from 'json5'
 import { invoke } from '@tauri-apps/api/tauri';
 import { path } from '@tauri-apps/api';
 import { ApplySeparator } from './FilePathSeparator';
+import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 interface BookMarkItem {
@@ -19,39 +20,29 @@ interface BookMarkItem {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class BookMarkItemVersion {
+class Version {
   static oldest = 2;
-  static latest = BookMarkItemVersion.oldest;
+  static latest = Version.oldest;
+}
+
+class SettingInfo implements ISettingInfo<BookMarkItem[]> {
+  filePath = "device_specific/bookmark.json5";
+  latestVersion = Version.oldest;
+  IsValidVersion = (version: number) => {
+    if (version < Version.oldest) { return false; }
+    if (version > Version.latest) { return false; }
+    return true;
+  };
+  UpgradeSetting = (readVersion: number, readSetting: BookMarkItem[]) => readSetting;
 }
 
 export async function writeBookMarkItem(setting: BookMarkItem[]) {
-  const data = JSON5.stringify({ version: BookMarkItemVersion.latest, data: setting }, null, 2);
-  await invoke<String>(
-    "write_setting_file", { filename: "device_specific/bookmark.json5", content: data });
-}
-
-async function readBookMarkItemSettingStr(): Promise<string> {
-  const result = await invoke<string | null>("read_setting_file", { filename: 'device_specific/bookmark.json5' })
-    .catch(_ => "");
-  return result ?? "";
+  writeSettings(new SettingInfo, setting);
 }
 
 export async function readBookMarkItem(): Promise<BookMarkItem[]> {
-  try {
-    const settingStr = await readBookMarkItemSettingStr();
-    if (settingStr === "") { return []; }
-
-    const result = JSON5.parse(settingStr.toString()) as { version: number, data: BookMarkItem[] };
-    if (result.version > BookMarkItemVersion.latest) { return []; }
-
-    if (result.version < BookMarkItemVersion.latest) {
-      writeBookMarkItem(result.data);
-    }
-
-    return result.data;
-  } catch {
-    return [];
-  }
+  const read = await readSettings(new SettingInfo);
+  return read ?? [];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
