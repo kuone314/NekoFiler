@@ -13,7 +13,6 @@ export type ContextMenuInfo = {
 };
 
 class ContextMenuInfoVersiton {
-  static first = 1;
   static add_directry_hierarchy = 2;
   static latest = ContextMenuInfoVersiton.add_directry_hierarchy;
 }
@@ -27,13 +26,8 @@ export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
 async function readContextMenuSettingStr(): Promise<string> {
   const result = await invoke<string | null>("read_setting_file", { filename: "General/context_menu.json5" })
     .catch(_ => "");
-  if (result === null) {
-    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'context_menu.json5' })
-      .catch(_ => "");
-    if (oldFileStr !== null) { return oldFileStr; }
-    return "";
-  }
-  return result;
+
+  return result ?? "";
 }
 
 export async function readContextMenuSetting(): Promise<ContextMenuInfo[]> {

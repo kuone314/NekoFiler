@@ -25,10 +25,6 @@ export const TabColorMatchingType = {
 export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabColorMatchingType];
 
 class TabColorSettingVersiton {
-  static first = 1;
-  static add_start_with = 2;
-  static add_setting_name = 3;
-  static add_frame_highlightv = 4;
   static add_directry_hierarchy = 5;
   static latest = TabColorSettingVersiton.add_directry_hierarchy;
 }
@@ -41,13 +37,7 @@ export async function writeTabColorSetting(setting: TabColorSetting[]) {
 async function readTabColorSettingStr(): Promise<string> {
   const result = await invoke<string | null>("read_setting_file", { filename: "device_specific/tab_color.json5" })
     .catch(_ => "");
-  if (result === null) {
-    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'tab_color.json5' })
-      .catch(_ => "");
-    if (oldFileStr !== null) { return oldFileStr; }
-    return "";
-  }
-  return result;
+  return result ?? "";
 }
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
@@ -57,28 +47,6 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
 
     const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
     if (result.version > TabColorSettingVersiton.latest) { return []; }
-
-    if (result.version < TabColorSettingVersiton.add_start_with) {
-      result.data.forEach(setting => {
-        setting.match = {
-          type: TabColorMatchingType.regexp,
-          string: (setting as any).pathRegExp,
-        };
-        delete (setting as any).pathRegExp;
-      });
-    }
-
-    if (result.version < TabColorSettingVersiton.add_setting_name) {
-      result.data.forEach((setting, idx) => {
-        setting.name = "Setting " + idx.toString();
-      });
-    }
-
-    if (result.version < TabColorSettingVersiton.add_frame_highlightv) {
-      result.data.forEach((setting, idx) => {
-        setting.color.activeHightlight = '#ff0000';
-      });
-    }
 
     if (result.version < TabColorSettingVersiton.latest) {
       writeTabColorSetting(result.data);
