@@ -25,8 +25,8 @@ export const TabColorMatchingType = {
 export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabColorMatchingType];
 
 class TabColorSettingVersiton {
-  static add_directry_hierarchy = 5;
-  static latest = TabColorSettingVersiton.add_directry_hierarchy;
+  static oldest = 5;
+  static latest = TabColorSettingVersiton.oldest;
 }
 
 export async function writeTabColorSetting(setting: TabColorSetting[]) {

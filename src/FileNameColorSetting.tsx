@@ -12,8 +12,8 @@ export interface FileNameColorSetting {
 }
 
 class FileNameColorSettingVersiton {
-  static add_directry_hierarchy = 2;
-  static latest = FileNameColorSettingVersiton.add_directry_hierarchy;
+  static oldest = 2;
+  static latest = FileNameColorSettingVersiton.oldest;
 }
 
 export async function writeFileNameColorSetting(setting: FileNameColorSetting[]) {

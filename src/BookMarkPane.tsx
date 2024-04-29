@@ -20,8 +20,8 @@ interface BookMarkItem {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class BookMarkItemVersiton {
-  static add_directry_hierarchy = 2;
-  static latest = BookMarkItemVersiton.add_directry_hierarchy;
+  static oldest = 2;
+  static latest = BookMarkItemVersiton.oldest;
 }
 
 export async function writeBookMarkItem(setting: BookMarkItem[]) {

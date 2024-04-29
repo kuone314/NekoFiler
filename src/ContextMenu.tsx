@@ -13,8 +13,8 @@ export type ContextMenuInfo = {
 };
 
 class ContextMenuInfoVersiton {
-  static add_directry_hierarchy = 2;
-  static latest = ContextMenuInfoVersiton.add_directry_hierarchy;
+  static oldest = 2;
+  static latest = ContextMenuInfoVersiton.oldest;
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {

@@ -105,8 +105,8 @@ export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) =
 }
 
 class CommandInfoVersiton {
-  static fix_scripts_path = 5;
-  static latest = CommandInfoVersiton.fix_scripts_path;
+  static oldest = 5;
+  static latest = CommandInfoVersiton.oldest;
 }
 
 export async function writeCommandsSetting(setting: CommandInfo[]) {
