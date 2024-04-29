@@ -24,13 +24,13 @@ export const TabColorMatchingType = {
 } as const;
 export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabColorMatchingType];
 
-class TabColorSettingVersiton {
+class TabColorSettingVersion {
   static oldest = 5;
-  static latest = TabColorSettingVersiton.oldest;
+  static latest = TabColorSettingVersion.oldest;
 }
 
 export async function writeTabColorSetting(setting: TabColorSetting[]) {
-  const data = JSON5.stringify({ version: TabColorSettingVersiton.latest, data: setting }, null, 2);
+  const data = JSON5.stringify({ version: TabColorSettingVersion.latest, data: setting }, null, 2);
   await invoke<String>(
     "write_setting_file", { filename: "device_specific/tab_color.json5", content: data });
 }
@@ -46,9 +46,9 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
     if (settingStr === "") { return GenerateDefaultCommandSeting(); }
 
     const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
-    if (result.version > TabColorSettingVersiton.latest) { return []; }
+    if (result.version > TabColorSettingVersion.latest) { return []; }
 
-    if (result.version < TabColorSettingVersiton.latest) {
+    if (result.version < TabColorSettingVersion.latest) {
       writeTabColorSetting(result.data);
     }
     return result.data;

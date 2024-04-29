@@ -12,13 +12,13 @@ export type ContextMenuInfo = {
   command: string,
 };
 
-class ContextMenuInfoVersiton {
+class ContextMenuInfoVersion {
   static oldest = 2;
-  static latest = ContextMenuInfoVersiton.oldest;
+  static latest = ContextMenuInfoVersion.oldest;
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
-  const data = JSON5.stringify({ version: ContextMenuInfoVersiton.latest, data: setting }, null, 2);
+  const data = JSON5.stringify({ version: ContextMenuInfoVersion.latest, data: setting }, null, 2);
   await invoke<String>(
     "write_setting_file", { filename: "General/context_menu.json5", content: data });
 }
@@ -35,9 +35,9 @@ export async function readContextMenuSetting(): Promise<ContextMenuInfo[]> {
   if (setting_str === "") { return GenerateDefaultSeting(); }
 
   const setting_ary = JSON5.parse(setting_str.toString()) as { version: number, data: ContextMenuInfo[] };
-  if (setting_ary.version > ContextMenuInfoVersiton.latest) { return []; }
+  if (setting_ary.version > ContextMenuInfoVersion.latest) { return []; }
 
-  if (setting_ary.version < ContextMenuInfoVersiton.latest) {
+  if (setting_ary.version < ContextMenuInfoVersion.latest) {
     writeContextMenuSetting(setting_ary.data);
   }
 

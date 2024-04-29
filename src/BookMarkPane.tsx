@@ -19,13 +19,13 @@ interface BookMarkItem {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class BookMarkItemVersiton {
+class BookMarkItemVersion {
   static oldest = 2;
-  static latest = BookMarkItemVersiton.oldest;
+  static latest = BookMarkItemVersion.oldest;
 }
 
 export async function writeBookMarkItem(setting: BookMarkItem[]) {
-  const data = JSON5.stringify({ version: BookMarkItemVersiton.latest, data: setting }, null, 2);
+  const data = JSON5.stringify({ version: BookMarkItemVersion.latest, data: setting }, null, 2);
   await invoke<String>(
     "write_setting_file", { filename: "device_specific/bookmark.json5", content: data });
 }
@@ -42,9 +42,9 @@ export async function readBookMarkItem(): Promise<BookMarkItem[]> {
     if (settingStr === "") { return []; }
 
     const result = JSON5.parse(settingStr.toString()) as { version: number, data: BookMarkItem[] };
-    if (result.version > BookMarkItemVersiton.latest) { return []; }
+    if (result.version > BookMarkItemVersion.latest) { return []; }
 
-    if (result.version < BookMarkItemVersiton.latest) {
+    if (result.version < BookMarkItemVersion.latest) {
       writeBookMarkItem(result.data);
     }
 

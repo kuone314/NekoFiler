@@ -13,10 +13,10 @@ import { v4 as uuidv4 } from 'uuid';
 export function Updater(
   addLogMessage: (message: LogInfo) => void,
 ): [JSX.Element, () => void,] {
-  const [latestVersiton, setLatestVersiton] = useState('');
-  const [targetVersiton, setTargetVersiton] = useState('');
+  const [latestVersion, setLatestVersion] = useState('');
+  const [targetVersion, setTargetVersion] = useState('');
   const updateImpl = () => {
-    invoke<void>("update_filer", { version: targetVersiton }).catch(
+    invoke<void>("update_filer", { version: targetVersion }).catch(
       message => {
         const message_str = message as string;
         addLogMessage({
@@ -64,7 +64,7 @@ export function Updater(
       </div>
       <div
       >
-        {"Latest:" + latestVersiton}
+        {"Latest:" + latestVersion}
       </div>
       <div
         css={css({
@@ -78,8 +78,8 @@ export function Updater(
         </div>
         <input
           type="text"
-          value={targetVersiton}
-          onChange={e => { setTargetVersiton(e.target.value) }}
+          value={targetVersion}
+          onChange={e => { setTargetVersion(e.target.value) }}
         />
       </div>
       <div css={css({ height: '30px', })} />
@@ -91,8 +91,8 @@ export function Updater(
     (async () => {
       const latest_version = await invoke<string>("get_latest_version", {})
         .catch(() => "");
-      setLatestVersiton(latest_version);
-      setTargetVersiton(latest_version);
+      setLatestVersion(latest_version);
+      setTargetVersion(latest_version);
       dlg.current?.showModal();
     })()
   }
