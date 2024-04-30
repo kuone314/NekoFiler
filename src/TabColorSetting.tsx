@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api";
 import JSON5 from 'json5'
 import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
 import { css } from "@emotion/react";
+import { ISettingInfo, writeSettings, readSettings } from "./ReadWriteSettings";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabColorSetting {
@@ -24,69 +25,29 @@ export const TabColorMatchingType = {
 } as const;
 export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabColorMatchingType];
 
-class TabColorSettingVersiton {
-  static first = 1;
-  static add_start_with = 2;
-  static add_setting_name = 3;
-  static add_frame_highlightv = 4;
-  static add_directry_hierarchy = 5;
-  static latest = TabColorSettingVersiton.add_directry_hierarchy;
+class Version {
+  static oldest = 5;
+  static latest = Version.oldest;
+}
+
+class SettingInfo implements ISettingInfo<TabColorSetting[]> {
+  filePath = "device_specific/tab_color.json5";
+  latestVersion = Version.oldest;
+  IsValidVersion = (version: number) => {
+    if (version < Version.oldest) { return false; }
+    if (version > Version.latest) { return false; }
+    return true;
+  };
+  UpgradeSetting = (readVersion: number, readSetting: TabColorSetting[]) => readSetting;
 }
 
 export async function writeTabColorSetting(setting: TabColorSetting[]) {
-  const data = JSON5.stringify({ version: TabColorSettingVersiton.latest, data: setting }, null, 2);
-  await invoke<String>(
-    "write_setting_file", { filename: "device_specific/tab_color.json5", content: data });
-}
-async function readTabColorSettingStr(): Promise<string> {
-  const result = await invoke<string | null>("read_setting_file", { filename: "device_specific/tab_color.json5" })
-    .catch(_ => "");
-  if (result === null) {
-    const oldFileStr = await invoke<string | null>("read_setting_file", { filename: 'tab_color.json5' })
-      .catch(_ => "");
-    if (oldFileStr !== null) { return oldFileStr; }
-    return "";
-  }
-  return result;
+  writeSettings(new SettingInfo, setting);
 }
 
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
-  try {
-    const settingStr = await readTabColorSettingStr();
-    if (settingStr === "") { return GenerateDefaultCommandSeting(); }
-
-    const result = JSON5.parse(settingStr.toString()) as { version: number, data: TabColorSetting[] };
-    if (result.version > TabColorSettingVersiton.latest) { return []; }
-
-    if (result.version < TabColorSettingVersiton.add_start_with) {
-      result.data.forEach(setting => {
-        setting.match = {
-          type: TabColorMatchingType.regexp,
-          string: (setting as any).pathRegExp,
-        };
-        delete (setting as any).pathRegExp;
-      });
-    }
-
-    if (result.version < TabColorSettingVersiton.add_setting_name) {
-      result.data.forEach((setting, idx) => {
-        setting.name = "Setting " + idx.toString();
-      });
-    }
-
-    if (result.version < TabColorSettingVersiton.add_frame_highlightv) {
-      result.data.forEach((setting, idx) => {
-        setting.color.activeHightlight = '#ff0000';
-      });
-    }
-
-    if (result.version < TabColorSettingVersiton.latest) {
-      writeTabColorSetting(result.data);
-    }
-    return result.data;
-  } catch {
-    return GenerateDefaultCommandSeting();
-  }
+  const read = await readSettings(new SettingInfo);
+  return read ?? GenerateDefaultCommandSeting();
 }
 
 function MatchImpl(setting: TabColorSetting, path: string): boolean {
