@@ -113,7 +113,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].name = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -126,7 +126,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.backGround = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -136,7 +136,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.backGround = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -149,7 +149,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.string = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -159,7 +159,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.string = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -172,7 +172,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.activeHightlight = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -182,7 +182,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.activeHightlight = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -202,7 +202,7 @@ export function TabColorSettingPane(
             if (val === null) { return; }
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].match.type = val.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -214,7 +214,7 @@ export function TabColorSettingPane(
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].match.string = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </div>
