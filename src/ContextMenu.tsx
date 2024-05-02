@@ -1,8 +1,5 @@
 
-import { invoke } from '@tauri-apps/api';
-import { CommandInfo, CommandType, DialogType } from './CommandInfo';
-import JSON5 from 'json5'
-import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
+import { DialogType } from './CommandInfo';
 import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
