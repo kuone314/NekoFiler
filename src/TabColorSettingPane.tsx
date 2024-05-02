@@ -44,7 +44,7 @@ export function TabColorSettingPane(
         string: props.trgDir,
       }
     }
-    const newSetting = [...tabColorSetting]
+    const newSetting = structuredClone(tabColorSetting);
     const fondIdx = tabColorSetting.findIndex(setting => Match(setting, props.trgDir));
     const insertPos = (fondIdx === -1) ? newSetting.length : fondIdx;
     newSetting.splice(insertPos, 0, newValue)
@@ -56,7 +56,7 @@ export function TabColorSettingPane(
   function MoveUp(trgIdx: number): void {
     if (trgIdx == 0) { return }
 
-    const newSetting = [...tabColorSetting];
+    const newSetting = structuredClone(tabColorSetting);;
     [newSetting[trgIdx], newSetting[trgIdx - 1]] = [newSetting[trgIdx - 1], newSetting[trgIdx]]
     setTabColorSetting(newSetting)
     setActiveIdx(trgIdx - 1);
@@ -64,14 +64,14 @@ export function TabColorSettingPane(
   function MoveDown(trgIdx: number): void {
     if (trgIdx == tabColorSetting.length - 1) { return }
 
-    const newSetting = [...tabColorSetting];
+    const newSetting = structuredClone(tabColorSetting);;
     [newSetting[trgIdx], newSetting[trgIdx + 1]] = [newSetting[trgIdx + 1], newSetting[trgIdx]]
     setTabColorSetting(newSetting)
     setActiveIdx(trgIdx + 1);
   }
 
   function DeleteSetting(trgIdx: number): void {
-    const newSetting = [...tabColorSetting];
+    const newSetting = structuredClone(tabColorSetting);;
     newSetting.splice(trgIdx, 1);
     setTabColorSetting(newSetting)
 
@@ -98,8 +98,6 @@ export function TabColorSettingPane(
         display: 'flex',
         flexDirection: 'column',
         height: mainHeight,
-        background: setting.color.backGround,
-        color: setting.color.string,
       })}
     >
       <label>
@@ -111,9 +109,9 @@ export function TabColorSettingPane(
           type="Name"
           value={setting.name}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].name = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -124,9 +122,9 @@ export function TabColorSettingPane(
           css={css({ width: '5em', })}
           value={setting.color.backGround}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.backGround = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -134,9 +132,9 @@ export function TabColorSettingPane(
           list="color-list"
           value={setting.color.backGround}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.backGround = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -147,9 +145,9 @@ export function TabColorSettingPane(
           css={css({ width: '5em', })}
           value={setting.color.string}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.string = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -157,9 +155,9 @@ export function TabColorSettingPane(
           list="color-list"
           value={setting.color.string}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.string = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -170,9 +168,9 @@ export function TabColorSettingPane(
           css={css({ width: '5em', })}
           value={setting.color.activeHightlight}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.activeHightlight = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -180,9 +178,9 @@ export function TabColorSettingPane(
           list="color-list"
           value={setting.color.activeHightlight}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].color.activeHightlight = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </label>
@@ -200,9 +198,9 @@ export function TabColorSettingPane(
           value={toComboItem(setting.match.type)}
           onChange={(val) => {
             if (val === null) { return; }
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].match.type = val.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
         <input
@@ -212,9 +210,9 @@ export function TabColorSettingPane(
           type="text"
           value={tabColorSetting[activeIdx].match.string}
           onChange={e => {
-            const newSetting = [...tabColorSetting]
+            const newSetting = structuredClone(tabColorSetting);
             newSetting[activeIdx].match.string = e.target.value;
-            setTabColorSetting([...newSetting])
+            setTabColorSetting(newSetting)
           }}
         />
       </div>
