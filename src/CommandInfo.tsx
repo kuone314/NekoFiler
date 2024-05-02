@@ -66,7 +66,7 @@ export const DIALOG_TYPE = {
 export type DialogType = typeof DIALOG_TYPE[keyof typeof DIALOG_TYPE];
 
 
-export type CommandInfo = {
+export type KeyBindSetting = {
   command_name: string,
   key: string,
   valid_on_addressbar: boolean,
@@ -110,7 +110,7 @@ class Version {
   static latest = Version.oldest;
 }
 
-class SettingInfo implements ISettingInfo<CommandInfo[]> {
+class SettingInfo implements ISettingInfo<KeyBindSetting[]> {
   filePath = "General/key_bind.json5";
   latestVersion = Version.oldest;
   IsValidVersion = (version: number) => {
@@ -118,15 +118,15 @@ class SettingInfo implements ISettingInfo<CommandInfo[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: CommandInfo[]) => readSetting;
+  UpgradeSetting = (readVersion: number, readSetting: KeyBindSetting[]) => readSetting;
 }
 
-export async function writeCommandsSetting(setting: CommandInfo[]) {
+export async function writeKeyBindSetting(setting: KeyBindSetting[]) {
   writeSettings(new SettingInfo, setting);
 }
 
 
-export async function readCommandsSetting(): Promise<CommandInfo[]> {
+export async function readKeyBindSetting(): Promise<KeyBindSetting[]> {
   const read = await readSettings(new SettingInfo);
   return read ?? GenerateDefaultCommandSeting();
 }

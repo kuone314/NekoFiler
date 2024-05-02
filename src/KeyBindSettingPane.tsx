@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { CommandInfo, DialogType, CommandType, match, readCommandsSetting, writeCommandsSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType, toKeyStr, scriptDirPath } from './CommandInfo';
+import { KeyBindSetting, DialogType, CommandType, match, readKeyBindSetting, writeKeyBindSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType, toKeyStr, scriptDirPath } from './CommandInfo';
 import { invoke } from '@tauri-apps/api';
 import { IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
@@ -28,11 +28,11 @@ export function KeyBindSettingPane(
     setTrgKeyStr(toKeyStr(trgKey));
   }, [trgKey]);
 
-  const [keyBindSettings, setKeyBindSettings] = useState<CommandInfo[]>([]);
+  const [keyBindSettings, setKeyBindSettings] = useState<KeyBindSetting[]>([]);
   const [editedScriptContents, setEditedScriptContents] = useState(new Map<string, string>());
-  useEffect(() => { (async () => { setKeyBindSettings(await readCommandsSetting()); })() }, []);
+  useEffect(() => { (async () => { setKeyBindSettings(await readKeyBindSetting()); })() }, []);
   function writSettings() {
-    writeCommandsSetting(keyBindSettings);
+    writeKeyBindSetting(keyBindSettings);
     editedScriptContents.forEach((content, path) => {
       invoke<String>("write_setting_file", { filename: scriptDirPath + path, content: content });
     })
@@ -48,7 +48,7 @@ export function KeyBindSettingPane(
   const [editDlg, Editor] = KeyBindEditor(
     (props.height - dlgHeightMagin),
     (
-      editedKeyBindItem: CommandInfo,
+      editedKeyBindItem: KeyBindSetting,
       editedScriptContent: string,
     ) => {
       let newSettings = Array.from(keyBindSettings);
@@ -71,7 +71,7 @@ export function KeyBindSettingPane(
     Editor(keyBindSetting, editedContent)
   }
 
-  const matchEx = (commandInfo: CommandInfo) => {
+  const matchEx = (commandInfo: KeyBindSetting) => {
     if (!trgKey) { return true; }
     return match(trgKey, commandInfo.key);
   }
@@ -189,10 +189,10 @@ export function KeyBindSettingPane(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function KeyBindEditor(
   height: number,
-  onOk: (editedKeyBindItem: CommandInfo, editedScriptContent: string) => void,
+  onOk: (editedKeyBindItem: KeyBindSetting, editedScriptContent: string) => void,
 ): [
     JSX.Element,
-    (srcCommandInfo: CommandInfo, editedScriptContent: string | null) => void,
+    (srcCommandInfo: KeyBindSetting, editedScriptContent: string | null) => void,
   ] {
   const [commandName, setCommandName] = useState('');
 
@@ -387,7 +387,7 @@ export function KeyBindEditor(
   </dialog>
 
   const EditStart = (
-    commandInfo: CommandInfo,
+    commandInfo: KeyBindSetting,
     editedScriptContent: string | null
   ) => {
     const is_buildin = (commandInfo.action.type == COMMAND_TYPE.build_in);

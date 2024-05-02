@@ -6,7 +6,7 @@ import React from 'react';
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
 import { FileList, Entries } from './FileList';
-import { COMMAND_TYPE, match, readCommandsSetting, commandExecuter, BUILDIN_COMMAND_TYPE, CommandInfo } from './CommandInfo';
+import { COMMAND_TYPE, match, readKeyBindSetting, commandExecuter, BUILDIN_COMMAND_TYPE, KeyBindSetting } from './CommandInfo';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -167,7 +167,7 @@ export const MainPanel = (
   }
 
   const execCommand = (
-    command: CommandInfo,
+    command: KeyBindSetting,
     srcKey: React.KeyboardEvent<HTMLDivElement> | null
   ) => {
     if (command.action.type === COMMAND_TYPE.build_in) {
@@ -188,10 +188,10 @@ export const MainPanel = (
     }
   }
 
-  const [keyBindInfo, setKeyBindInfo] = useState<CommandInfo[]>([]);
+  const [keyBindInfo, setKeyBindInfo] = useState<KeyBindSetting[]>([]);
   useEffect(() => {
     (async () => {
-      const seting = await readCommandsSetting();
+      const seting = await readKeyBindSetting();
       setKeyBindInfo(seting);
     })()
   }, []);
@@ -272,7 +272,7 @@ export const MainPanel = (
   }, [isMenuOpen])
 
   const [focusToListOnContextMenuClosed, setFocusToListOnContextMenuClosed] = useState(false);
-  const menuItemAry = useRef<CommandInfo[]>([]);
+  const menuItemAry = useRef<KeyBindSetting[]>([]);
   const commandSelectMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}

@@ -1,13 +1,13 @@
 import { invoke } from '@tauri-apps/api';
 import JSON5 from 'json5'
 
-import { CommandInfo, writeCommandsSetting, } from './CommandInfo';
+import { KeyBindSetting, writeKeyBindSetting, } from './CommandInfo';
 import { alfabetList } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function GenerateDefaultCommandSeting(): CommandInfo[] {
-  const defined: CommandInfo[] = [
+export function GenerateDefaultCommandSeting(): KeyBindSetting[] {
+  const defined: KeyBindSetting[] = [
     {
       command_name: 'Copy to clopboard',
       key: 'ctrl+c',
@@ -707,7 +707,7 @@ Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current
   })();
 
 
-  const setCommandCommandList: CommandInfo[] = alfabetList.map(key => (
+  const setCommandCommandList: KeyBindSetting[] = alfabetList.map(key => (
     {
       command_name: 'setKeyBind',
       key: 'ctrl+' + key,
@@ -721,7 +721,7 @@ Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current
   ));
   const result = defined.concat(setCommandCommandList);
 
-  writeCommandsSetting(result);
+  writeKeyBindSetting(result);
   return result;
 }
 
