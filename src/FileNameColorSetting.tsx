@@ -20,7 +20,7 @@ class Version {
 
 class SettingInfo implements ISettingInfo<FileNameColorSetting[]> {
   filePath = "General/file_name_color.json5";
-  latestVersion = Version.oldest;
+  latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
     if (version > Version.latest) { return false; }

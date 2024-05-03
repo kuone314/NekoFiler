@@ -27,7 +27,7 @@ class Version {
 
 class SettingInfo implements ISettingInfo<BookMarkItem[]> {
   filePath = "device_specific/bookmark.json5";
-  latestVersion = Version.oldest;
+  latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
     if (version > Version.latest) { return false; }

@@ -18,7 +18,7 @@ class Version {
 
 class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
   filePath = "General/context_menu.json5";
-  latestVersion = Version.oldest;
+  latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
     if (version > Version.latest) { return false; }

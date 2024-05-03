@@ -112,7 +112,7 @@ class Version {
 
 class SettingInfo implements ISettingInfo<KeyBindSetting[]> {
   filePath = "General/key_bind.json5";
-  latestVersion = Version.oldest;
+  latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
     if (version > Version.latest) { return false; }
