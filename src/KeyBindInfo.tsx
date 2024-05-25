@@ -2,6 +2,8 @@
 import React from 'react';
 
 import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
+import { GenerateDefaultKeyBindSeting } from './DefaultKeyBindSettings';
+import { DialogType, ShellCommand, writeShellCommandSetting } from './CommandInfo';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const COMMAND_TYPE = {
@@ -52,6 +54,37 @@ class Version {
   static latest = Version.separet_commands_setting;
 }
 
+type KeyBindSettingBeforeSplitCommandsSetting = {
+  command_name: string,
+  key: string,
+  valid_on_addressbar: boolean,
+  dialog_type: DialogType,
+  action: {
+    type: CommandType,
+    command: string,
+  }
+};
+function Update(oldSettng: KeyBindSettingBeforeSplitCommandsSetting): KeyBindSetting {
+  const command_name = (oldSettng.action.type === 'build_in') ? oldSettng.action.command : oldSettng.command_name;
+  return {
+    display_name: oldSettng.command_name,
+    key: oldSettng.key,
+    valid_on_addressbar: oldSettng.valid_on_addressbar,
+    action: {
+      type: oldSettng.action.type,
+      command_name: command_name,
+    }
+  };
+
+}
+function ToShellCommand(oldSettng: KeyBindSettingBeforeSplitCommandsSetting): ShellCommand {
+  return {
+    command_name: oldSettng.command_name,
+    dialog_type: oldSettng.dialog_type ?? 'none',
+    script_path: oldSettng.action.command,
+  }
+}
+
 class SettingInfo implements ISettingInfo<KeyBindSetting[]> {
   filePath = "General/key_bind.json5";
   latestVersion = Version.latest;
@@ -60,7 +93,18 @@ class SettingInfo implements ISettingInfo<KeyBindSetting[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: KeyBindSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: KeyBindSetting[]) => {
+    let result = readSetting;
+    if (readVersion < Version.separet_commands_setting) {
+      const oldSettings = readSetting.map(setting => setting as any as KeyBindSettingBeforeSplitCommandsSetting);
+      result = oldSettings.map(Update);
+      const shell_commands = oldSettings
+        .filter(command => command.action.type === 'power_shell')
+        .map(ToShellCommand);
+      await writeShellCommandSetting(shell_commands);
+    }
+    return result;
+  };
 }
 
 export async function writeKeyBindSetting(setting: KeyBindSetting[]) {

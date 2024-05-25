@@ -13,7 +13,8 @@ export type ContextMenuInfo = {
 
 class Version {
   static oldest = 2;
-  static latest = Version.oldest;
+  static separet_commands_setting = 3;
+  static latest = Version.separet_commands_setting;
 }
 
 class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
@@ -24,7 +25,22 @@ class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: ContextMenuInfo[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: ContextMenuInfo[]) => {
+    let result = readSetting;
+    if (readVersion < Version.separet_commands_setting) {
+      await readKeyBindSetting();
+      const commands = await readShellCommandSetting();
+      result.forEach(oldSetting => {
+        const script_path = (oldSetting as any).command;
+        const command = commands.find(command => command.script_path === script_path);
+        if (command === undefined) { return; }
+        oldSetting.command_name = command.command_name;
+        delete (oldSetting as any).dialog_type;
+        delete (oldSetting as any).command;
+      });
+    }
+    return result;
+  };
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
