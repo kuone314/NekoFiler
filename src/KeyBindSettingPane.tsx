@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { KeyBindSetting, DialogType, CommandType, match, readKeyBindSetting, writeKeyBindSetting, COMMAND_TYPE, BuildinCommandType, BUILDIN_COMMAND_TYPE, DIALOG_TYPE, ToBuildinCommandType, toKeyStr, scriptDirPath } from './CommandInfo';
-import { invoke } from '@tauri-apps/api';
-import { IsValidIndex } from './Utility';
+import { Exist, IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
+import { BuildinCommandType, BUILDIN_COMMAND_TYPE, ToBuildinCommandType, readShellCommandSetting } from './CommandInfo';
+import { toKeyStr, KeyBindSetting, readKeyBindSetting, writeKeyBindSetting, match, COMMAND_TYPE, CommandType } from './KeyBindInfo';
+import { ShellCommandsSettingPane } from './ShellCommandsSettingPane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,13 +30,9 @@ export function KeyBindSettingPane(
   }, [trgKey]);
 
   const [keyBindSettings, setKeyBindSettings] = useState<KeyBindSetting[]>([]);
-  const [editedScriptContents, setEditedScriptContents] = useState(new Map<string, string>());
   useEffect(() => { (async () => { setKeyBindSettings(await readKeyBindSetting()); })() }, []);
   function writSettings() {
     writeKeyBindSetting(keyBindSettings);
-    editedScriptContents.forEach((content, path) => {
-      invoke<String>("write_setting_file", { filename: scriptDirPath + path, content: content });
-    })
   }
 
   const RemoveSetting = (trgIdx: number) => {
@@ -47,10 +44,7 @@ export function KeyBindSettingPane(
   const [editingIndex, setEditingIndex] = useState(0);
   const [editDlg, Editor] = KeyBindEditor(
     (props.height - dlgHeightMagin),
-    (
-      editedKeyBindItem: KeyBindSetting,
-      editedScriptContent: string,
-    ) => {
+    (editedKeyBindItem: KeyBindSetting) => {
       let newSettings = Array.from(keyBindSettings);
       if (IsValidIndex(newSettings, editingIndex)) {
         newSettings[editingIndex] = editedKeyBindItem;
@@ -60,15 +54,11 @@ export function KeyBindSettingPane(
       }
       setKeyBindSettings(newSettings);
 
-      const newEditedScriptContents = new Map(editedScriptContents);
-      newEditedScriptContents.set(editedKeyBindItem.action.command, editedScriptContent)
-      setEditedScriptContents(newEditedScriptContents)
     });
   const EditSetting = (trgIdx: number) => {
     setEditingIndex(trgIdx)
     const keyBindSetting = keyBindSettings[trgIdx];
-    const editedContent = editedScriptContents.get(keyBindSetting.action.command) ?? null;
-    Editor(keyBindSetting, editedContent)
+    Editor(keyBindSetting)
   }
 
   const matchEx = (commandInfo: KeyBindSetting) => {
@@ -80,20 +70,19 @@ export function KeyBindSettingPane(
     border: '1pt solid #000000',
   });
 
-  function AddCommand(): void {
+  function AddKeyBind(): void {
     setEditingIndex(keyBindSettings.length)
 
     const newSetting = {
-      command_name: 'new command',
+      display_name: '',
       key: trgKeyStr,
       valid_on_addressbar: true,
-      dialog_type: DIALOG_TYPE.none,
       action: {
         type: COMMAND_TYPE.power_shell,
-        command: '',
+        command_name: '',
       }
     };
-    Editor(newSetting, "")
+    Editor(newSetting)
   }
 
   return <>
@@ -113,7 +102,7 @@ export function KeyBindSettingPane(
         >x</button>
       </div>
       <button
-        onClick={AddCommand}
+        onClick={AddKeyBind}
       >+</button>
       <div
         css={css({
@@ -140,7 +129,7 @@ export function KeyBindSettingPane(
                     key={'keyBindSetting' + filterdIdx}
                   >
                     <td css={[table_border]}>{item.setting.key}</td>
-                    <td css={[table_border]}>{item.setting.command_name}</td>
+                    <td css={[table_border]}>{item.setting.display_name}</td>
                     <td css={[table_border]}>
                       <button
                         onClick={() => RemoveSetting(item.orgIdx)}
@@ -189,50 +178,46 @@ export function KeyBindSettingPane(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function KeyBindEditor(
   height: number,
-  onOk: (editedKeyBindItem: KeyBindSetting, editedScriptContent: string) => void,
+  onOk: (editedKeyBindItem: KeyBindSetting) => void,
 ): [
     JSX.Element,
-    (srcCommandInfo: KeyBindSetting, editedScriptContent: string | null) => void,
+    (srcCommandInfo: KeyBindSetting) => void,
   ] {
-  const [commandName, setCommandName] = useState('');
+  const [keyBindName, setKeyBindName] = useState('');
 
   const [keyStr, setKeyStr] = useState('');
   const [key, setKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
   useEffect(() => { setKeyStr(toKeyStr(key)); }, [key]);
 
-  const [scriptContent, setScriptContent] = useState('');
+  const [validOnAddressbar, setValidOnAddressbar] = useState(false);
 
   const [commandType, setCommandType] = useState<CommandType>('power_shell');
-
-  const [commandFilePath, setCommandFilePath] = useState('');
-
-  const [validOnAddressbar, setValidOnAddressbar] = useState(false);
-  const [dialogType, setDialogType] = useState<DialogType>('none');
-  const dialogTypeComboLabel = (type: DialogType) => {
-    switch (type) {
-      case "none": return "none";
-      case "multi_line": return "multi_line";
-      case "reference_selection": return "reference_selection";
-    }
-  }
-  const dialogTypeToComboItem = (type: DialogType) => {
-    return { value: type, label: dialogTypeComboLabel(type) };
-  }
-
   const [buildinCommandType, setBuildinCommandType] = useState<BuildinCommandType | null>('accessCurrentItem');
-  const comboLabel = (type: BuildinCommandType) => {
-    return type;
-  }
-  const toComboItem = (type: BuildinCommandType) => {
-    return { value: type, label: comboLabel(type) };
+  const [shellCommandNameList, setShellCommandNameList] = useState<string[]>([]);
+  const [shellCommandName, setShellCommandName] = useState<string>('');
+  useEffect(() => { updateShellCommandList(); }, []);
+
+  const updateShellCommandList = async () => {
+    const shellCommandList = await readShellCommandSetting();
+    setShellCommandNameList(shellCommandList.map(command => command.command_name));
+
+    const shellCommandNames = shellCommandList
+      .map(item => item.command_name);
+    if (Exist(shellCommandNames, shellCommandName)) { return; }
+    if (shellCommandList.length === 0) { return; }
+    setShellCommandName(shellCommandList[0].command_name);
+  };
+
+
+  const toComboItem = (str: string) => {
+    return { value: str, label: str };
   }
 
-  const isOkEnable = () => {
-    switch (commandType) {
-      case 'build_in': return true;
-      case 'power_shell': return commandFilePath !== ""; // 有効なパスかのチェックもした方が良い…。
-    }
+  const toBuildinCommandTypeComboItem = (type: BuildinCommandType) => {
+    return { value: type, label: type };
   }
+
+  const isOkEnable = () => (keyBindName !== "");
 
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
@@ -247,19 +232,17 @@ export function KeyBindEditor(
         css={css({ textTransform: 'none', })}
         disabled={!isOkEnable()}
         onClick={() => {
-          const command = (commandType == COMMAND_TYPE.power_shell) ? commandFilePath : buildinCommandType;
-          onOk(
-            {
-              command_name: commandName,
-              key: keyStr,
-              action: {
-                type: commandType,
-                command: command ?? "",
-              },
-              valid_on_addressbar: validOnAddressbar,
-              dialog_type: dialogType
+          const command_name = (commandType == COMMAND_TYPE.power_shell) ? shellCommandName : buildinCommandType;
+          const key_bind_setting = {
+            display_name: keyBindName,
+            key: keyStr,
+            valid_on_addressbar: validOnAddressbar,
+            action: {
+              type: commandType,
+              command_name: command_name ?? "",
             },
-            scriptContent);
+          };
+          onOk(key_bind_setting);
           dlg.current?.close()
         }}
       >
@@ -274,29 +257,31 @@ export function KeyBindEditor(
     </div >
   }
 
+  const [commandSettingDialog, startCommandSetting] = ShellCommandsSettingPane({
+    height,
+    onOK: () => updateShellCommandList(),
+  });
+
   const dialogElement = <dialog
     css={css({
       height: height,
       width: '60%', // 適当…。
     })}
     ref={dlg}>
+    {commandSettingDialog}
     <div
       css={css({
         height: (height - buttonHeight),
         overflow: 'scroll',
       })}
     >
-      <div
-        css={css({
-          display: 'grid',
-        })}
-      >
+      <div>
         <div>
           <div>Name</div>
           <input
             type="text"
-            value={commandName}
-            onChange={e => { setCommandName(e.target.value) }}
+            value={keyBindName}
+            onChange={e => { setKeyBindName(e.target.value) }}
           />
         </div>
         <div>
@@ -307,6 +292,15 @@ export function KeyBindEditor(
             onKeyDown={event => { setKey(event); event.preventDefault(); }}
           />
         </div>
+        <label>
+          <input
+            type='checkbox'
+            checked={validOnAddressbar}
+            onChange={(e) => setValidOnAddressbar(!validOnAddressbar)}
+          />
+          Valid on addressbar
+        </label>
+
         <div>
           <input
             type="radio" name='CommandType'
@@ -320,52 +314,25 @@ export function KeyBindEditor(
           <label onClick={() => setCommandType(COMMAND_TYPE.build_in)}>build_in</label>
         </div>
 
-        <label>
-          <input
-            type='checkbox'
-            checked={validOnAddressbar}
-            onChange={(e) => setValidOnAddressbar(!validOnAddressbar)}
-          />
-          validOnAddressbar
-        </label>
-
         {
           (commandType == COMMAND_TYPE.power_shell) ?
-            <div
-              css={css({
-                display: 'grid',
-                gridTemplateRows: 'auto auto auto auto',
-              })}
-            >
-              <div>
-                <div>ScriptPath</div>
-                <input
-                  type="text"
-                  value={commandFilePath}
-                  onChange={e => { setCommandFilePath(e.target.value) }}
-                />
-              </div>
-              <textarea
-                value={scriptContent}
-                onChange={e => {
-                  setScriptContent(e.target.value);
-                }}
-                rows={15}
-              />
-              <label>Dialog</label>
+            <>
               <Select
-                options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
-                value={dialogTypeToComboItem(dialogType)}
+                options={shellCommandNameList.map(toComboItem)}
+                value={toComboItem(shellCommandName)}
                 onChange={(val) => {
                   if (val === null) { return; }
-                  setDialogType(val.value)
+                  setShellCommandName(val.value)
                 }}
               />
-            </div>
+              <button
+                onClick={startCommandSetting}
+              >Edit Commands</button>
+            </>
             :
             <Select
-              options={Object.values(BUILDIN_COMMAND_TYPE).map(toComboItem)}
-              value={toComboItem(buildinCommandType ?? BUILDIN_COMMAND_TYPE.accessCurrentItem)}
+              options={Object.values(BUILDIN_COMMAND_TYPE).map(toBuildinCommandTypeComboItem)}
+              value={toBuildinCommandTypeComboItem(buildinCommandType ?? BUILDIN_COMMAND_TYPE.accessCurrentItem)}
               onChange={(val) => {
                 if (val === null) { return; }
                 setBuildinCommandType(val.value)
@@ -387,28 +354,15 @@ export function KeyBindEditor(
   </dialog>
 
   const EditStart = (
-    commandInfo: KeyBindSetting,
-    editedScriptContent: string | null
+    commandInfo: KeyBindSetting
   ) => {
     const is_buildin = (commandInfo.action.type == COMMAND_TYPE.build_in);
-    setCommandName(commandInfo.command_name);
+    setKeyBindName(commandInfo.display_name);
     setKeyStr(commandInfo.key);
     setCommandType(commandInfo.action.type);
-    setCommandFilePath(!is_buildin ? commandInfo.action.command : "");
-    setBuildinCommandType(is_buildin ? ToBuildinCommandType(commandInfo.action.command) : null);
     setValidOnAddressbar(commandInfo.valid_on_addressbar);
-    setDialogType(commandInfo.dialog_type);
-
-    if (editedScriptContent !== null) {
-      setScriptContent(editedScriptContent);
-    } else {
-      if (commandInfo.action.type === 'power_shell') {
-        (async () => {
-          setScriptContent(await invoke<string>("read_setting_file", { filename: scriptDirPath + commandInfo.action.command }))
-        })()
-      }
-    }
-
+    setBuildinCommandType(is_buildin ? ToBuildinCommandType(commandInfo.action.command_name) : 'accessCurrentItem');
+    setShellCommandName(!is_buildin ? commandInfo.action.command_name : "");
     dlg.current?.showModal();
   }
 
