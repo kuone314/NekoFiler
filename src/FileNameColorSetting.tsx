@@ -26,7 +26,7 @@ class SettingInfo implements ISettingInfo<FileNameColorSetting[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: FileNameColorSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: FileNameColorSetting[]) => readSetting;
 }
 
 export async function writeFileNameColorSetting(setting: FileNameColorSetting[]) {

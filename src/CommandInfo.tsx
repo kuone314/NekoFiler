@@ -118,7 +118,7 @@ class SettingInfo implements ISettingInfo<KeyBindSetting[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: KeyBindSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: KeyBindSetting[]) => readSetting;
 }
 
 export async function writeKeyBindSetting(setting: KeyBindSetting[]) {

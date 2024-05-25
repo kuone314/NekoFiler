@@ -38,7 +38,7 @@ class SettingInfo implements ISettingInfo<TabColorSetting[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: TabColorSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: TabColorSetting[]) => readSetting;
 }
 
 export async function writeTabColorSetting(setting: TabColorSetting[]) {

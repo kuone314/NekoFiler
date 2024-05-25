@@ -24,7 +24,7 @@ class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: ContextMenuInfo[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: ContextMenuInfo[]) => readSetting;
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {

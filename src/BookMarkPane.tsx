@@ -33,7 +33,7 @@ class SettingInfo implements ISettingInfo<BookMarkItem[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: BookMarkItem[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: BookMarkItem[]) => readSetting;
 }
 
 export async function writeBookMarkItem(setting: BookMarkItem[]) {
