@@ -89,16 +89,6 @@ export function GenerateDefaultCommandSeting(): KeyBindSetting[] {
       valid_on_addressbar: false,
     },
     {
-      command_name: '',
-      key: 'ctrl+d',
-      dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: '',
-      },
-      valid_on_addressbar: false,
-    },
-    {
       command_name: 'Delete file',
       key: 'delete',
       dialog_type: 'none',
