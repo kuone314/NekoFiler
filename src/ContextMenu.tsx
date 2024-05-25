@@ -1,5 +1,6 @@
 
-import { DialogType } from './CommandInfo';
+import { readShellCommandSetting } from './CommandInfo';
+import { readKeyBindSetting } from './KeyBindInfo';
 import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -7,8 +8,7 @@ import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 export type ContextMenuInfo = {
   menu_name: string,
-  dialog_type: DialogType,
-  command: string,
+  command_name: string,
 };
 
 class Version {

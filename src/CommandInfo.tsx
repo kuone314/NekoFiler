@@ -1,5 +1,4 @@
 import { invoke } from '@tauri-apps/api';
-import JSON5 from 'json5'
 
 import { executeShellCommand } from './RustFuncs';
 import { separator, ApplySeparator } from './FilePathSeparator';
@@ -15,12 +14,6 @@ import { sleep } from './Utility';
 import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export const COMMAND_TYPE = {
-  build_in: "build_in",
-  power_shell: "power_shell",
-} as const;
-export type CommandType = typeof COMMAND_TYPE[keyof typeof COMMAND_TYPE];
-
 export const BUILDIN_COMMAND_TYPE = {
   accessCurrentItem: 'accessCurrentItem',
   accessParentDir: 'accessParentDir',
@@ -66,67 +59,37 @@ export const DIALOG_TYPE = {
 export type DialogType = typeof DIALOG_TYPE[keyof typeof DIALOG_TYPE];
 
 
-export type KeyBindSetting = {
+export type ShellCommand = {
   command_name: string,
-  key: string,
-  valid_on_addressbar: boolean,
   dialog_type: DialogType,
-  action: {
-    type: CommandType,
-    command: string,
-  }
+  script_path: string,
 };
 
 export const scriptDirPath = "general/script/";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function match(keyboard_event: React.KeyboardEvent<HTMLDivElement>, command_key: string): boolean {
-
-  return toKeyStr(keyboard_event).toLowerCase() === command_key.toLowerCase();
-}
-
-export const toKeyStr = (keyEvnet: React.KeyboardEvent<HTMLDivElement> | null) => {
-  if (!keyEvnet) { return ''; }
-
-  const strAry = [];
-  if (keyEvnet.ctrlKey) { strAry.push('ctrl'); }
-  if (keyEvnet.altKey) { strAry.push('alt'); }
-  if (keyEvnet.shiftKey) { strAry.push('shift'); }
-
-  const key = keyEvnet.key;
-  if (!['Control', 'Alt', 'Shift',].find(item => item === key)) {
-    const rowKeyStr = (() => {
-      if (key === ' ') { return 'Space'; }
-      if (key.length === 1) { return key.toUpperCase(); }
-      return key;
-    })();
-    strAry.push(rowKeyStr);
-  }
-  return strAry.join('+');
-}
-
 class Version {
-  static oldest = 5;
+  static oldest = 1;
   static latest = Version.oldest;
 }
 
-class SettingInfo implements ISettingInfo<KeyBindSetting[]> {
-  filePath = "General/key_bind.json5";
+class SettingInfo implements ISettingInfo<ShellCommand[]> {
+  filePath = "General/shell_commands.json5";
   latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: KeyBindSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: ShellCommand[]) => readSetting;
 }
 
-export async function writeKeyBindSetting(setting: KeyBindSetting[]) {
+export async function writeShellCommandSetting(setting: ShellCommand[]) {
   writeSettings(new SettingInfo, setting);
 }
 
 
-export async function readKeyBindSetting(): Promise<KeyBindSetting[]> {
+export async function readShellCommandSetting(): Promise<ShellCommand[]> {
   const read = await readSettings(new SettingInfo);
   return read ?? GenerateDefaultCommandSeting();
 }
@@ -139,8 +102,6 @@ function decoratePath(path: String): string {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type ExecShellCommand = (
   command_name: string,
-  dialog_type: DialogType,
-  script_path: string,
   current_dir: string,
   selecting_item_name_ary: string[],
   opposite_path: string,
@@ -188,19 +149,20 @@ export function commandExecuter(
     console.log(replaced_command_line)
     executeShellCommand(command_name, replaced_command_line, current_dir);
   }
-  const execShellCommand = (
+  const execShellCommand = async (
     command_name: string,
-    dialog_type: DialogType,
-    script_path: string,
     current_dir: string,
     selecting_item_name_ary: string[],
     opposite_dir: string,
     separator: separator,
   ) => {
+    const commands = await readShellCommandSetting();
+    const command = commands.find(command => command.command_name === command_name);
+
     const fn = (dialog_input_string: string) => {
       execShellCommandImpl(
         command_name,
-        script_path,
+        command.script_path,
         ApplySeparator(current_dir, separator),
         selecting_item_name_ary,
         dialog_input_string,
@@ -209,7 +171,7 @@ export function commandExecuter(
       );
     }
 
-    const type = dialog_type;
+    const type = command.dialog_type;
     if (!type || type === DIALOG_TYPE.none) {
       fn('');
       return;

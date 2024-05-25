@@ -6,7 +6,9 @@ import React from 'react';
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
 import { FileList, Entries } from './FileList';
-import { COMMAND_TYPE, match, readKeyBindSetting, commandExecuter, BUILDIN_COMMAND_TYPE, KeyBindSetting } from './CommandInfo';
+
+import { BUILDIN_COMMAND_TYPE, commandExecuter } from './CommandInfo';
+import { KeyBindSetting, COMMAND_TYPE, readKeyBindSetting, match } from './KeyBindInfo';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
@@ -171,15 +173,13 @@ export const MainPanel = (
     srcKey: React.KeyboardEvent<HTMLDivElement> | null
   ) => {
     if (command.action.type === COMMAND_TYPE.build_in) {
-      execBuildInCommand(command.action.command, srcKey);
+      execBuildInCommand(command.action.command_name, srcKey);
       return
     }
 
     if (command.action.type === COMMAND_TYPE.power_shell) {
       execShellCommand(
-        command.command_name,
-        command.dialog_type,
-        command.action.command,
+        command.action.command_name,
         dir,
         FileListFunctions.selectingItemName(),
         props.getOppositePath(),
@@ -285,7 +285,7 @@ export const MainPanel = (
             onClick={e => execCommand(command, srcKey)}
             key={idx}
           >
-            {command.command_name}
+            {command.display_name}
           </MenuItem>
         })
       }
@@ -315,8 +315,6 @@ export const MainPanel = (
           return <MenuItem
             onClick={e => execShellCommand(
               command.menu_name,
-              command.dialog_type,
-              command.command,
               dir,
               FileListFunctions.selectingItemName(),
               props.getOppositePath(),
