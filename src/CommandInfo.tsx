@@ -158,6 +158,9 @@ export function commandExecuter(
   ) => {
     const commands = await readShellCommandSetting();
     const command = commands.find(command => command.command_name === command_name);
+    if (command === undefined) {
+      return;
+    }
 
     const fn = (dialog_input_string: string) => {
       execShellCommandImpl(
