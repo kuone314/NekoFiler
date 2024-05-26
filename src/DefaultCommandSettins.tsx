@@ -1,483 +1,84 @@
 import { invoke } from '@tauri-apps/api';
-import JSON5 from 'json5'
-
-import { CommandInfo, writeCommandsSetting, } from './CommandInfo';
-import { alfabetList } from './Utility';
+import { ShellCommand, writeShellCommandSetting, } from './CommandInfo';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function GenerateDefaultCommandSeting(): CommandInfo[] {
-  const defined: CommandInfo[] = [
+export function GenerateDefaultCommandSeting(): ShellCommand[] {
+  const result: ShellCommand[] = [
     {
       command_name: 'Copy to clopboard',
-      key: 'ctrl+c',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'Copy to clopboard.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Copy to clopboard.ps1',
     },
     {
       command_name: 'Cut to clopboard',
-      key: 'ctrl+x',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'Cut to clopboard.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Cut to clopboard.ps1',
     },
     {
       command_name: 'Past from clopboard',
-      key: 'ctrl+v',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'Past from clopboard.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Past from clopboard.ps1',
     },
     {
       command_name: 'Create Copy',
-      key: 'ctrl+c',
       dialog_type: 'reference_selection',
-      action: {
-        type: 'power_shell',
-        command: 'Create Copy.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Create Copy.ps1',
     },
     {
       command_name: 'Copy and Replace Content',
-      key: 'ctrl+c',
       dialog_type: 'reference_selection',
-      action: {
-        type: 'power_shell',
-        command: 'Copy and Replace Content.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Copy and Replace Content.ps1',
     },
     {
       command_name: 'Copy to opposite dirctory',
-      key: 'ctrl+c',
       dialog_type: 'reference_selection',
-      action: {
-        type: 'power_shell',
-        command: 'Copy to opposite dirctory.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Copy to opposite dirctory.ps1',
     },
     {
       command_name: 'Move to opposite dirctory',
-      key: 'ctrl+x',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'Move to opposite dirctory.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Move to opposite dirctory.ps1',
     },
     {
       command_name: 'Delete file',
-      key: 'ctrl+d',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'Delete file.ps1',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: '',
-      key: 'ctrl+d',
-      dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: '',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Delete file.ps1',
     },
     {
       command_name: 'Delete file',
-      key: 'delete',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'Delete file.ps1',
-      },
-      valid_on_addressbar: false,
+      script_path: 'Delete file.ps1',
     },
     {
       command_name: 'Copy file path',
-      key: 'ctrl+alt+c',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'Copy file path.ps1',
-      },
-      valid_on_addressbar: true,
+      script_path: 'Copy file path.ps1',
     },
     {
       command_name: 'New File',
-      key: 'ctrl+n',
       dialog_type: 'multi_line',
-      action: {
-        type: 'power_shell',
-        command: 'New File.ps1',
-      },
-      valid_on_addressbar: true,
+      script_path: 'New File.ps1',
     },
     {
       command_name: 'New Folder',
-      key: 'ctrl+n',
       dialog_type: 'multi_line',
-      action: {
-        type: 'power_shell',
-        command: 'New Folder.ps1',
-      },
-      valid_on_addressbar: true,
+      script_path: 'New Folder.ps1',
     },
     {
       command_name: 'Rename',
-      key: 'ctrl+n',
       dialog_type: 'reference_selection',
-      action: {
-        type: 'power_shell',
-        command: 'Rename.ps1',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'moveDown',
-      key: 'ArrowDown',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveDown',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'moveDownSelect',
-      key: 'shift+ArrowDown',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveDownSelect',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'moveUp',
-      key: 'ArrowUp',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveUp',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'moveUpSelect',
-      key: 'shift+ArrowUp',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveUpSelect',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'moveTop',
-      key: 'Home',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveTop',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'moveTopSelect',
-      key: 'shift+Home',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveTopSelect',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'moveBottom',
-      key: 'End',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveBottom',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'moveBottomSelect',
-      key: 'shift+End',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'moveBottomSelect',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'selectAll',
-      key: 'ctrl+a',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'selectAll',
-      },
-      valid_on_addressbar: false,
-    },
-    // {
-    //   command_name: 'clearSelection',
-    //   key: 'Escape',
-    //   dialog_type: 'none',
-    //   action: {
-    //     type: 'build_in',
-    //     command: 'clearSelection',
-    //   },
-    //   valid_on_addressbar: false,
-    // },
-    {
-      command_name: 'toggleSelection',
-      key: 'Space',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'toggleSelection',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'selectCurrentOnly',
-      key: 'shift+Space',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'selectCurrentOnly',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'addNewTab',
-      key: 'ctrl+t',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'addNewTab',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'removeTab',
-      key: 'ctrl+w',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'removeTab',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'removeOtherTabs',
-      key: 'ctrl+Shift+w',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'removeOtherTabs',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'removeAllRightTabs',
-      key: 'ctrl+Shift+w',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'removeAllRightTabs',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'removeAllLeftTabs',
-      key: 'ctrl+Shift+w',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'removeAllLeftTabs',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'toPrevTab',
-      key: 'ctrl+shift+tab',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'toPrevTab',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'toNextTab',
-      key: 'ctrl+tab',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'toNextTab',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'toPrevTab',
-      key: 'ctrl+shift+ArrowLeft',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'toPrevTab',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'toNextTab',
-      key: 'ctrl+Shift+ArrowRight',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'toNextTab',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'accessCurrentItem',
-      key: 'Enter',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'accessCurrentItem',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'accessParentDir',
-      key: 'ctrl+shift+ArrowUp',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'accessParentDir',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'focusAddoressBar',
-      key: 'ctrl+l',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'focusAddoressBar',
-      },
-      valid_on_addressbar: false,
-    },
-
-    {
-      command_name: 'clearFilter',
-      key: 'Escape',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'clearFilter',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'deleteFilterSingleSingle',
-      key: 'backspace',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'deleteFilterSingleSingle',
-      },
-      valid_on_addressbar: false,
-    },
-    {
-      command_name: 'focusFilterBar',
-      key: 'ctrl+f',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'focusFilterBar',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'Set Filter StrMatch',
-      key: 'ctrl+f',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'setFilterStrMatch',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'Set Filter RegExp',
-      key: 'ctrl+f',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'setFilterRegExp',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'focusOppositePane',
-      key: 'tab',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'focusOppositePane',
-      },
-      valid_on_addressbar: true,
-    },
-    {
-      command_name: 'focusCommandBar',
-      key: 'Ctrl+@',
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'focusCommandBar',
-      },
-      valid_on_addressbar: true,
+      script_path: 'Rename.ps1',
     },
     {
       command_name: 'PowerShell',
-      key: 'ctrl+@',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'General/script/StartUpPowerShell.ps1',
-      },
-      valid_on_addressbar: true,
+      script_path: 'StartUpPowerShell.ps1',
     },
     {
       command_name: 'PowerShell(Admin)',
-      key: 'ctrl+@',
       dialog_type: 'none',
-      action: {
-        type: 'power_shell',
-        command: 'General/script/StartUpAdminPowerShell.ps1',
-      },
-      valid_on_addressbar: true,
+      script_path: 'StartUpAdminPowerShell.ps1',
     },
   ];
 
@@ -706,22 +307,7 @@ Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current
     })
   })();
 
-
-  const setCommandCommandList: CommandInfo[] = alfabetList.map(key => (
-    {
-      command_name: 'setKeyBind',
-      key: 'ctrl+' + key,
-      dialog_type: 'none',
-      action: {
-        type: 'build_in',
-        command: 'setKeyBind',
-      },
-      valid_on_addressbar: false,
-    }
-  ));
-  const result = defined.concat(setCommandCommandList);
-
-  writeCommandsSetting(result);
+  writeShellCommandSetting(result);
   return result;
 }
 

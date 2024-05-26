@@ -6,7 +6,7 @@ export interface ISettingInfo<Setting> {
   filePath: string,
   latestVersion: number,
   IsValidVersion: (version: number) => boolean,
-  UpgradeSetting: (readVersion: number, readSetting: Setting) => Setting,
+  UpgradeSetting: (readVersion: number, readSetting: Setting) => Promise<Setting>,
 }
 
 export async function writeSettings<Setting>(
@@ -42,7 +42,7 @@ export async function readSettings<Setting>(
     };
     if (!settingInfo.IsValidVersion(read.version)) { return null; }
 
-    const result = settingInfo.UpgradeSetting(read.version, read.data);
+    const result = await settingInfo.UpgradeSetting(read.version, read.data);
     if (read.version < settingInfo.latestVersion) {
       writeSettings(settingInfo, result);
     }

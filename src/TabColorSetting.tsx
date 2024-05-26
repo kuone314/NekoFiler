@@ -32,13 +32,13 @@ class Version {
 
 class SettingInfo implements ISettingInfo<TabColorSetting[]> {
   filePath = "device_specific/tab_color.json5";
-  latestVersion = Version.oldest;
+  latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: TabColorSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: TabColorSetting[]) => readSetting;
 }
 
 export async function writeTabColorSetting(setting: TabColorSetting[]) {

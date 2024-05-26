@@ -10,6 +10,14 @@ export function LastIndex<T>(ary: T[]): number {
   return ary.length - 1;
 }
 
+export function First<T>(ary: T[]): T | null {
+  return (ary.length !== 0) ? ary[0] : null;
+}
+
+export function Exist<T>(ary: T[], trg: T): boolean {
+  return ary.find(item => item === trg) !== undefined;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function Sequence(stt: number, size: number): number[] {
   if (size <= 0) { return []; }

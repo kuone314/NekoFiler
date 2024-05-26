@@ -1,8 +1,6 @@
 
-import { invoke } from '@tauri-apps/api';
-import { CommandInfo, CommandType, DialogType } from './CommandInfo';
-import JSON5 from 'json5'
-import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
+import { readShellCommandSetting } from './CommandInfo';
+import { readKeyBindSetting } from './KeyBindInfo';
 import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -10,24 +8,39 @@ import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 export type ContextMenuInfo = {
   menu_name: string,
-  dialog_type: DialogType,
-  command: string,
+  command_name: string,
 };
 
 class Version {
   static oldest = 2;
-  static latest = Version.oldest;
+  static separet_commands_setting = 3;
+  static latest = Version.separet_commands_setting;
 }
 
 class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
   filePath = "General/context_menu.json5";
-  latestVersion = Version.oldest;
+  latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = (readVersion: number, readSetting: ContextMenuInfo[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: ContextMenuInfo[]) => {
+    let result = readSetting;
+    if (readVersion < Version.separet_commands_setting) {
+      await readKeyBindSetting();
+      const commands = await readShellCommandSetting();
+      result.forEach(oldSetting => {
+        const script_path = (oldSetting as any).command;
+        const command = commands.find(command => command.script_path === script_path);
+        if (command === undefined) { return; }
+        oldSetting.command_name = command.command_name;
+        delete (oldSetting as any).dialog_type;
+        delete (oldSetting as any).command;
+      });
+    }
+    return result;
+  };
 }
 
 export async function writeContextMenuSetting(setting: ContextMenuInfo[]) {
@@ -46,63 +59,51 @@ function GenerateDefaultSeting(): ContextMenuInfo[] {
   const result: ContextMenuInfo[] = [
     {
       menu_name: 'Copy to clopboard',
-      dialog_type: 'none',
-      command: 'script/Copy to clopboard.ps1',
+      command_name: 'Copy to clopboard',
     },
     {
       menu_name: 'Cut to clopboard',
-      dialog_type: 'none',
-      command: 'script/Cut to clopboard.ps1',
+      command_name: 'Cut to clopboard',
     },
     {
       menu_name: 'Past from clopboard',
-      dialog_type: 'none',
-      command: 'script/Past from clopboard.ps1',
+      command_name: 'Past from clopboard',
     },
     {
       menu_name: 'Copy to opposite dirctory',
-      dialog_type: 'none',
-      command: 'script/Copy to opposite dirctory.ps1',
+      command_name: 'Copy to opposite dirctory',
     },
     {
       menu_name: 'Move to opposite dirctory',
-      dialog_type: 'none',
-      command: 'script/Move to opposite dirctory.ps1',
+      command_name: 'Move to opposite dirctory',
     },
     {
       menu_name: 'Delete file',
-      dialog_type: 'none',
-      command: 'script/Delete file.ps1',
+      command_name: 'Delete file',
     },
     {
       menu_name: 'Copy file path',
-      dialog_type: 'none',
-      command: 'script/Copy file path.ps1',
+      command_name: 'Copy file path',
     },
     {
       menu_name: 'New File',
-      dialog_type: 'multi_line',
-      command: 'script/New File.ps1',
+      command_name: 'New File',
     },
     {
       menu_name: 'New Folder',
-      dialog_type: 'multi_line',
-      command: 'script/New Folder.ps1',
+      command_name: 'New Folder',
     },
     {
       menu_name: 'Rename',
-      dialog_type: 'reference_selection',
-      command: 'script/Rename.ps1',
+      command_name: 'Rename',
     },
     {
       menu_name: 'PowerShell',
-      dialog_type: 'none',
-      command: 'script/StartUpPowerShell.ps1',
+      command_name: 'StartUpPowerShell',
     },
     {
       menu_name: 'PowerShell(Admin)',
-      dialog_type: 'none',
-      command: 'script/StartUpAdminPowerShell.ps1',
+      command_name: 'StartUpAdminPowerShell',
     },
   ];
 
