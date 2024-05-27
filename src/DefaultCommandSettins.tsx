@@ -46,11 +46,6 @@ export function GenerateDefaultCommandSeting(): ShellCommand[] {
       script_path: 'Delete file.ps1',
     },
     {
-      command_name: 'Delete file',
-      dialog_type: 'none',
-      script_path: 'Delete file.ps1',
-    },
-    {
       command_name: 'Copy file path',
       dialog_type: 'none',
       script_path: 'Copy file path.ps1',
