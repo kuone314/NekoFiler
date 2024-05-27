@@ -188,7 +188,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 
   (async () => {
     const script = `
-Remove-Item $selecting_item_path_ary -Recurse;
+Remove-Item $selecting_item_path_ary -Recurse -Force;
 `;
     await invoke<void>("write_setting_file", {
       filename: "General/script/Delete file.ps1",
