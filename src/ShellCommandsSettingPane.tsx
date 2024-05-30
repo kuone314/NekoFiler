@@ -128,6 +128,7 @@ export function ShellCommandsSettingPane(
 
   const dialogElement = <dialog
     css={css({
+      height: props.height,
       width: '95%',
     })}
     ref={dlg}
@@ -136,50 +137,59 @@ export function ShellCommandsSettingPane(
     <div
       css={css({
         height: props.height,
-        overflow: 'scroll',
+        display: 'grid',
+        placeItems: 'center',
       })}
     >
-      <button
-        onClick={AddCommand}
-      >+</button>
-      <table>
-        <thead css={[]} >
-          <tr>
-            <th css={[table_border]}>Command Name</th>
-            <th css={[table_border]}></th>
-            <th css={[table_border]}></th>
-          </tr>
-        </thead>
-        {
-          shellCommandsSettings
-            .map((setting, orgIdx) => { return { setting, orgIdx }; })
-            .map((item, filterdIdx) => {
-              return <tbody key={'keyBindSetting' + filterdIdx}>
-                <tr
-                  css={[]}
-                  key={'keyBindSetting' + filterdIdx}
-                >
-                  <td css={[table_border]}>{item.setting.command_name}</td>
-                  <td css={[table_border]}>
-                    <Button
-                      disabled={isUsingCommand(item.setting.command_name)}
-                      onClick={() => RemoveSetting(item.orgIdx)}
-                    >x</Button>
-                  </td>
-                  <td css={[table_border]}>
-                    <Button
-                      css={css({ textTransform: 'none', })}
-                      onClick={() => EditSetting(item.orgIdx)}
-                    >Edit</Button>
-                  </td>
-                </tr>
-              </tbody>
-            })
-        }
-      </table >
-
+      <div>
+        <button
+          onClick={AddCommand}
+        >+</button>
+        <div
+          css={css({
+            height: (props.height - buttonHeight), // 固定部分の高さの指定方法が良くない…。
+            overflow: 'scroll',
+          })}
+        >
+          <table>
+            <thead css={[]} >
+              <tr>
+                <th css={[table_border]}>Command Name</th>
+                <th css={[table_border]}></th>
+                <th css={[table_border]}></th>
+              </tr>
+            </thead>
+            {
+              shellCommandsSettings
+                .map((setting, orgIdx) => { return { setting, orgIdx }; })
+                .map((item, filterdIdx) => {
+                  return <tbody key={'keyBindSetting' + filterdIdx}>
+                    <tr
+                      css={[]}
+                      key={'keyBindSetting' + filterdIdx}
+                    >
+                      <td css={[table_border]}>{item.setting.command_name}</td>
+                      <td css={[table_border]}>
+                        <Button
+                          disabled={isUsingCommand(item.setting.command_name)}
+                          onClick={() => RemoveSetting(item.orgIdx)}
+                        >x</Button>
+                      </td>
+                      <td css={[table_border]}>
+                        <Button
+                          css={css({ textTransform: 'none', })}
+                          onClick={() => EditSetting(item.orgIdx)}
+                        >Edit</Button>
+                      </td>
+                    </tr>
+                  </tbody>
+                })
+            }
+          </table >
+        </div>
+      </div>
+      {button()}
     </div>
-    {button()}
   </dialog>
 
   const EditStart = () => {
