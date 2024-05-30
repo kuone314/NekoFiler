@@ -86,66 +86,70 @@ export function KeyBindSettingPane(
   }
 
   return <>
+    {editDlg}
     <div
       css={css({
         height: props.height,
+        display: 'grid',
+        placeItems: 'center',
       })}
     >
-      {editDlg}
       <div>
-        <input
-          defaultValue={trgKeyStr}
-          onKeyDown={event => { setTrgKey(event); event.preventDefault(); }}
-        />
+        <div>
+          <input
+            defaultValue={trgKeyStr}
+            onKeyDown={event => { setTrgKey(event); event.preventDefault(); }}
+          />
+          <button
+            onClick={() => setTrgKey(null)}
+          >x</button>
+        </div>
         <button
-          onClick={() => setTrgKey(null)}
-        >x</button>
-      </div>
-      <button
-        onClick={AddKeyBind}
-      >+</button>
-      <div
-        css={css({
-          height: (props.height - buttonHeight * 2), // 固定部分の高さの指定方法が良くない…。
-          overflow: 'scroll',
-        })}
-      >
-        <table>
-          <thead css={[]} >
-            <tr>
-              <th css={[table_border]}>Key</th>
-              <th css={[table_border]}>Name</th>
-              <th css={[table_border]}></th>
-            </tr>
-          </thead>
-          {
-            keyBindSettings
-              .map((setting, orgIdx) => { return { setting, orgIdx }; })
-              .filter(item => matchEx(item.setting))
-              .map((item, filterdIdx) => {
-                return <tbody key={'keyBindSetting' + filterdIdx}>
-                  <tr
-                    css={[]}
-                    key={'keyBindSetting' + filterdIdx}
-                  >
-                    <td css={[table_border]}>{item.setting.key}</td>
-                    <td css={[table_border]}>{item.setting.display_name}</td>
-                    <td css={[table_border]}>
-                      <button
-                        onClick={() => RemoveSetting(item.orgIdx)}
-                      >x</button>
-                    </td>
-                    <td css={[table_border]}>
-                      <button
-                        onClick={() => EditSetting(item.orgIdx)}
-                      >Edit</button>
-                    </td>
-                  </tr>
-                </tbody>
-              })
-          }
-        </table >
-
+          onClick={AddKeyBind}
+        >+</button>
+        <div
+          css={css({
+            height: (props.height - buttonHeight * 2), // 固定部分の高さの指定方法が良くない…。
+            overflow: 'scroll',
+            display: 'grid',
+          })}
+        >
+          <table>
+            <thead css={[]} >
+              <tr>
+                <th css={[table_border]}>Key</th>
+                <th css={[table_border]}>Name</th>
+                <th css={[table_border]}></th>
+              </tr>
+            </thead>
+            {
+              keyBindSettings
+                .map((setting, orgIdx) => { return { setting, orgIdx }; })
+                .filter(item => matchEx(item.setting))
+                .map((item, filterdIdx) => {
+                  return <tbody key={'keyBindSetting' + filterdIdx}>
+                    <tr
+                      css={[]}
+                      key={'keyBindSetting' + filterdIdx}
+                    >
+                      <td css={[table_border]}>{item.setting.key}</td>
+                      <td css={[table_border]}>{item.setting.display_name}</td>
+                      <td css={[table_border]}>
+                        <button
+                          onClick={() => RemoveSetting(item.orgIdx)}
+                        >x</button>
+                      </td>
+                      <td css={[table_border]}>
+                        <button
+                          onClick={() => EditSetting(item.orgIdx)}
+                        >Edit</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                })
+            }
+          </table >
+        </div>
       </div>
 
       <div
