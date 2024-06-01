@@ -97,6 +97,7 @@ export function KeyBindSettingPane(
       <div>
         <div>
           <input
+            placeholder='Target key'
             defaultValue={trgKeyStr}
             onKeyDown={event => { setTrgKey(event); event.preventDefault(); }}
           />
