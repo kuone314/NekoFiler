@@ -197,6 +197,7 @@ export const MainPanel = (
   }, []);
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isMenuOpen || isContextMenuOpen) { return; }
     const isFocusAddressBar = addressBarFunc.isFocus() || filterBarFunc.isFocus();
     const validKeyBindInfo = isFocusAddressBar
       ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
