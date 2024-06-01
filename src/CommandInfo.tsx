@@ -95,6 +95,16 @@ export async function readShellCommandSetting(): Promise<ShellCommand[]> {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+export const shellCommandTemplate = `# Available variables
+# $selecting_item_path_ary = @("C:\\XXX\\AAA.txt","C:\\XXX\\BBB.txt");
+# $selecting_item_name_ary = @("AAA.txt","BBB.txt");
+# $current_dir = "C:\\XXX";
+# $opposite_dir = "C\\YYY";
+# $dialog_input_str_ary = @("Foo","Bar");
+# $script_dir = "C:\\AmaterasuFilerSettings\\general\\script\\";
+`;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function decoratePath(path: String): string {
   return '"' + path + '"';
 }
