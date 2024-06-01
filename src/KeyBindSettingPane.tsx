@@ -97,12 +97,13 @@ export function KeyBindSettingPane(
       <div>
         <div>
           <input
+            placeholder='Target key'
             defaultValue={trgKeyStr}
             onKeyDown={event => { setTrgKey(event); event.preventDefault(); }}
           />
           <button
             onClick={() => setTrgKey(null)}
-          >x</button>
+          >Clear</button>
         </div>
         <button
           onClick={AddKeyBind}
