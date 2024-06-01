@@ -7,7 +7,7 @@ import Select from 'react-select'
 import { invoke } from '@tauri-apps/api';
 import { Exist, IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
-import { scriptDirPath, DIALOG_TYPE, DialogType, ShellCommand, writeShellCommandSetting, readShellCommandSetting } from './CommandInfo';
+import { scriptDirPath, DIALOG_TYPE, DialogType, ShellCommand, writeShellCommandSetting, readShellCommandSetting, shellCommandTemplate } from './CommandInfo';
 import { readKeyBindSetting } from './KeyBindInfo';
 import useInterval from 'use-interval';
 import { readContextMenuSetting } from './ContextMenu';
@@ -226,7 +226,7 @@ function CreateFile(spcirptFilePath: string) {
     "write_setting_file",
     {
       filename: spcirptFilePath,
-      content: '',
+      content: shellCommandTemplate,
     });
 }
 

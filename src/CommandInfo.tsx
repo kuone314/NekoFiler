@@ -95,6 +95,16 @@ export async function readShellCommandSetting(): Promise<ShellCommand[]> {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+export const shellCommandTemplate = `# Available variables
+# $selecting_item_path_ary = @("C:\\XXX\\AAA.txt","C:\\XXX\\BBB.txt");
+# $selecting_item_name_ary = @("AAA.txt","BBB.txt");
+# $current_dir = "C:\\XXX";
+# $opposite_dir = "C\\YYY";
+# $dialog_input_str_ary = @("Foo","Bar");
+# $script_dir = "C:\\AmaterasuFilerSettings\\general\\script\\";
+`;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 function decoratePath(path: String): string {
   return '"' + path + '"';
 }
@@ -127,6 +137,8 @@ export function commandExecuter(
     separator: separator,
   ) => {
     const command_line = await invoke<String>("read_setting_file", { filename: scriptDirPath + script_file_name });
+    const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
+    const script_dir_full_path = ApplySeparator(settingDir + '\\' + scriptDirPath, separator);
 
     const path_ary = selecting_item_name_ary
       .map(path => decoratePath(current_dir + separator + path))
@@ -143,8 +155,9 @@ export function commandExecuter(
     const path_ary_def = `$selecting_item_path_ary = @(${path_ary});`;
     const name_ary_def = `$selecting_item_name_ary = @(${name_ary});`;
     const dialog_input_def = `$dialog_input_str_ary = @(${dialog_input_string_ary});`;
+    const script_dir_def = `$script_dir = "${script_dir_full_path}";`;
 
-    const command_strs = [path_ary_def, name_ary_def, current_dir_def, opposite_dir_def, dialog_input_def, command_line,];
+    const command_strs = [path_ary_def, name_ary_def, current_dir_def, opposite_dir_def, dialog_input_def, script_dir_def, command_line,];
     const replaced_command_line = command_strs.join('\n');
     console.log(replaced_command_line)
     executeShellCommand(command_name, replaced_command_line, current_dir);
