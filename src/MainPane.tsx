@@ -197,6 +197,7 @@ export const MainPanel = (
   }, []);
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (isMenuOpen || isContextMenuOpen) { return; }
     const isFocusAddressBar = addressBarFunc.isFocus() || filterBarFunc.isFocus();
     const validKeyBindInfo = isFocusAddressBar
       ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
@@ -205,6 +206,7 @@ export const MainPanel = (
 
     if (command_ary.length !== 0) {
       if (keyboard_event.key === "ContextMenu") {
+        setFocusToListOnContextMenuClosed(true);
         setContextMenuOpen(true);
       }
       keyboard_event.preventDefault();
@@ -328,6 +330,14 @@ export const MainPanel = (
       }
     </ControlledMenu >
   }
+  useEffect(() => {
+    if (!isContextMenuOpen) {
+      if (focusToListOnContextMenuClosed) {
+        myGrid?.current?.focus();
+      }
+    }
+  }, [isContextMenuOpen])
+
   const [fileList, FileListFunctions] = FileList(
     {
       isActive: props.isActive,
