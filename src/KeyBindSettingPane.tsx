@@ -102,7 +102,7 @@ export function KeyBindSettingPane(
           />
           <button
             onClick={() => setTrgKey(null)}
-          >x</button>
+          >Clear</button>
         </div>
         <button
           onClick={AddKeyBind}
