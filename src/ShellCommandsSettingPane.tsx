@@ -76,6 +76,7 @@ export function ShellCommandsSettingPane(
     const keyBindSetting = shellCommandsSettings[trgIdx];
     Editor(
       {
+        enableRename: false,
         isValidName: () => true
       },
       keyBindSetting
@@ -125,6 +126,7 @@ export function ShellCommandsSettingPane(
     };
     Editor(
       {
+        enableRename: true,
         isValidName: (name: string) => !isUsingCommand(name),
       },
       newSetting)
@@ -235,6 +237,7 @@ function CreateFile(spcirptFilePath: string) {
 }
 
 interface NameCondition {
+  enableRename: boolean,
   isValidName: (name: string) => boolean,
 };
 
@@ -349,6 +352,7 @@ export function KeyBindEditor(
           type="text"
           value={commandName}
           onChange={e => { setCommandName(e.target.value) }}
+          readOnly={!nameCondition?.enableRename}
         />
       </div>
       <div>
