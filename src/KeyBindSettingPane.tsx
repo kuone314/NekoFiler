@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { Exist, IsValidIndex } from './Utility';
+import { Exist, IsValidIndex, LastIndex } from './Utility';
 import { Button } from '@mui/material';
 import { BuildinCommandType, BUILDIN_COMMAND_TYPE, ToBuildinCommandType, readShellCommandSetting } from './CommandInfo';
 import { toKeyStr, KeyBindSetting, readKeyBindSetting, writeKeyBindSetting, match, COMMAND_TYPE, CommandType } from './KeyBindInfo';
@@ -66,6 +66,30 @@ export function KeyBindSettingPane(
     return match(trgKey, commandInfo.key);
   }
 
+  const filterdKeyBindSettings = keyBindSettings
+    .map((setting, orgIdx) => { return { setting, orgIdx }; })
+    .filter(item => matchEx(item.setting));
+
+  function MoveUp(filterdIdx: number): void {
+    const trg_idx_1 = filterdKeyBindSettings[filterdIdx].orgIdx;
+    const trg_filterd_idx_2 = filterdIdx - 1;
+    if (!IsValidIndex(filterdKeyBindSettings, trg_filterd_idx_2)) { return; }
+    const trg_idx_2 = filterdKeyBindSettings[trg_filterd_idx_2].orgIdx;
+    let newKeyBindSettings = Array.from(keyBindSettings);
+    [newKeyBindSettings[trg_idx_1], newKeyBindSettings[trg_idx_2]] = [newKeyBindSettings[trg_idx_2], newKeyBindSettings[trg_idx_1]]
+    setKeyBindSettings(newKeyBindSettings);
+  }
+
+  function MoveDown(filterdIdx: number): void {
+    const trg_idx_1 = filterdKeyBindSettings[filterdIdx].orgIdx;
+    const trg_filterd_idx_2 = filterdIdx + 1;
+    if (!IsValidIndex(filterdKeyBindSettings, trg_filterd_idx_2)) { return; }
+    const trg_idx_2 = filterdKeyBindSettings[trg_filterd_idx_2].orgIdx;
+    let newKeyBindSettings = Array.from(keyBindSettings);
+    [newKeyBindSettings[trg_idx_1], newKeyBindSettings[trg_idx_2]] = [newKeyBindSettings[trg_idx_2], newKeyBindSettings[trg_idx_1]]
+    setKeyBindSettings(newKeyBindSettings);
+  }
+
   const table_border = css({
     border: '1pt solid #000000',
   });
@@ -120,12 +144,13 @@ export function KeyBindSettingPane(
                 <th css={[table_border]}>Key</th>
                 <th css={[table_border]}>Name</th>
                 <th css={[table_border]}></th>
+                <th css={[table_border]}></th>
+                <th css={[table_border]}></th>
+                <th css={[table_border]}></th>
               </tr>
             </thead>
             {
-              keyBindSettings
-                .map((setting, orgIdx) => { return { setting, orgIdx }; })
-                .filter(item => matchEx(item.setting))
+              filterdKeyBindSettings
                 .map((item, filterdIdx) => {
                   return <tbody key={'keyBindSetting' + filterdIdx}>
                     <tr
@@ -134,6 +159,24 @@ export function KeyBindSettingPane(
                     >
                       <td css={[table_border]}>{item.setting.key}</td>
                       <td css={[table_border]}>{item.setting.display_name}</td>
+                      <td css={[table_border]}>
+                        {
+                          (filterdIdx !== 0)
+                            ? <button
+                              onClick={() => MoveUp(filterdIdx)}
+                            >↑</button>
+                            : <></>
+                        }
+                      </td>
+                      <td css={[table_border]}>
+                        {
+                          (filterdIdx !== LastIndex(filterdKeyBindSettings))
+                            ? <button
+                              onClick={() => MoveDown(filterdIdx)}
+                            >↓</button>
+                            : <></>
+                        }
+                      </td>
                       <td css={[table_border]}>
                         <button
                           onClick={() => RemoveSetting(item.orgIdx)}
