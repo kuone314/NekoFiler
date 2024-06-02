@@ -205,12 +205,6 @@ export function KeyBindEditor(
   const updateShellCommandList = async () => {
     const shellCommandList = await readShellCommandSetting();
     setShellCommandNameList(shellCommandList.map(command => command.command_name));
-
-    const shellCommandNames = shellCommandList
-      .map(item => item.command_name);
-    if (Exist(shellCommandNames, shellCommandName)) { return; }
-    if (shellCommandList.length === 0) { return; }
-    setShellCommandName(shellCommandList[0].command_name);
   };
 
 
