@@ -120,6 +120,7 @@ export function KeyBindSettingPane(
                 <th css={[table_border]}>Key</th>
                 <th css={[table_border]}>Name</th>
                 <th css={[table_border]}></th>
+                <th css={[table_border]}></th>
               </tr>
             </thead>
             {
