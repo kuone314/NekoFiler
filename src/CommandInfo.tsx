@@ -12,6 +12,8 @@ import React from 'react';
 import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
 import { sleep } from './Utility';
 import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
+import { LogInfo } from './LogMessagePane';
+import { v4 as uuidv4 } from 'uuid'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const BUILDIN_COMMAND_TYPE = {
@@ -119,6 +121,7 @@ type ExecShellCommand = (
 ) => void;
 
 export function commandExecuter(
+  addLogMessage: (message: LogInfo) => void,
   onDialogClose: () => void,
 ): [JSX.Element, ExecShellCommand,] {
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
@@ -172,6 +175,14 @@ export function commandExecuter(
     const commands = await readShellCommandSetting();
     const command = commands.find(command => command.command_name === command_name);
     if (command === undefined) {
+      addLogMessage({
+        title: "Command not found.",
+        stdout: '',
+        stderr: "'" + command_name + "'" + " is not valid command.",
+        id: uuidv4(),
+        command: '',
+        rc: null
+      });
       return;
     }
 
