@@ -260,6 +260,7 @@ export const MainPanel = (
   const myGrid = props.gridRef ?? React.createRef<HTMLDivElement>();
 
   const [dialog, execShellCommand] = commandExecuter(
+    props.addLogMessage,
     () => { myGrid.current?.focus() },
   );
 

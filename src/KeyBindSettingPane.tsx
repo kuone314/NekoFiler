@@ -112,7 +112,6 @@ export function KeyBindSettingPane(
           css={css({
             height: (props.height - buttonHeight * 2), // 固定部分の高さの指定方法が良くない…。
             overflow: 'scroll',
-            display: 'grid',
           })}
         >
           <table>
@@ -205,12 +204,6 @@ export function KeyBindEditor(
   const updateShellCommandList = async () => {
     const shellCommandList = await readShellCommandSetting();
     setShellCommandNameList(shellCommandList.map(command => command.command_name));
-
-    const shellCommandNames = shellCommandList
-      .map(item => item.command_name);
-    if (Exist(shellCommandNames, shellCommandName)) { return; }
-    if (shellCommandList.length === 0) { return; }
-    setShellCommandName(shellCommandList[0].command_name);
   };
 
 

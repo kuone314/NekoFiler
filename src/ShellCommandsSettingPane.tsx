@@ -8,9 +8,9 @@ import { invoke } from '@tauri-apps/api';
 import { Exist, IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
 import { scriptDirPath, DIALOG_TYPE, DialogType, ShellCommand, writeShellCommandSetting, readShellCommandSetting, shellCommandTemplate } from './CommandInfo';
-import { readKeyBindSetting } from './KeyBindInfo';
+import { KeyBindSetting, readKeyBindSetting } from './KeyBindInfo';
 import useInterval from 'use-interval';
-import { readContextMenuSetting } from './ContextMenu';
+import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,20 +41,51 @@ export function ShellCommandsSettingPane(
     setShellCommandsSettings(newSettings);
   }
 
-  const [shellCommandNameList, setShellCommandNameList] = useState<string[] | null>(null);
+  const [keybindCommandList, setKeybindCommandList] = useState<KeyBindSetting[] | null>(null);
+  const [contextMenuCommandList, setContextMenuCommandList] = useState<ContextMenuInfo[] | null>(null);
   useEffect(() => {
     (async () => {
       const keybindCommandList = (await readKeyBindSetting())
-        .filter(keybind => keybind.action.type === 'power_shell')
-        .map(keybind => keybind.action.command_name);
-      const contextMenuCommandList = (await readContextMenuSetting()).map(contextMenu => contextMenu.command_name);
-
-      setShellCommandNameList(keybindCommandList.concat(contextMenuCommandList));
+        .filter(keybind => keybind.action.type === 'power_shell');
+      setKeybindCommandList(keybindCommandList);
+      const contextMenuCommandList = (await readContextMenuSetting());
+      setContextMenuCommandList(contextMenuCommandList);
     })()
   }, []);
+  function BindingCommandList(command_name: string): string[] | null {
+    if (keybindCommandList === null || contextMenuCommandList == null) { return null; }
+    const keybindCommandNameList = keybindCommandList
+      .filter(item => item.action.command_name == command_name)
+      .map(item => item.key);
+    const contextMenuCommandNameList = contextMenuCommandList.map(item => item.command_name);
+    const use_in_context_menu = Exist(contextMenuCommandNameList, command_name);
+    return !use_in_context_menu
+      ? keybindCommandNameList
+      : keybindCommandNameList.concat(["ContextMenu"]);
+  }
+
   function isUsingCommand(command_name: string): boolean {
-    if (shellCommandNameList === null) { return true; }
-    return Exist(shellCommandNameList, command_name);
+    const bindingCommandList = BindingCommandList(command_name);
+    if (bindingCommandList === null) { return true; }
+    return (bindingCommandList.length != 0);
+  }
+
+  function ShellCommandNameList(): string[] | null {
+    if (keybindCommandList === null || contextMenuCommandList == null) { return null; }
+
+    const keybindCommandNameList = keybindCommandList.map(keybind => keybind.action.command_name);
+    const contextMenuCommandNameList = contextMenuCommandList.map(contextMenu => contextMenu.command_name);
+    return keybindCommandNameList.concat(contextMenuCommandNameList);
+  }
+
+  function BindingCommandsDiscriptionStr(binding_command_list: string[] | null): string {
+    if (binding_command_list === null) { return "" }
+    if (binding_command_list.length <= 3) {
+      return binding_command_list.join(",");
+    }
+
+    return binding_command_list.slice(0, 2).join(",") + ",..."
+      + "(Total " + binding_command_list.length + " binds)"
   }
 
 
@@ -72,11 +103,13 @@ export function ShellCommandsSettingPane(
       setShellCommandsSettings(newSettings);
     });
   const EditSetting = (trgIdx: number) => {
-    if (shellCommandNameList === null) { return; }
     setEditingIndex(trgIdx)
     const keyBindSetting = shellCommandsSettings[trgIdx];
     Editor(
-      shellCommandNameList.filter(item => item != keyBindSetting.command_name),
+      {
+        enableRename: false,
+        isValidName: () => true
+      },
       keyBindSetting
     );
   }
@@ -115,7 +148,6 @@ export function ShellCommandsSettingPane(
   });
 
   function AddCommand(): void {
-    if (shellCommandNameList === null) { return; }
     setEditingIndex(shellCommandsSettings.length)
 
     const newSetting = {
@@ -123,7 +155,12 @@ export function ShellCommandsSettingPane(
       dialog_type: DIALOG_TYPE.none,
       script_path: '',
     };
-    Editor(shellCommandNameList, newSetting)
+    Editor(
+      {
+        enableRename: true,
+        isValidName: (name: string) => !isUsingCommand(name),
+      },
+      newSetting)
   }
 
   const dialogElement = <dialog
@@ -155,6 +192,7 @@ export function ShellCommandsSettingPane(
             <thead css={[]} >
               <tr>
                 <th css={[table_border]}>Command Name</th>
+                <th css={[table_border]}>Binding</th>
                 <th css={[table_border]}></th>
                 <th css={[table_border]}></th>
               </tr>
@@ -169,6 +207,7 @@ export function ShellCommandsSettingPane(
                       key={'keyBindSetting' + filterdIdx}
                     >
                       <td css={[table_border]}>{item.setting.command_name}</td>
+                      <td css={[table_border]}>{BindingCommandsDiscriptionStr(BindingCommandList(item.setting.command_name))}</td>
                       <td css={[table_border]}>
                         <Button
                           disabled={isUsingCommand(item.setting.command_name)}
@@ -230,15 +269,20 @@ function CreateFile(spcirptFilePath: string) {
     });
 }
 
+interface NameCondition {
+  enableRename: boolean,
+  isValidName: (name: string) => boolean,
+};
+
 export function KeyBindEditor(
   height: number,
   onOk: (editedSetting: ShellCommand) => void,
 ): [
     JSX.Element,
-    (otherCommandNameList: string[], srcCommandInfo: ShellCommand) => void,
+    (nameCondition: NameCondition, srcCommandInfo: ShellCommand) => void,
   ] {
   const [commandName, setCommandName] = useState('');
-  const [otherCommandNameList, setOtherCommandNameList] = useState<string[]>([]);
+  const [nameCondition, setNameCondition] = useState<NameCondition | null>(null);
 
   const [dialogType, setDialogType] = useState<DialogType>('none');
   const dialogTypeComboLabel = (type: DialogType) => {
@@ -287,7 +331,7 @@ export function KeyBindEditor(
 
   const isOkEnable = () => {
     if (commandName === "") { return false; }
-    if (Exist(otherCommandNameList, commandName)) { return false; }
+    if (!nameCondition?.isValidName(commandName)) { return false; }
     return true;
   };
 
@@ -341,6 +385,7 @@ export function KeyBindEditor(
           type="text"
           value={commandName}
           onChange={e => { setCommandName(e.target.value) }}
+          readOnly={!nameCondition?.enableRename}
         />
       </div>
       <div>
@@ -401,15 +446,16 @@ export function KeyBindEditor(
   </dialog>
 
   const EditStart = (
-    otherCommandNameList: string[],
+    name_condition: NameCondition,
     shellCommand: ShellCommand
   ) => {
+    setNameCondition(name_condition);
+
     setCommandName(shellCommand.command_name);
     setScriptFileName(shellCommand.script_path);
     setDialogType(shellCommand.dialog_type);
     const syncing = (toScriptFileName(shellCommand.command_name) === shellCommand.script_path);
     setSyncNames(syncing);
-    setOtherCommandNameList(otherCommandNameList);
     dlg.current?.showModal();
   }
 
