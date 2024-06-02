@@ -112,7 +112,6 @@ export function KeyBindSettingPane(
           css={css({
             height: (props.height - buttonHeight * 2), // 固定部分の高さの指定方法が良くない…。
             overflow: 'scroll',
-            display: 'grid',
           })}
         >
           <table>
