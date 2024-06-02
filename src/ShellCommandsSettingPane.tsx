@@ -70,6 +70,24 @@ export function ShellCommandsSettingPane(
     return (bindingCommandList.length != 0);
   }
 
+  function ShellCommandNameList(): string[] | null {
+    if (keybindCommandList === null || contextMenuCommandList == null) { return null; }
+
+    const keybindCommandNameList = keybindCommandList.map(keybind => keybind.action.command_name);
+    const contextMenuCommandNameList = contextMenuCommandList.map(contextMenu => contextMenu.command_name);
+    return keybindCommandNameList.concat(contextMenuCommandNameList);
+  }
+
+  function BindingCommandsDiscriptionStr(binding_command_list: string[] | null): string {
+    if (binding_command_list === null) { return "" }
+    if (binding_command_list.length <= 3) {
+      return binding_command_list.join(",");
+    }
+
+    return binding_command_list.slice(0, 2).join(",") + ",..."
+      + "(Total " + binding_command_list.length + " binds)"
+  }
+
 
   const [editingIndex, setEditingIndex] = useState(0);
   const [editDlg, Editor] = KeyBindEditor(
@@ -174,6 +192,7 @@ export function ShellCommandsSettingPane(
             <thead css={[]} >
               <tr>
                 <th css={[table_border]}>Command Name</th>
+                <th css={[table_border]}>Binding</th>
                 <th css={[table_border]}></th>
                 <th css={[table_border]}></th>
               </tr>
@@ -188,6 +207,7 @@ export function ShellCommandsSettingPane(
                       key={'keyBindSetting' + filterdIdx}
                     >
                       <td css={[table_border]}>{item.setting.command_name}</td>
+                      <td css={[table_border]}>{BindingCommandsDiscriptionStr(BindingCommandList(item.setting.command_name))}</td>
                       <td css={[table_border]}>
                         <Button
                           disabled={isUsingCommand(item.setting.command_name)}
