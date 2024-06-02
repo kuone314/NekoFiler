@@ -72,11 +72,12 @@ export function ShellCommandsSettingPane(
       setShellCommandsSettings(newSettings);
     });
   const EditSetting = (trgIdx: number) => {
-    if (shellCommandNameList === null) { return; }
     setEditingIndex(trgIdx)
     const keyBindSetting = shellCommandsSettings[trgIdx];
     Editor(
-      shellCommandNameList.filter(item => item != keyBindSetting.command_name),
+      {
+        isValidName: () => true
+      },
       keyBindSetting
     );
   }
@@ -115,7 +116,6 @@ export function ShellCommandsSettingPane(
   });
 
   function AddCommand(): void {
-    if (shellCommandNameList === null) { return; }
     setEditingIndex(shellCommandsSettings.length)
 
     const newSetting = {
@@ -123,7 +123,11 @@ export function ShellCommandsSettingPane(
       dialog_type: DIALOG_TYPE.none,
       script_path: '',
     };
-    Editor(shellCommandNameList, newSetting)
+    Editor(
+      {
+        isValidName: (name: string) => !isUsingCommand(name),
+      },
+      newSetting)
   }
 
   const dialogElement = <dialog
@@ -230,15 +234,19 @@ function CreateFile(spcirptFilePath: string) {
     });
 }
 
+interface NameCondition {
+  isValidName: (name: string) => boolean,
+};
+
 export function KeyBindEditor(
   height: number,
   onOk: (editedSetting: ShellCommand) => void,
 ): [
     JSX.Element,
-    (otherCommandNameList: string[], srcCommandInfo: ShellCommand) => void,
+    (nameCondition: NameCondition, srcCommandInfo: ShellCommand) => void,
   ] {
   const [commandName, setCommandName] = useState('');
-  const [otherCommandNameList, setOtherCommandNameList] = useState<string[]>([]);
+  const [nameCondition, setNameCondition] = useState<NameCondition | null>(null);
 
   const [dialogType, setDialogType] = useState<DialogType>('none');
   const dialogTypeComboLabel = (type: DialogType) => {
@@ -287,7 +295,7 @@ export function KeyBindEditor(
 
   const isOkEnable = () => {
     if (commandName === "") { return false; }
-    if (Exist(otherCommandNameList, commandName)) { return false; }
+    if (!nameCondition?.isValidName(commandName)) { return false; }
     return true;
   };
 
@@ -401,15 +409,16 @@ export function KeyBindEditor(
   </dialog>
 
   const EditStart = (
-    otherCommandNameList: string[],
+    name_condition: NameCondition,
     shellCommand: ShellCommand
   ) => {
+    setNameCondition(name_condition);
+
     setCommandName(shellCommand.command_name);
     setScriptFileName(shellCommand.script_path);
     setDialogType(shellCommand.dialog_type);
     const syncing = (toScriptFileName(shellCommand.command_name) === shellCommand.script_path);
     setSyncNames(syncing);
-    setOtherCommandNameList(otherCommandNameList);
     dlg.current?.showModal();
   }
 
