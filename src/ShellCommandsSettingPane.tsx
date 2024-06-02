@@ -8,9 +8,9 @@ import { invoke } from '@tauri-apps/api';
 import { Exist, IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
 import { scriptDirPath, DIALOG_TYPE, DialogType, ShellCommand, writeShellCommandSetting, readShellCommandSetting, shellCommandTemplate } from './CommandInfo';
-import { readKeyBindSetting } from './KeyBindInfo';
+import { KeyBindSetting, readKeyBindSetting } from './KeyBindInfo';
 import useInterval from 'use-interval';
-import { readContextMenuSetting } from './ContextMenu';
+import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,20 +41,33 @@ export function ShellCommandsSettingPane(
     setShellCommandsSettings(newSettings);
   }
 
-  const [shellCommandNameList, setShellCommandNameList] = useState<string[] | null>(null);
+  const [keybindCommandList, setKeybindCommandList] = useState<KeyBindSetting[] | null>(null);
+  const [contextMenuCommandList, setContextMenuCommandList] = useState<ContextMenuInfo[] | null>(null);
   useEffect(() => {
     (async () => {
       const keybindCommandList = (await readKeyBindSetting())
-        .filter(keybind => keybind.action.type === 'power_shell')
-        .map(keybind => keybind.action.command_name);
-      const contextMenuCommandList = (await readContextMenuSetting()).map(contextMenu => contextMenu.command_name);
-
-      setShellCommandNameList(keybindCommandList.concat(contextMenuCommandList));
+        .filter(keybind => keybind.action.type === 'power_shell');
+      setKeybindCommandList(keybindCommandList);
+      const contextMenuCommandList = (await readContextMenuSetting());
+      setContextMenuCommandList(contextMenuCommandList);
     })()
   }, []);
+  function BindingCommandList(command_name: string): string[] | null {
+    if (keybindCommandList === null || contextMenuCommandList == null) { return null; }
+    const keybindCommandNameList = keybindCommandList
+      .filter(item => item.action.command_name == command_name)
+      .map(item => item.key);
+    const contextMenuCommandNameList = contextMenuCommandList.map(item => item.command_name);
+    const use_in_context_menu = Exist(contextMenuCommandNameList, command_name);
+    return !use_in_context_menu
+      ? keybindCommandNameList
+      : keybindCommandNameList.concat(["ContextMenu"]);
+  }
+
   function isUsingCommand(command_name: string): boolean {
-    if (shellCommandNameList === null) { return true; }
-    return Exist(shellCommandNameList, command_name);
+    const bindingCommandList = BindingCommandList(command_name);
+    if (bindingCommandList === null) { return true; }
+    return (bindingCommandList.length != 0);
   }
 
 
