@@ -36,6 +36,7 @@ export function MainModeView(
     tabColorSetting: TabColorSetting[],
     setTabColor: (tabColorSettingTrgDir: string) => void,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
+    setContextMenu: () => void,
   }
 ) {
   const [tabsPathAry, setTabsPathAry] = useState<TabsInfo[]>([]);
@@ -259,6 +260,15 @@ export function MainModeView(
             })}
             onClick={() => props.setKeyBind(null)}>
             Set KeyBind
+          </button>
+          <button
+            css={css({
+              width: '85pt',
+              height: buttonHeight,
+              padding: '10px',
+            })}
+            onClick={() => props.setContextMenu()}>
+            Set ContextMenu
           </button>
           <button
             css={css({

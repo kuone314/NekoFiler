@@ -10,6 +10,7 @@ import { TabColorSettingPane } from './TabColorSettingPane';
 
 import { ReadLastOpenedTabs, TabsInfo } from './TabsInfo';
 import { KeyBindSettingPane } from './KeyBindSettingPane';
+import { ContextMenuSettingPane } from './ContextMenuSettingPane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,6 +18,7 @@ const Mode = {
   main: "main",
   setTabColor: "setTabColor",
   setKeyBindSettings: "setKeyBindSettings",
+  setContextMenu: "setContextMenu",
 } as const;
 type Mode = typeof Mode[keyof typeof Mode];
 
@@ -46,7 +48,8 @@ const App = () => {
           height={aplHeight}
           tabColorSetting={tabColorSetting}
           setTabColor={(trgDir) => { setTabColorSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
-          setKeyBind={(trgKey: React.KeyboardEvent<HTMLDivElement> | null) => {setKeySetTrg(trgKey);setMode(Mode.setKeyBindSettings)}}
+          setKeyBind={(trgKey: React.KeyboardEvent<HTMLDivElement> | null) => { setKeySetTrg(trgKey); setMode(Mode.setKeyBindSettings) }}
+          setContextMenu={() => { setMode(Mode.setContextMenu); }}
         />
       case Mode.setTabColor:
         return <TabColorSettingPane
@@ -65,6 +68,11 @@ const App = () => {
           keySetTrg={keySetTrg}
           finishSetting={() => setMode(Mode.main)}
         />
+      case Mode.setContextMenu:
+        return <ContextMenuSettingPane
+          height={aplHeight - 20}
+          finishSetting={() => setMode(Mode.main)}
+           />
     }
   };
 
