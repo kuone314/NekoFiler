@@ -77,7 +77,7 @@ export function ContextMenuSettingPane(
     setEditingIndex(contextMenuSettings.length)
 
     const newSetting = {
-      menu_name: "",
+      display_name: "",
       command_name: "",
     };
     Editor(newSetting);
@@ -120,7 +120,7 @@ export function ContextMenuSettingPane(
                       css={[]}
                       key={'Setting' + idx}
                     >
-                      <td css={[table_border]}>{item.menu_name}</td>
+                      <td css={[table_border]}>{item.display_name}</td>
                       <td css={[table_border]}>
                         {
                           (idx !== 0)
@@ -224,7 +224,7 @@ export function ContextMenuInfoEditor(
         disabled={!isOkEnable()}
         onClick={() => {
           const key_bind_setting = {
-            menu_name: menuName,
+            display_name: menuName,
             command_name: commandName,
           };
           onOk(key_bind_setting);
@@ -299,7 +299,7 @@ export function ContextMenuInfoEditor(
   const EditStart = (
     src: ContextMenuInfo
   ) => {
-    setMenuName(src.menu_name);
+    setMenuName(src.display_name);
     setCommandName(src.command_name);
     dlg.current?.showModal();
   }

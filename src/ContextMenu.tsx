@@ -7,14 +7,15 @@ import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 
 export type ContextMenuInfo = {
-  menu_name: string,
+  display_name: string,
   command_name: string,
 };
 
 class Version {
   static oldest = 2;
   static separet_commands_setting = 3;
-  static latest = Version.separet_commands_setting;
+  static rename_variable = 4;
+  static latest = Version.rename_variable;
 }
 
 class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
@@ -39,6 +40,12 @@ class SettingInfo implements ISettingInfo<ContextMenuInfo[]> {
         delete (oldSetting as any).command;
       });
     }
+    if (readVersion < Version.rename_variable) {
+      result.forEach(oldSetting => {
+        oldSetting.display_name = (oldSetting as any).menu_name;
+        delete (oldSetting as any).menu_name;
+      });
+    }
     return result;
   };
 }
@@ -58,51 +65,51 @@ function GenerateDefaultSeting(): ContextMenuInfo[] {
 
   const result: ContextMenuInfo[] = [
     {
-      menu_name: 'Copy to clopboard',
+      display_name: 'Copy to clopboard',
       command_name: 'Copy to clopboard',
     },
     {
-      menu_name: 'Cut to clopboard',
+      display_name: 'Cut to clopboard',
       command_name: 'Cut to clopboard',
     },
     {
-      menu_name: 'Past from clopboard',
+      display_name: 'Past from clopboard',
       command_name: 'Past from clopboard',
     },
     {
-      menu_name: 'Copy to opposite dirctory',
+      display_name: 'Copy to opposite dirctory',
       command_name: 'Copy to opposite dirctory',
     },
     {
-      menu_name: 'Move to opposite dirctory',
+      display_name: 'Move to opposite dirctory',
       command_name: 'Move to opposite dirctory',
     },
     {
-      menu_name: 'Delete file',
+      display_name: 'Delete file',
       command_name: 'Delete file',
     },
     {
-      menu_name: 'Copy file path',
+      display_name: 'Copy file path',
       command_name: 'Copy file path',
     },
     {
-      menu_name: 'New File',
+      display_name: 'New File',
       command_name: 'New File',
     },
     {
-      menu_name: 'New Folder',
+      display_name: 'New Folder',
       command_name: 'New Folder',
     },
     {
-      menu_name: 'Rename',
+      display_name: 'Rename',
       command_name: 'Rename',
     },
     {
-      menu_name: 'PowerShell',
+      display_name: 'PowerShell',
       command_name: 'StartUpPowerShell',
     },
     {
-      menu_name: 'PowerShell(Admin)',
+      display_name: 'PowerShell(Admin)',
       command_name: 'StartUpAdminPowerShell',
     },
   ];

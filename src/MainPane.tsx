@@ -325,7 +325,7 @@ export const MainPanel = (
             )}
             key={idx}
           >
-            {command.menu_name}
+            {command.display_name}
           </MenuItem>
         })
       }
