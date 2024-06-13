@@ -317,7 +317,7 @@ export const MainPanel = (
         contextMenuInfoAry.map((command, idx) => {
           return <MenuItem
             onClick={e => execShellCommand(
-              command.menu_name,
+              command.command_name,
               dir,
               FileListFunctions.selectingItemName(),
               props.getOppositePath(),
@@ -325,7 +325,7 @@ export const MainPanel = (
             )}
             key={idx}
           >
-            {command.menu_name}
+            {command.display_name}
           </MenuItem>
         })
       }
