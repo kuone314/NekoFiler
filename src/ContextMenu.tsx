@@ -106,11 +106,11 @@ function GenerateDefaultSeting(): ContextMenuInfo[] {
     },
     {
       display_name: 'PowerShell',
-      command_name: 'StartUpPowerShell',
+      command_name: 'PowerShell',
     },
     {
       display_name: 'PowerShell(Admin)',
-      command_name: 'StartUpAdminPowerShell',
+      command_name: 'PowerShell(Admin)',
     },
   ];
 
