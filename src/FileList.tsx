@@ -6,7 +6,7 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { FileNameColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
+import { FileListRowColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
 import { IsValidIndex, LastIndex } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +191,7 @@ export function FileList(
     setSelectingIndexArray(new_ary);
   }
 
-  const [colorSetting, setColorSetting] = useState<FileNameColorSetting[]>([]);
+  const [colorSetting, setColorSetting] = useState<FileListRowColorSetting[]>([]);
   useEffect(() => {
     (async () => {
       const color_seting = await readFileNameColorSetting();

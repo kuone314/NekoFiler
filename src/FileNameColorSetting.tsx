@@ -4,7 +4,7 @@ import JSON5 from 'json5'
 import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export interface FileNameColorSetting {
+export interface FileListRowColorSetting {
   color: string,
   matching: {
     isDirectory: boolean,
@@ -18,7 +18,7 @@ class Version {
 }
 
 
-class SettingInfo implements ISettingInfo<FileNameColorSetting[]> {
+class SettingInfo implements ISettingInfo<FileListRowColorSetting[]> {
   filePath = "General/file_name_color.json5";
   latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
@@ -26,21 +26,21 @@ class SettingInfo implements ISettingInfo<FileNameColorSetting[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: FileNameColorSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: FileListRowColorSetting[]) => readSetting;
 }
 
-export async function writeFileNameColorSetting(setting: FileNameColorSetting[]) {
+export async function writeFileNameColorSetting(setting: FileListRowColorSetting[]) {
   writeSettings(new SettingInfo, setting);
 }
 
-export async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
+export async function readFileNameColorSetting(): Promise<FileListRowColorSetting[]> {
   const read = await readSettings(new SettingInfo);
   return read ?? GenerateDefaultCommandSeting();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function GenerateDefaultCommandSeting(): FileNameColorSetting[] {
-  const result: FileNameColorSetting[] = [
+function GenerateDefaultCommandSeting(): FileListRowColorSetting[] {
+  const result: FileListRowColorSetting[] = [
     {
       matching: {
         isDirectory: true,
