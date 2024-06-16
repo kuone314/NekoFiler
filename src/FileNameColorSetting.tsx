@@ -29,11 +29,11 @@ class SettingInfo implements ISettingInfo<FileListRowColorSetting[]> {
   UpgradeSetting = async (readVersion: number, readSetting: FileListRowColorSetting[]) => readSetting;
 }
 
-export async function writeFileNameColorSetting(setting: FileListRowColorSetting[]) {
+export async function writeFileListRowColorSetting(setting: FileListRowColorSetting[]) {
   writeSettings(new SettingInfo, setting);
 }
 
-export async function readFileNameColorSetting(): Promise<FileListRowColorSetting[]> {
+export async function readFileListRowColorSetting(): Promise<FileListRowColorSetting[]> {
   const read = await readSettings(new SettingInfo);
   return read ?? GenerateDefaultCommandSeting();
 }
@@ -92,7 +92,7 @@ function GenerateDefaultCommandSeting(): FileListRowColorSetting[] {
     },
   ];
 
-  writeFileNameColorSetting(result);
+  writeFileListRowColorSetting(result);
   return result;
 }
 

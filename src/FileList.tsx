@@ -6,7 +6,7 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { FileListRowColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
+import { FileListRowColorSetting, readFileListRowColorSetting } from './FileNameColorSetting';
 import { IsValidIndex, LastIndex } from './Utility';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +194,7 @@ export function FileList(
   const [colorSetting, setColorSetting] = useState<FileListRowColorSetting[]>([]);
   useEffect(() => {
     (async () => {
-      const color_seting = await readFileNameColorSetting();
+      const color_seting = await readFileListRowColorSetting();
       setColorSetting(color_seting);
     })()
   }, []);
