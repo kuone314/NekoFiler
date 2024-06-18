@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { Match, TabColorMatchingType, TabColorSetting, } from './TabColorSetting';
+import { Match, MatchingType, TabColorSetting, } from './TabColorSetting';
 import { Button } from '@mui/material';
 import Select from 'react-select'
 import { DirName } from './Utility';
@@ -40,7 +40,7 @@ export function TabColorSettingPane(
         activeHightlight: '',
       },
       match: {
-        type: TabColorMatchingType.start_with,
+        type: MatchingType.start_with,
         string: props.trgDir,
       }
     }
@@ -83,10 +83,10 @@ export function TabColorSettingPane(
   const Impl = () => {
     const setting = tabColorSetting[activeIdx];
 
-    const toComboItem = (type: TabColorMatchingType) => {
+    const toComboItem = (type: MatchingType) => {
       return { value: type, label: comboLabel(type) };
     }
-    const comboLabel = (type: TabColorMatchingType) => {
+    const comboLabel = (type: MatchingType) => {
       switch (type) {
         case 'regexp': return 'Regexp';
         case 'start_with': return 'Start with';
@@ -194,7 +194,7 @@ export function TabColorSettingPane(
           Match
         </label>
         <Select
-          options={Object.values(TabColorMatchingType).map(toComboItem)}
+          options={Object.values(MatchingType).map(toComboItem)}
           value={toComboItem(setting.match.type)}
           onChange={(val) => {
             if (val === null) { return; }

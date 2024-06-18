@@ -14,16 +14,16 @@ export interface TabColorSetting {
     activeHightlight: string,
   },
   match: {
-    type: TabColorMatchingType,
+    type: MatchingType,
     string: string,
   }
 }
 
-export const TabColorMatchingType = {
+export const MatchingType = {
   regexp: "regexp",
   start_with: "start_with",
 } as const;
-export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabColorMatchingType];
+export type MatchingType = typeof MatchingType[keyof typeof MatchingType];
 
 class Version {
   static oldest = 5;
@@ -52,7 +52,7 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
 
 function MatchImpl(setting: TabColorSetting, path: string): boolean {
   switch (setting.match.type) {
-    case TabColorMatchingType.regexp: {
+    case MatchingType.regexp: {
       try {
         const pathRegExp = new RegExp(setting.match.string, 'i');
         return pathRegExp.test(path);
@@ -61,7 +61,7 @@ function MatchImpl(setting: TabColorSetting, path: string): boolean {
         return false;
       }
     }
-    case TabColorMatchingType.start_with: {
+    case MatchingType.start_with: {
       return path.toLowerCase().startsWith(setting.match.string.toLowerCase());
     }
   }
@@ -101,7 +101,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
         activeHightlight: '#ff0000',
       },
       match: {
-        type: TabColorMatchingType.start_with,
+        type: MatchingType.start_with,
         string: 'C:/',
       },
     },
@@ -113,7 +113,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
         activeHightlight: '#ff0000',
       },
       match: {
-        type: TabColorMatchingType.start_with,
+        type: MatchingType.start_with,
         string: 'D:/',
       },
     },
