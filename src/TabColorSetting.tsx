@@ -4,6 +4,9 @@ import JSON5 from 'json5'
 import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
 import { css } from "@emotion/react";
 import { ISettingInfo, writeSettings, readSettings } from "./ReadWriteSettings";
+import { Matcher } from "./Matcher";
+import { MatchingType } from "./Matcher";
+import { MatchImpl } from "./Matcher";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabColorSetting {
@@ -15,18 +18,6 @@ export interface TabColorSetting {
   },
   match: Matcher
 }
-
-type Matcher = {
-  type: MatchingType;
-  string: string;
-};
-
-export const MatchingType = {
-  regexp: "regexp",
-  start_with: "start_with",
-} as const;
-export type MatchingType = typeof MatchingType[keyof typeof MatchingType];
-
 
 class Version {
   static oldest = 5;
@@ -51,24 +42,6 @@ export async function writeTabColorSetting(setting: TabColorSetting[]) {
 export async function readTabColorSetting(): Promise<TabColorSetting[]> {
   const read = await readSettings(new SettingInfo);
   return read ?? GenerateDefaultCommandSeting();
-}
-
-function MatchImpl(matcher: Matcher, path: string): boolean {
-  switch (matcher.type) {
-    case MatchingType.regexp: {
-      try {
-        const pathRegExp = new RegExp(matcher.string, 'i');
-        return pathRegExp.test(path);
-      } catch {
-        // 設定ミスによる、正規表現として不正な文字列が与えられたケースへの対処
-        return false;
-      }
-    }
-    case MatchingType.start_with: {
-      return path.toLowerCase().startsWith(matcher.string.toLowerCase());
-    }
-  }
-  return false;
 }
 
 export function Match(setting: TabColorSetting, path: string): boolean {
