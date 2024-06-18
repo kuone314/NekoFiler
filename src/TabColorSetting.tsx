@@ -13,17 +13,20 @@ export interface TabColorSetting {
     string: string,
     activeHightlight: string,
   },
-  match: {
-    type: MatchingType,
-    string: string,
-  }
+  match: Matcher
 }
+
+type Matcher = {
+  type: MatchingType;
+  string: string;
+};
 
 export const MatchingType = {
   regexp: "regexp",
   start_with: "start_with",
 } as const;
 export type MatchingType = typeof MatchingType[keyof typeof MatchingType];
+
 
 class Version {
   static oldest = 5;
@@ -50,11 +53,11 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
   return read ?? GenerateDefaultCommandSeting();
 }
 
-function MatchImpl(setting: TabColorSetting, path: string): boolean {
-  switch (setting.match.type) {
+function MatchImpl(matcher: Matcher, path: string): boolean {
+  switch (matcher.type) {
     case MatchingType.regexp: {
       try {
-        const pathRegExp = new RegExp(setting.match.string, 'i');
+        const pathRegExp = new RegExp(matcher.string, 'i');
         return pathRegExp.test(path);
       } catch {
         // 設定ミスによる、正規表現として不正な文字列が与えられたケースへの対処
@@ -62,7 +65,7 @@ function MatchImpl(setting: TabColorSetting, path: string): boolean {
       }
     }
     case MatchingType.start_with: {
-      return path.toLowerCase().startsWith(setting.match.string.toLowerCase());
+      return path.toLowerCase().startsWith(matcher.string.toLowerCase());
     }
   }
   return false;
@@ -71,7 +74,7 @@ function MatchImpl(setting: TabColorSetting, path: string): boolean {
 export function Match(setting: TabColorSetting, path: string): boolean {
   const path_ary = Object.values(SEPARATOR)
     .map(separator => ApplySeparator(path, separator) + separator);
-  return !!path_ary.find(path => MatchImpl(setting, path));
+  return !!path_ary.find(path => MatchImpl(setting.match, path));
 }
 
 export function TabColor(
