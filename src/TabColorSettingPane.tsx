@@ -91,6 +91,7 @@ export function TabColorSettingPane(
       switch (type) {
         case 'regexp': return 'Regexp';
         case 'start_with': return 'Start with';
+        case 'end_with': return 'End with';
       }
     }
 
