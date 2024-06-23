@@ -113,7 +113,7 @@ export function MainModeView(
   const [separator, setSeparator] = useState<separator>('\\');
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
-    height: props.height - 20 - (buttonHeight * 5 + statusBarHeight),
+    height: props.height - 20 - (buttonHeight * 6 + statusBarHeight),
   });
   const addLogMessage = (message: LogInfo) => {
     logMessagePeinFunc.addMessage(message);
