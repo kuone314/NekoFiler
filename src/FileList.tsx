@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { event, invoke } from '@tauri-apps/api';
 import React from 'react';
 
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { FileNameColorSetting, readFileNameColorSetting } from './FileNameColorSetting';
+import { FileListRowColorSettings, RowColorSetting, readFileListRowColorSetting } from './FileNameColorSetting';
 import { IsValidIndex, LastIndex } from './Utility';
+import { MatchImpl } from './Matcher';
+import { ColorCodeString } from './ColorCodeString';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
@@ -191,10 +192,10 @@ export function FileList(
     setSelectingIndexArray(new_ary);
   }
 
-  const [colorSetting, setColorSetting] = useState<FileNameColorSetting[]>([]);
+  const [colorSetting, setColorSetting] = useState<FileListRowColorSettings | null>(null);
   useEffect(() => {
     (async () => {
-      const color_seting = await readFileNameColorSetting();
+      const color_seting = await readFileListRowColorSetting();
       setColorSetting(color_seting);
     })()
   }, []);
@@ -370,32 +371,51 @@ export function FileList(
   const current_row = React.createRef<HTMLTableRowElement>();
 
   const table_color = (row_idx: number) => {
-    const backgroundColor = () => {
-      const isSelectionColor = props.isActive && selectingIndexArray.has(row_idx);
-      return isSelectionColor ? '#8cc0e8'
-        : (row_idx % 2) ? '#dddddd' : '#ffffff';
+    if (colorSetting === null) { return css(); }
+
+    const toTableColor = (setting: RowColorSetting) => {
+      const evenRowBackGroune
+        = ColorCodeString.new(setting.evenRowBackGroune)?.val
+        ?? colorSetting.defaultColor.evenRowBackGroune;
+      const oddRowBackGroune
+        = ColorCodeString.new(setting.oddRowBackGroune)?.val
+        ?? colorSetting.defaultColor.oddRowBackGroune;
+      const forGround
+        = ColorCodeString.new(setting.forGround)?.val
+        ?? colorSetting.defaultColor.forGround;
+      const activeHightlight
+        = ColorCodeString.new(setting.activeHightlight)?.val
+        ?? colorSetting.defaultColor.activeHightlight;
+
+      const background = (row_idx % 2 == 0)
+        ? evenRowBackGroune
+        : oddRowBackGroune;
+
+      return css({
+        background: background,
+        color: forGround,
+        border: (props.isActive && row_idx === currentIndex)
+          ? '3pt solid ' + activeHightlight
+          : '1pt solid ' + background,
+      });
     }
 
-    const stringColor = () => {
-      try {
-        const entry = entries[row_idx];
-        const found = colorSetting.find(setting => {
-          if (setting.matching.isDirectory !== entry.is_dir) { return false; }
-          const regExp = new RegExp(setting.matching.fileNameRegExp);
-          if (!regExp.test(entry.name)) { return false; }
-          return true;
-        });
-        return found?.color ?? '';
-      } catch {
-        return '';
-      }
+    const isSelectionColor = props.isActive && selectingIndexArray.has(row_idx);
+    if (isSelectionColor) {
+      return toTableColor(colorSetting.selectionColor);
     }
 
-    return css({
-      background: backgroundColor(),
-      color: stringColor(),
-      border: (props.isActive && row_idx === currentIndex) ? '3pt solid #880000' : '1pt solid #000000',
+    const entry = entries[row_idx];
+    const found = colorSetting.settings.find(setting => {
+      if (setting.matcher.isDirectory !== entry.is_dir) { return false; }
+      if (!MatchImpl(setting.matcher.nameMatcher, entry.name)) { return false; }
+      return true;
     });
+    if (found) {
+      return toTableColor(found.color);
+    }
+
+    return toTableColor(colorSetting.defaultColor);
   }
   const table_border = css({
     border: '1pt solid #000000',

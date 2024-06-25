@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { TabColor, TabColorMatchingType, TabColorSetting } from './TabColorSetting';
+import { TabColor, TabColorSetting } from './TabColorSetting';
+import { MatchingType } from "./Matcher";
 import { Button } from '@mui/material';
 import Select from 'react-select'
 

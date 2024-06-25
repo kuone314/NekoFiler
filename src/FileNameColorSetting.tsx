@@ -1,24 +1,37 @@
-import { invoke } from '@tauri-apps/api';
 
-import JSON5 from 'json5'
 import { ISettingInfo, writeSettings, readSettings } from './ReadWriteSettings';
+import { Matcher } from './Matcher';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export interface FileNameColorSetting {
-  color: string,
-  matching: {
+export interface RowColorSetting {
+  oddRowBackGroune: string;
+  evenRowBackGroune: string;
+  forGround: string,
+  activeHightlight: string;
+}
+
+export interface FileListRowColorSetting {
+  name: string,
+  color: RowColorSetting,
+  matcher: {
     isDirectory: boolean,
-    fileNameRegExp: string,
+    nameMatcher: Matcher,
   },
 }
 
+export interface FileListRowColorSettings {
+  settings: FileListRowColorSetting[],
+  defaultColor: RowColorSetting,
+  selectionColor: RowColorSetting,
+}
+
 class Version {
-  static oldest = 2;
+  static oldest = 1;
   static latest = Version.oldest;
 }
 
 
-class SettingInfo implements ISettingInfo<FileNameColorSetting[]> {
+class SettingInfo implements ISettingInfo<FileListRowColorSettings> {
   filePath = "General/file_name_color.json5";
   latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
@@ -26,73 +39,151 @@ class SettingInfo implements ISettingInfo<FileNameColorSetting[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: FileNameColorSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: FileListRowColorSettings) => readSetting;
 }
 
-export async function writeFileNameColorSetting(setting: FileNameColorSetting[]) {
+export async function writeFileListRowColorSetting(setting: FileListRowColorSettings) {
   writeSettings(new SettingInfo, setting);
 }
 
-export async function readFileNameColorSetting(): Promise<FileNameColorSetting[]> {
+export async function readFileListRowColorSetting(): Promise<FileListRowColorSettings> {
   const read = await readSettings(new SettingInfo);
   return read ?? GenerateDefaultCommandSeting();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function GenerateDefaultCommandSeting(): FileNameColorSetting[] {
-  const result: FileNameColorSetting[] = [
+function GenerateDefaultCommandSeting(): FileListRowColorSettings {
+  const settings: FileListRowColorSetting[] = [
     {
-      matching: {
+      name: 'Directry',
+      color: {
+        oddRowBackGroune: '',
+        evenRowBackGroune: '',
+        forGround: '#D9845D',
+        activeHightlight: '',
+      },
+      matcher: {
         isDirectory: true,
-        fileNameRegExp: '.*',
+        nameMatcher: {
+          type: 'start_with',
+          string: ''
+        }
       },
-      color: '#D9845D',
     },
     {
-      matching: {
-        isDirectory: false,
-        fileNameRegExp: '\\.md',
+      name: 'Maridown',
+      color: {
+        oddRowBackGroune: '',
+        evenRowBackGroune: '',
+        forGround: '#2A63C1',
+        activeHightlight: '',
       },
-      color: '#2A63C1',
+      matcher: {
+        isDirectory: true,
+        nameMatcher: {
+          type: 'end_with',
+          string: '.md'
+        }
+      },
     },
     {
-      matching: {
-        isDirectory: false,
-        fileNameRegExp: '\\.txt',
+      name: 'Text',
+      color: {
+        oddRowBackGroune: '',
+        evenRowBackGroune: '',
+        forGround: '#2A636E',
+        activeHightlight: '',
       },
-      color: '#2A636E',
+      matcher: {
+        isDirectory: false,
+        nameMatcher: {
+          type: 'end_with',
+          string: '.txt'
+        }
+      },
     },
     {
-      matching: {
-        isDirectory: false,
-        fileNameRegExp: '\\.exe',
+      name: 'exe',
+      color: {
+        oddRowBackGroune: '',
+        evenRowBackGroune: '',
+        forGround: '#09870B',
+        activeHightlight: '',
       },
-      color: '#09870B',
+      matcher: {
+        isDirectory: false,
+        nameMatcher: {
+          type: 'end_with',
+          string: '.exe'
+        }
+      },
     },
     {
-      matching: {
-        isDirectory: false,
-        fileNameRegExp: '\\.pdb',
+      name: 'pdb',
+      color: {
+        oddRowBackGroune: '',
+        evenRowBackGroune: '',
+        forGround: '#44A64E',
+        activeHightlight: '',
       },
-      color: '#44A64E',
+      matcher: {
+        isDirectory: false,
+        nameMatcher: {
+          type: 'end_with',
+          string: '.pdb'
+        }
+      },
     },
     {
-      matching: {
-        isDirectory: false,
-        fileNameRegExp: '\\.dll',
+      name: 'dll',
+      color: {
+        oddRowBackGroune: '',
+        evenRowBackGroune: '',
+        forGround: '#2C8500',
+        activeHightlight: '',
       },
-      color: '#2C8500',
+      matcher: {
+        isDirectory: false,
+        nameMatcher: {
+          type: 'end_with',
+          string: '.dll'
+        }
+      },
     },
     {
-      matching: {
-        isDirectory: false,
-        fileNameRegExp: '\\.lib',
+      name: 'lib',
+      color: {
+        oddRowBackGroune: '',
+        evenRowBackGroune: '',
+        forGround: '#8D8500',
+        activeHightlight: '',
       },
-      color: '#8D8500',
+      matcher: {
+        isDirectory: false,
+        nameMatcher: {
+          type: 'end_with',
+          string: '.lib'
+        }
+      },
     },
   ];
 
-  writeFileNameColorSetting(result);
+  const result = {
+    settings: settings,
+    defaultColor: {
+      oddRowBackGroune: '#ffffff',
+      evenRowBackGroune: '#dddddd',
+      forGround: '#000000',
+      activeHightlight: '#880000',
+    },
+    selectionColor: {
+      oddRowBackGroune: '#8cc0e8',
+      evenRowBackGroune: '#8cc0e8',
+      forGround: '#000000',
+      activeHightlight: '#880000',
+    },
+  };
+  writeFileListRowColorSetting(result);
   return result;
 }
 

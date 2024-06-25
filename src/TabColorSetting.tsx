@@ -4,6 +4,9 @@ import JSON5 from 'json5'
 import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
 import { css } from "@emotion/react";
 import { ISettingInfo, writeSettings, readSettings } from "./ReadWriteSettings";
+import { Matcher } from "./Matcher";
+import { MatchingType } from "./Matcher";
+import { MatchImpl } from "./Matcher";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabColorSetting {
@@ -13,17 +16,8 @@ export interface TabColorSetting {
     string: string,
     activeHightlight: string,
   },
-  match: {
-    type: TabColorMatchingType,
-    string: string,
-  }
+  match: Matcher
 }
-
-export const TabColorMatchingType = {
-  regexp: "regexp",
-  start_with: "start_with",
-} as const;
-export type TabColorMatchingType = typeof TabColorMatchingType[keyof typeof TabColorMatchingType];
 
 class Version {
   static oldest = 5;
@@ -50,28 +44,10 @@ export async function readTabColorSetting(): Promise<TabColorSetting[]> {
   return read ?? GenerateDefaultCommandSeting();
 }
 
-function MatchImpl(setting: TabColorSetting, path: string): boolean {
-  switch (setting.match.type) {
-    case TabColorMatchingType.regexp: {
-      try {
-        const pathRegExp = new RegExp(setting.match.string, 'i');
-        return pathRegExp.test(path);
-      } catch {
-        // 設定ミスによる、正規表現として不正な文字列が与えられたケースへの対処
-        return false;
-      }
-    }
-    case TabColorMatchingType.start_with: {
-      return path.toLowerCase().startsWith(setting.match.string.toLowerCase());
-    }
-  }
-  return false;
-}
-
 export function Match(setting: TabColorSetting, path: string): boolean {
   const path_ary = Object.values(SEPARATOR)
     .map(separator => ApplySeparator(path, separator) + separator);
-  return !!path_ary.find(path => MatchImpl(setting, path));
+  return !!path_ary.find(path => MatchImpl(setting.match, path));
 }
 
 export function TabColor(
@@ -101,7 +77,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
         activeHightlight: '#ff0000',
       },
       match: {
-        type: TabColorMatchingType.start_with,
+        type: MatchingType.start_with,
         string: 'C:/',
       },
     },
@@ -113,7 +89,7 @@ function GenerateDefaultCommandSeting(): TabColorSetting[] {
         activeHightlight: '#ff0000',
       },
       match: {
-        type: TabColorMatchingType.start_with,
+        type: MatchingType.start_with,
         string: 'D:/',
       },
     },
