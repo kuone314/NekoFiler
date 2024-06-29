@@ -35,6 +35,7 @@ export function MainModeView(
     height: number,
     tabColorSetting: TabColorSetting[],
     setTabColor: (tabColorSettingTrgDir: string) => void,
+    setFileListRowColor: () => void,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
     setContextMenu: () => void,
   }
@@ -113,7 +114,7 @@ export function MainModeView(
   const [separator, setSeparator] = useState<separator>('\\');
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
-    height: props.height - 20 - (buttonHeight * 6 + statusBarHeight),
+    height: props.height - 20 - (buttonHeight * 7 + statusBarHeight),
   });
   const addLogMessage = (message: LogInfo) => {
     logMessagePeinFunc.addMessage(message);
@@ -251,6 +252,15 @@ export function MainModeView(
             })}
             onClick={() => props.setTabColor(getPath())}>
             Set Tab Color
+          </button>
+          <button
+            css={css({
+              width: '85pt',
+              height: buttonHeight,
+              padding: '10px',
+            })}
+            onClick={() => props.setFileListRowColor()}>
+            Set File List Row Color
           </button>
           <button
             css={css({
