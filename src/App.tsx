@@ -68,12 +68,6 @@ const App = () => {
       case Mode.setFileListRowColor:
         return <FileListRowColorSettingPane
           height={aplHeight}
-          trgDir={tabColorSettingTrgDir}
-          tabColorSetting={tabColorSetting}
-          setTabColorSetting={(setting) => {
-            setTabColorSetting(setting);
-            writeTabColorSetting(setting);
-          }}
           finishSetting={() => setMode(Mode.main)}
         />
       case Mode.setKeyBindSettings:
