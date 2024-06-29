@@ -11,12 +11,14 @@ import { TabColorSettingPane } from './TabColorSettingPane';
 import { ReadLastOpenedTabs, TabsInfo } from './TabsInfo';
 import { KeyBindSettingPane } from './KeyBindSettingPane';
 import { ContextMenuSettingPane } from './ContextMenuSettingPane';
+import { FileListRowColorSettingPane } from './FileListRowColorSettingPane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const Mode = {
   main: "main",
   setTabColor: "setTabColor",
+  setFileListRowColor: "setFileListRowColor",
   setKeyBindSettings: "setKeyBindSettings",
   setContextMenu: "setContextMenu",
 } as const;
@@ -47,12 +49,24 @@ const App = () => {
         return <MainModeView
           height={aplHeight}
           tabColorSetting={tabColorSetting}
+          setFileListRowColor={() => { setMode(Mode.setFileListRowColor); }}
           setTabColor={(trgDir) => { setTabColorSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
           setKeyBind={(trgKey: React.KeyboardEvent<HTMLDivElement> | null) => { setKeySetTrg(trgKey); setMode(Mode.setKeyBindSettings) }}
           setContextMenu={() => { setMode(Mode.setContextMenu); }}
         />
       case Mode.setTabColor:
         return <TabColorSettingPane
+          height={aplHeight}
+          trgDir={tabColorSettingTrgDir}
+          tabColorSetting={tabColorSetting}
+          setTabColorSetting={(setting) => {
+            setTabColorSetting(setting);
+            writeTabColorSetting(setting);
+          }}
+          finishSetting={() => setMode(Mode.main)}
+        />
+      case Mode.setFileListRowColor:
+        return <FileListRowColorSettingPane
           height={aplHeight}
           trgDir={tabColorSettingTrgDir}
           tabColorSetting={tabColorSetting}
@@ -72,7 +86,7 @@ const App = () => {
         return <ContextMenuSettingPane
           height={aplHeight - 20}
           finishSetting={() => setMode(Mode.main)}
-           />
+        />
     }
   };
 
