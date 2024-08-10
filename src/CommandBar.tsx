@@ -5,6 +5,7 @@ import { executeShellCommand } from './RustFuncs';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { LogInfo } from './LogMessagePane';
+import { TextInputStyle } from './ThemeStyle';
 
 type Entry = {
   type: 'dir' | 'file';
@@ -47,6 +48,7 @@ export function CommandBar(
       }
     }>
       <input
+        style={TextInputStyle()}
         ref={ref}
         type="text"
         placeholder='Input PowerSehll command.(e.g. echo Foo)'

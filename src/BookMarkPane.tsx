@@ -13,6 +13,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { path } from '@tauri-apps/api';
 import { ApplySeparator } from './FilePathSeparator';
 import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
+import { ButtonStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 interface BookMarkItem {
@@ -125,21 +126,26 @@ export function BookMarkPane(
     {editDlg}
     <div>BookMark</div>
     <button
+      css={ButtonStyle()}
       onClick={() => { AddBookMark(props.currendDir) }}
     >Add Current Dir</button>
     <button
+      css={ButtonStyle()}
       onClick={() => {
         if (!IsValidIndex(bookMarkItemAry, currentIndex)) { return; }
         EditStart(bookMarkItemAry[currentIndex])
       }}
     >Edit</button>
     <button
+      css={ButtonStyle()}
       onClick={() => { RemoveBookMark(currentIndex) }}
     >-</button>
     <button
+      css={ButtonStyle()}
       onClick={() => { MoveUpBookMark(currentIndex) }}
     >↑</button>
     <button
+      css={ButtonStyle()}
       onClick={() => { MoveDownBookMark(currentIndex) }}
     >↓</button>
     {
@@ -180,11 +186,13 @@ export function BookMarkEditor(
       })}
     >
       <button
+        css={ButtonStyle()}
         onClick={() => { onOk({ name, path }); dlg.current?.close() }}
       >
         Ok
       </button>
       <button
+        css={ButtonStyle()}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -192,7 +200,14 @@ export function BookMarkEditor(
     </div>
   }
 
-  const dialogElement = <dialog ref={dlg}>
+  const theme = useTheme();
+
+  const dialogElement = <dialog
+    css={css({
+      background: theme.backgroundColor,
+      color: theme.stringDefaultColor,
+    })}
+    ref={dlg}>
     <div
       css={css({
         display: 'grid',
@@ -200,11 +215,13 @@ export function BookMarkEditor(
       })}
     >
       <input
+        style={TextInputStyle()}
         type="text"
         value={name}
         onChange={e => { setName(e.target.value) }}
       />
       <input
+        style={TextInputStyle()}
         type="text"
         value={path}
         onChange={e => { setPath(e.target.value) }}

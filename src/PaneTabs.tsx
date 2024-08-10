@@ -15,6 +15,7 @@ import { TabInfo, TabsInfo } from './TabsInfo';
 import { ControlledMenu } from '@szhsin/react-menu';
 import { DirName, Sequence } from './Utility';
 import { LogInfo } from './LogMessagePane';
+import { ButtonStyle, MenuitemStyle } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,37 +123,45 @@ export const PaneTabs = (
       anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
     >
       <MenuItem
+        css={MenuitemStyle()}
         onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
       >
         Close Right Tabs
       </MenuItem>
       <MenuItem
+        css={MenuitemStyle()}
         onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
       >
         Close Left Tabs
       </MenuItem>
       <MenuItem
+        css={MenuitemStyle()}
         onClick={_ => removeOtherTabs(contextMenuTabIdx)}
       >
         Close Other Tabs
       </MenuItem>
       <MenuItem
+        css={MenuitemStyle()}
         onClick={_ => removeTab(contextMenuTabIdx)}
       >
         Close Tab
       </MenuItem>
       <MenuItem
+        css={MenuitemStyle()}
         onClick={_ => props.setTabColor(tabAry[contextMenuTabIdx].path)}
       >
         Set Tab Color
       </MenuItem>
       <MenuItem
+        css={MenuitemStyle()}
         onClick={_ => togglePined(contextMenuTabIdx)}
       >
         Toggle Pin
       </MenuItem>
     </ControlledMenu>
   }
+
+  const buttonStyle = ButtonStyle();
 
   return (
     <>
@@ -171,13 +180,15 @@ export const PaneTabs = (
             props.pathAry.pathAry.map((tab, idx) => {
               return <Button
                 css={[
-                  css({
-                    textTransform: 'none',
-                    fontSize: '10pt',
-                    height: '20pt',
-                    margin: '1pt',
-                    minWidth: '5pt'
-                  }),
+                  css(
+                    buttonStyle,
+                    {
+                      textTransform: 'none',
+                      fontSize: '10pt',
+                      height: '20pt',
+                      margin: '1pt',
+                      minWidth: '5pt'
+                    }),
                   TabColor(
                     props.tabColorSetting,
                     5,
@@ -204,10 +215,12 @@ export const PaneTabs = (
           }
           <Button
             css={[
-              css({
-                height: '20pt',
-                minWidth: '5pt',
-              }),
+              css(
+                buttonStyle,
+                {
+                  height: '20pt',
+                  minWidth: '5pt',
+                }),
             ]}
             onClick={() => { addNewTab(tabAry.length - 1, tabAry[activeTabIdx].path) }}
             tabIndex={-1}

@@ -5,6 +5,7 @@ import { separator, ApplySeparator } from './FilePathSeparator';
 
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
+import { TextInputStyle } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface AddressBarFunc {
@@ -47,6 +48,7 @@ export function AddressBar(
   }
 
   const element = <input
+  style={TextInputStyle()}
     type="text"
     value={addressbarStr}
     onChange={e => setAddressbarStr(e.target.value)}

@@ -9,6 +9,7 @@ import { FileListRowColorSettings, RowColorSetting, readFileListRowColorSetting 
 import { IsValidIndex, LastIndex } from './Utility';
 import { MatchImpl } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
+import { useTheme } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type Entry = {
@@ -421,6 +422,8 @@ export function FileList(
     border: '1pt solid #000000',
   });
 
+  const theme = useTheme();
+
   const table_resizable = css({
     resize: 'horizontal',
     overflow: 'hidden',
@@ -431,8 +434,7 @@ export function FileList(
     left: '0',
   });
   const table_header_color = css({
-    background: '#f2f2f2',
-    border: '1pt solid #000000',
+    border: '1pt solid ' + theme.stringDefaultColor,
   });
   const table_header_font = (sortType: SortKey) => {
     return css({

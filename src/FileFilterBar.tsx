@@ -6,6 +6,7 @@ import { css } from '@emotion/react'
 import Select from 'react-select'
 import { Entry, IEntryFilter } from './FileList';
 import { Sequence } from './Utility';
+import { ComboBoxStyle, TextInputStyle } from './ThemeStyle';
 
 
 
@@ -99,6 +100,7 @@ export function FileFilterBar(
   >
     <div>Filter:</div>
     <Select
+      styles={ComboBoxStyle()}
       css={css({
         width: '100pt',
       })}
@@ -111,6 +113,7 @@ export function FileFilterBar(
       }}
     />
     <input
+      style={TextInputStyle()}
       type="text"
       value={filter}
       onChange={e => setFilter(e.target.value)}

@@ -9,6 +9,7 @@ import { IsValidIndex, LastIndex } from './Utility';
 import { FileListRowColorSettings, RowColorSetting, readFileListRowColorSetting, writeFileListRowColorSetting } from './FileNameColorSetting';
 import { MatchingType } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
+import { ButtonStyle, ComboBoxStyle, TextInputStyle } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +93,8 @@ export function FileListRowColorSettingPane(
     }
   }
 
+  const textInputStyle = TextInputStyle();
+
   const Impl = () => {
     if (settingTarget === 'DefaultColor') {
       return DefaultColorSettingImpl();
@@ -141,6 +144,7 @@ export function FileListRowColorSettingPane(
       <label>
         BackGroundColor1
         <input
+          style={textInputStyle}
           type="text"
           css={css({ width: '5em', })}
           value={setting.oddRowBackGroune}
@@ -164,6 +168,7 @@ export function FileListRowColorSettingPane(
       <label>
         BackGroundColor2
         <input
+          style={textInputStyle}
           type="text"
           css={css({ width: '5em', })}
           value={setting.evenRowBackGroune}
@@ -187,6 +192,7 @@ export function FileListRowColorSettingPane(
       <label>
         StringColor
         <input
+          style={textInputStyle}
           type="text"
           css={css({ width: '5em', })}
           value={setting.forGround}
@@ -210,6 +216,7 @@ export function FileListRowColorSettingPane(
       <label>
         FrameHighlightColor
         <input
+          style={textInputStyle}
           type="text"
           css={css({ width: '5em', })}
           value={setting.activeHightlight}
@@ -259,10 +266,11 @@ export function FileListRowColorSettingPane(
       <label>
         Name
         <input
+          style={TextInputStyle()}
           css={css({
             width: '100%',
           })}
-          type="Name"
+          type="text"
           value={setting.name}
           onChange={e => {
             const newSetting = structuredClone(settings);
@@ -274,6 +282,7 @@ export function FileListRowColorSettingPane(
       <label>
         BackGroundColor1
         <input
+          style={TextInputStyle()}
           type="text"
           css={css({ width: '5em', })}
           value={setting.color.oddRowBackGroune}
@@ -297,6 +306,7 @@ export function FileListRowColorSettingPane(
       <label>
         BackGroundColor2
         <input
+          style={TextInputStyle()}
           type="text"
           css={css({ width: '5em', })}
           value={setting.color.evenRowBackGroune}
@@ -320,6 +330,7 @@ export function FileListRowColorSettingPane(
       <label>
         StringColor
         <input
+          style={TextInputStyle()}
           type="text"
           css={css({ width: '5em', })}
           value={setting.color.forGround}
@@ -343,6 +354,7 @@ export function FileListRowColorSettingPane(
       <label>
         FrameHighlightColor
         <input
+          style={TextInputStyle()}
           type="text"
           css={css({ width: '5em', })}
           value={setting.color.activeHightlight}
@@ -378,6 +390,7 @@ export function FileListRowColorSettingPane(
         </label>
 
         <Select
+          styles={ComboBoxStyle()}
           options={Object.values(MatchingType).map(toComboItem)}
           value={toComboItem(setting.matcher.nameMatcher.type)}
           onChange={(val) => {
@@ -388,6 +401,7 @@ export function FileListRowColorSettingPane(
           }}
         />
         <input
+          style={TextInputStyle()}
           css={css({
             width: '100%',
           })}
@@ -402,16 +416,19 @@ export function FileListRowColorSettingPane(
       </div>
       <div>
         <button
+          css={ButtonStyle()}
           onClick={() => MoveUp(trgIdx)}
         >
           ↑
         </button>
         <button
+          css={ButtonStyle()}
           onClick={() => MoveDown(trgIdx)}
         >
           ↓
         </button>
         <button
+          css={ButtonStyle()}
           onClick={() => DeleteSetting(trgIdx)}
         >
           Delete
@@ -444,11 +461,13 @@ export function FileListRowColorSettingPane(
           })}
         >
           <button
+            css={ButtonStyle()}
             onClick={() => AddSetting()}
           >
             +
           </button>
           <Button
+            css={ButtonStyle()}
             style={{
               textTransform: 'none',
               border: (settingTarget === 'DefaultColor') ? '5px solid ' + settings?.defaultColor.activeHightlight : '',
@@ -459,6 +478,7 @@ export function FileListRowColorSettingPane(
           >
             Default</Button>
           <Button
+            css={ButtonStyle()}
             style={{
               textTransform: 'none',
               border: (settingTarget === 'SelectingColor') ? '5px solid ' + settings?.selectionColor.activeHightlight : '',
@@ -509,6 +529,7 @@ export function FileListRowColorSettingPane(
         })}
       >
         <button
+          css={ButtonStyle()}
           onClick={() => {
             writeFileListRowColorSetting(settings!);
             props.finishSetting()
@@ -517,6 +538,7 @@ export function FileListRowColorSettingPane(
           OK
         </button>
         <button
+          css={ButtonStyle()}
           onClick={() => props.finishSetting()}
         >
           Cancel
