@@ -14,6 +14,7 @@ import { sleep } from './Utility';
 import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
 import { LogInfo } from './LogMessagePane';
 import { v4 as uuidv4 } from 'uuid'
+import { ButtonStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const BUILDIN_COMMAND_TYPE = {
@@ -229,6 +230,7 @@ export function commandExecuter(
 
   const textarea = React.createRef<HTMLTextAreaElement>();
 
+  const textInputStyle = TextInputStyle();
 
   const sizeHalf =
     css({
@@ -244,12 +246,14 @@ export function commandExecuter(
       })}
     >
       <textarea
+        style={textInputStyle}
         value={refString}
         disabled={true}
         rows={countTextRows(refString)}
         css={sizeHalf}
       />
       <textarea
+        style={textInputStyle}
         value={dlgString}
         onChange={e => {
           setDlgString(e.target.value);
@@ -268,6 +272,7 @@ export function commandExecuter(
       })}
     >
       <textarea
+        style={textInputStyle}
         css={css({
           display: 'grid',
           gridTemplateRows: '1fr',
@@ -288,11 +293,13 @@ export function commandExecuter(
       })}
     >
       <button
+        css={ButtonStyle()}
         onClick={() => { dlgOnOk.current(dlgString); dlg.current?.close() }}
       >
         Ok
       </button>
       <button
+        css={ButtonStyle()}
         onClick={() => { setDlgString(''); dlg.current?.close() }}
       >
         Cancle
@@ -300,8 +307,12 @@ export function commandExecuter(
     </div>
   }
 
+  const theme = useTheme();
+
   const element = <dialog
     css={css({
+      background: theme.backgroundColor,
+      color: theme.stringDefaultColor,
       width: '80%',
       height: '80%',
     })}

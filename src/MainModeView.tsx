@@ -19,6 +19,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 import { v4 as uuidv4 } from 'uuid';
+import { ButtonStyle } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const buttonHeight = 50;
@@ -236,65 +237,79 @@ export function MainModeView(
           })}
         >
           <button
-            css={css({
-              width: '85pt',
-              height: buttonHeight,
-              padding: '10px',
-            })}
+            css={css(
+              ButtonStyle(),
+              {
+                width: '85pt',
+                height: buttonHeight,
+                padding: '10px',
+              })}
             onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
             separator:{separator}
           </button>
           <button
-            css={css({
-              width: '85pt',
-              height: buttonHeight,
-              padding: '10px',
-            })}
+            css={css(
+              ButtonStyle(),
+              {
+                width: '85pt',
+                height: buttonHeight,
+                padding: '10px',
+              })}
             onClick={() => props.setTabColor(getPath())}>
             Set Tab Color
           </button>
           <button
-            css={css({
-              width: '85pt',
-              height: buttonHeight,
-              padding: '10px',
-            })}
+            css={css(
+              ButtonStyle(),
+              {
+                width: '85pt',
+                height: buttonHeight,
+                padding: '10px',
+              })}
             onClick={() => props.setFileListRowColor()}>
             Set File List Row Color
           </button>
           <button
-            css={css({
-              width: '85pt',
-              height: buttonHeight,
-              padding: '10px',
-            })}
+            css={css(
+              ButtonStyle(),
+              {
+                width: '85pt',
+                height: buttonHeight,
+                padding: '10px',
+              })}
             onClick={() => props.setKeyBind(null)}>
             Set KeyBind
           </button>
           <button
-            css={css({
-              width: '85pt',
-              height: buttonHeight,
-              padding: '10px',
-            })}
+            css={css(
+              ButtonStyle(),
+              {
+                width: '85pt',
+                height: buttonHeight,
+                padding: '10px',
+              })}
             onClick={() => props.setContextMenu()}>
             Set ContextMenu
           </button>
           <button
-            css={css({
-              width: '85pt',
-              height: buttonHeight,
-              padding: '10px',
-            })}
+            css={css(
+              ButtonStyle(),
+              {
+                width: '85pt',
+                height: buttonHeight,
+                padding: '10px',
+              })}
             onClick={OpenSettingDir}>
             Setting Dir
           </button>
           <button
-            css={css({
-              width: '85pt',
-              height: buttonHeight,
-              padding: '10px',
-            })}
+            css={css(
+              ButtonStyle(),
+              {
+                width: '85pt',
+                height: buttonHeight,
+                padding: '10px',
+              })}
             onClick={() => Update()}>
             Update
           </button>

@@ -8,6 +8,7 @@ import { CurrentVersion } from './CurrentVersion';
 import { LogInfo } from './LogMessagePane';
 
 import { v4 as uuidv4 } from 'uuid';
+import { ButtonStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function Updater(
@@ -39,11 +40,13 @@ export function Updater(
       })}
     >
       <button
+        css={ButtonStyle()}
         onClick={() => { updateImpl(); dlg.current?.close() }}
       >
         Ok
       </button>
       <button
+        css={ButtonStyle()}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -51,7 +54,15 @@ export function Updater(
     </div>
   }
 
-  const dialogElement = <dialog ref={dlg}>
+  const theme = useTheme();
+
+  const dialogElement = <dialog
+    ref={dlg}
+    css={css({
+      background: theme.backgroundColor,
+      color: theme.stringDefaultColor,
+    })}
+  >
     <div
       css={css({
         display: 'grid',
@@ -77,6 +88,7 @@ export function Updater(
           Update to:
         </div>
         <input
+          style={TextInputStyle()}
           type="text"
           value={targetVersion}
           onChange={e => { setTargetVersion(e.target.value) }}

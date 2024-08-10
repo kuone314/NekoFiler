@@ -12,6 +12,7 @@ import { ReadLastOpenedTabs, TabsInfo } from './TabsInfo';
 import { KeyBindSettingPane } from './KeyBindSettingPane';
 import { ContextMenuSettingPane } from './ContextMenuSettingPane';
 import { FileListRowColorSettingPane } from './FileListRowColorSettingPane';
+import { ThemeProvider, useTheme } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +26,7 @@ const Mode = {
 type Mode = typeof Mode[keyof typeof Mode];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const App = () => {
+function ViewImpl(): JSX.Element {
   const [mode, setMode] = useState<Mode>(Mode.main);
   const [keySetTrg, setKeySetTrg] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
 
@@ -43,7 +44,7 @@ const App = () => {
     })()
   }, []);
 
-  const viewImpl = () => {
+  const Impl = () => {
     switch (mode) {
       case Mode.main:
         return <MainModeView
@@ -84,16 +85,30 @@ const App = () => {
     }
   };
 
+  const theme = useTheme();
+
+
   return <div
     css={css({
       width: '100%',
       height: 'aplHeight',
       overflow: 'hidden',
       userSelect: 'none',
+      background: theme.backgroundColor,
+      color: theme.stringDefaultColor,
+      scrollbarColor: theme.stringDefaultColor + ' ' + theme.elementDefaultColor
     })}
   >
-    {viewImpl()}
+    {Impl()}
   </div >
+
+}
+
+const App = () => {
+
+  return <ThemeProvider>
+    <ViewImpl />
+  </ThemeProvider>
 }
 
 export default App;

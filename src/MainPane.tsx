@@ -24,6 +24,7 @@ import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
 import { FileFilterBar, FileFilterType } from './FileFilterBar';
+import { MenuitemStyle } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
@@ -304,6 +305,8 @@ export const MainPanel = (
     })()
   }, []);
 
+  const menuItemStyle = MenuitemStyle();
+
   const [isContextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuPosX, setContextMenuPosX] = useState(0);
   const [contextMenuPosY, setContextMenuPosY] = useState(0);
@@ -316,6 +319,7 @@ export const MainPanel = (
       {
         contextMenuInfoAry.map((command, idx) => {
           return <MenuItem
+            css={menuItemStyle}
             onClick={e => execShellCommand(
               command.command_name,
               dir,

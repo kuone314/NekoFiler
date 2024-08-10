@@ -8,6 +8,7 @@ import { MatchingType } from "./Matcher";
 import { Button } from '@mui/material';
 import Select from 'react-select'
 import { DirName } from './Utility';
+import { ButtonStyle, ComboBoxStyle, TextInputStyle } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +106,7 @@ export function TabColorSettingPane(
       <label>
         Name
         <input
+          style={TextInputStyle()}
           css={css({
             width: '100%',
           })}
@@ -120,6 +122,7 @@ export function TabColorSettingPane(
       <label>
         BackGroundColor
         <input
+          style={TextInputStyle()}
           type="text"
           css={css({ width: '5em', })}
           value={setting.color.backGround}
@@ -143,6 +146,7 @@ export function TabColorSettingPane(
       <label>
         StringColor
         <input
+          style={TextInputStyle()}
           type="text"
           css={css({ width: '5em', })}
           value={setting.color.string}
@@ -166,6 +170,7 @@ export function TabColorSettingPane(
       <label>
         FrameHighlightColor
         <input
+          style={TextInputStyle()}
           type="text"
           css={css({ width: '5em', })}
           value={setting.color.activeHightlight}
@@ -196,6 +201,7 @@ export function TabColorSettingPane(
           Match
         </label>
         <Select
+          styles={ComboBoxStyle()}
           options={Object.values(MatchingType).map(toComboItem)}
           value={toComboItem(setting.match.type)}
           onChange={(val) => {
@@ -206,9 +212,9 @@ export function TabColorSettingPane(
           }}
         />
         <input
-          css={css({
-            width: '100%',
-          })}
+          css={css(
+            TextInputStyle(),
+            { width: '100%', })}
           type="text"
           value={tabColorSetting[activeIdx].match.string}
           onChange={e => {
@@ -220,16 +226,19 @@ export function TabColorSettingPane(
       </div>
       <div>
         <button
+          css={ButtonStyle()}
           onClick={() => MoveUp(activeIdx)}
         >
           ↑
         </button>
         <button
+          css={ButtonStyle()}
           onClick={() => MoveDown(activeIdx)}
         >
           ↓
         </button>
         <button
+          css={ButtonStyle()}
           onClick={() => DeleteSetting(activeIdx)}
         >
           Delete
@@ -262,6 +271,7 @@ export function TabColorSettingPane(
           })}
         >
           <button
+            css={ButtonStyle()}
             onClick={() => AddSetting()}
           >
             +
@@ -295,6 +305,7 @@ export function TabColorSettingPane(
         })}
       >
         <button
+          css={ButtonStyle()}
           onClick={() => {
             props.setTabColorSetting(tabColorSetting)
             props.finishSetting()
@@ -303,6 +314,7 @@ export function TabColorSettingPane(
           OK
         </button>
         <button
+          css={ButtonStyle()}
           onClick={() => props.finishSetting()}
         >
           Cancel

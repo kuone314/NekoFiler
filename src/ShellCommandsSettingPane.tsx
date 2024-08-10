@@ -11,6 +11,7 @@ import { scriptDirPath, DIALOG_TYPE, DialogType, ShellCommand, writeShellCommand
 import { KeyBindSetting, readKeyBindSetting } from './KeyBindInfo';
 import useInterval from 'use-interval';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
+import { ButtonStyle, ComboBoxStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +115,8 @@ export function ShellCommandsSettingPane(
     );
   }
 
+  const buttonStyle = ButtonStyle();
+
   const button = () => {
     return <div
       css={css({
@@ -122,7 +125,7 @@ export function ShellCommandsSettingPane(
       })}
     >
       <Button
-        css={css({ textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         onClick={() => {
           writSettings();
           dlg.current?.close();
@@ -132,7 +135,7 @@ export function ShellCommandsSettingPane(
         Ok
       </Button>
       <Button
-        css={css({ textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         onClick={() => {
           dlg.current?.close();
         }}
@@ -163,8 +166,12 @@ export function ShellCommandsSettingPane(
       newSetting)
   }
 
+  const theme = useTheme();
+
   const dialogElement = <dialog
     css={css({
+      background: theme.backgroundColor,
+      color: theme.stringDefaultColor,
       height: props.height,
       width: '95%',
     })}
@@ -180,6 +187,7 @@ export function ShellCommandsSettingPane(
     >
       <div>
         <button
+          css={buttonStyle}
           onClick={AddCommand}
         >+</button>
         <div
@@ -210,13 +218,14 @@ export function ShellCommandsSettingPane(
                       <td css={[table_border]}>{BindingCommandsDiscriptionStr(BindingCommandList(item.setting.command_name))}</td>
                       <td css={[table_border]}>
                         <Button
+                          css={buttonStyle}
                           disabled={isUsingCommand(item.setting.command_name)}
                           onClick={() => RemoveSetting(item.orgIdx)}
                         >x</Button>
                       </td>
                       <td css={[table_border]}>
                         <Button
-                          css={css({ textTransform: 'none', })}
+                          css={css(buttonStyle, { textTransform: 'none', })}
                           onClick={() => EditSetting(item.orgIdx)}
                         >Edit</Button>
                       </td>
@@ -344,7 +353,7 @@ export function KeyBindEditor(
       })}
     >
       <Button
-        css={css({ textTransform: 'none', })}
+        css={css(ButtonStyle(), { textTransform: 'none', })}
         disabled={!isOkEnable()}
         onClick={() => {
           const shell_command = {
@@ -359,7 +368,7 @@ export function KeyBindEditor(
         Ok
       </Button>
       <Button
-        css={css({ textTransform: 'none', })}
+        css={css(ButtonStyle(), { textTransform: 'none', })}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -367,8 +376,11 @@ export function KeyBindEditor(
     </div >
   }
 
+  const theme = useTheme();
   const dialogElement = <dialog
     css={css({
+      background: theme.backgroundColor,
+      color: theme.stringDefaultColor,
       height: height,
       width: '60%', // 適当…。
     })}
@@ -382,6 +394,7 @@ export function KeyBindEditor(
       <div>
         <div>Name</div>
         <input
+          style={TextInputStyle()}
           type="text"
           value={commandName}
           onChange={e => { setCommandName(e.target.value) }}
@@ -391,6 +404,7 @@ export function KeyBindEditor(
       <div>
         <label>Dialog</label>
         <Select
+          styles={ComboBoxStyle()}
           options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
           value={dialogTypeToComboItem(dialogType)}
           onChange={(val) => {
@@ -414,19 +428,20 @@ export function KeyBindEditor(
           marginBottom: '20px',
         })}>
           <input
+            style={TextInputStyle()}
             type="text"
             value={spriptFileName}
             onChange={e => { setScriptFileName(e.target.value) }}
             readOnly={syncNames}
           />
           <Button
-            css={css({ textTransform: 'none', })}
+            css={css(ButtonStyle(), { textTransform: 'none', })}
             onClick={() => CreateFile(getScriptFilePath())}
             disabled={disableCreateFile}
           >
             Create file</Button>
           <Button
-            css={css({ textTransform: 'none', })}
+            css={css(ButtonStyle(), { textTransform: 'none', })}
             disabled={spriptFileDir === ''}
             onClick={() => navigator.clipboard.writeText(getScriptFilePath())}
           >

@@ -59,7 +59,7 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
       color: {
         oddRowBackGroune: '',
         evenRowBackGroune: '',
-        forGround: '#D9845D',
+        forGround: '#faa629',
         activeHightlight: '',
       },
       matcher: {
@@ -75,11 +75,11 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
       color: {
         oddRowBackGroune: '',
         evenRowBackGroune: '',
-        forGround: '#2A63C1',
+        forGround: '#00ffff',
         activeHightlight: '',
       },
       matcher: {
-        isDirectory: true,
+        isDirectory: false,
         nameMatcher: {
           type: 'end_with',
           string: '.md'
@@ -91,7 +91,7 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
       color: {
         oddRowBackGroune: '',
         evenRowBackGroune: '',
-        forGround: '#2A636E',
+        forGround: '#17fd91',
         activeHightlight: '',
       },
       matcher: {
@@ -107,7 +107,7 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
       color: {
         oddRowBackGroune: '',
         evenRowBackGroune: '',
-        forGround: '#09870B',
+        forGround: '#ff0000',
         activeHightlight: '',
       },
       matcher: {
@@ -123,7 +123,7 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
       color: {
         oddRowBackGroune: '',
         evenRowBackGroune: '',
-        forGround: '#44A64E',
+        forGround: '#ea8592',
         activeHightlight: '',
       },
       matcher: {
@@ -139,7 +139,7 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
       color: {
         oddRowBackGroune: '',
         evenRowBackGroune: '',
-        forGround: '#2C8500',
+        forGround: '#ea8b97',
         activeHightlight: '',
       },
       matcher: {
@@ -155,7 +155,7 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
       color: {
         oddRowBackGroune: '',
         evenRowBackGroune: '',
-        forGround: '#8D8500',
+        forGround: '#ea8b97',
         activeHightlight: '',
       },
       matcher: {
@@ -171,14 +171,14 @@ function GenerateDefaultCommandSeting(): FileListRowColorSettings {
   const result = {
     settings: settings,
     defaultColor: {
-      oddRowBackGroune: '#ffffff',
-      evenRowBackGroune: '#dddddd',
-      forGround: '#000000',
+      oddRowBackGroune: '#242424',
+      evenRowBackGroune: '#404040',
+      forGround: '#ffffff',
       activeHightlight: '#880000',
     },
     selectionColor: {
-      oddRowBackGroune: '#8cc0e8',
-      evenRowBackGroune: '#8cc0e8',
+      oddRowBackGroune: '#2a7fc0',
+      evenRowBackGroune: '#3fabfd',
       forGround: '#000000',
       activeHightlight: '#880000',
     },
