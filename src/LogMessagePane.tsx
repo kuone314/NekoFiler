@@ -170,13 +170,13 @@ export function LogMessagePein(props: {
       logPaneRef.current?.scrollHeight ?? 0)
   }
 
-  const toggleLogPaneOpne = (idx: number) => {
+  const toggleLogPaneOpen = (idx: number) => {
     const newLogAry = [...logAry]
     newLogAry[idx].isOpen = !logAry[idx].isOpen;
     setLogAry(newLogAry);
   }
 
-  const toggleLogPaneCommandOpne = (idx: number) => {
+  const toggleLogPaneCommandOpen = (idx: number) => {
     const newLogAry = [...logAry]
     newLogAry[idx].isCommandOpen = !logAry[idx].isCommandOpen;
     setLogAry(newLogAry);
@@ -199,8 +199,8 @@ export function LogMessagePein(props: {
           logAry.map((logInfo, idx) => <div key={idx} >{
             LopPane(
               logInfo,
-              () => toggleLogPaneOpne(idx),
-              () => toggleLogPaneCommandOpne(idx),
+              () => toggleLogPaneOpen(idx),
+              () => toggleLogPaneCommandOpen(idx),
             )
           }</div>)
         }
