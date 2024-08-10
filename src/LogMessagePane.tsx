@@ -8,6 +8,7 @@ import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { Box } from "@mui/material";
 
 import { IoIosArrowDropright, IoIosArrowDropdown } from "react-icons/io";
+import { TextInputStyle } from "./ThemeStyle";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface LogMessagePeinFunc {
@@ -46,6 +47,8 @@ function LopPane(
       : <IoIosArrowDropright />
   }
 
+  const textInputStyle = TextInputStyle();
+
   const deteal = () => {
     return <>
       <div onClick={onCommandClick} css={css({ userSelect: 'text' })}>
@@ -54,6 +57,7 @@ function LopPane(
       {
         logPaneInfo.isCommandOpen
           ? <textarea
+            style={textInputStyle}
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={15}
             cols={1000}
@@ -64,6 +68,7 @@ function LopPane(
       {
         logInfo.stdout
           ? <textarea
+            style={textInputStyle}
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={10}
             cols={1000}
@@ -73,6 +78,7 @@ function LopPane(
       {
         logInfo.stderr
           ? <textarea
+            style={textInputStyle}
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={10}
             cols={1000}
