@@ -4,7 +4,7 @@ import { MainModeView } from './MainModeView';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { TabColorSetting, readTabColorSetting, writeTabColorSetting } from './TabColorSetting';
+import { TabColorMatcher, TabColorSettings, readTabColorSetting, writeTabColorSetting } from './TabColorSetting';
 
 import { TabColorSettingPane } from './TabColorSettingPane';
 
@@ -36,7 +36,7 @@ function ViewImpl(): JSX.Element {
   })
 
   const [tabColorSettingTrgDir, setTabColorSettingTrgDir] = useState<string>('');
-  const [tabColorSetting, setTabColorSetting] = useState<TabColorSetting[]>([]);
+  const [tabColorSetting, setTabColorSetting] = useState<TabColorSettings>();
   useEffect(() => {
     (async () => {
       const color_seting = await readTabColorSetting();

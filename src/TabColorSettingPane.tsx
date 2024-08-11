@@ -3,37 +3,42 @@ import { useEffect, useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { Match, TabColorSetting, } from './TabColorSetting';
+import { Match, TabColorMatcher, TabColorSettings, } from './TabColorSetting';
 import { MatchingType } from "./Matcher";
 import { Button } from '@mui/material';
 import Select from 'react-select'
 import { DirName } from './Utility';
 import { ButtonStyle, ComboBoxStyle, TextInputStyle } from './ThemeStyle';
+import { ColorCodeString } from './ColorCodeString';
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+type SettingsIndex = number;
+type SettingTarget = 'DefaultColor' | SettingsIndex;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function TabColorSettingPane(
   props: {
     height: number
     trgDir: string
-    tabColorSetting: TabColorSetting[]
-    setTabColorSetting: (newValue: TabColorSetting[]) => void
+    tabColorSetting?: TabColorSettings
+    setTabColorSetting: (newValue: TabColorSettings) => void
     finishSetting: () => void
   }
 ) {
   const [tabColorSetting, setTabColorSetting] = useState(props.tabColorSetting);
 
   const initTab = () => {
-    const fondIdx = tabColorSetting.findIndex(setting => Match(setting, props.trgDir));
-    return (fondIdx === -1) ? 0 : fondIdx;
+    const fondIdx = tabColorSetting?.settings.findIndex(setting => Match(setting, props.trgDir)) ?? -1;
+    return (fondIdx === -1) ? 'DefaultColor' : fondIdx;
   }
-  const [activeIdx, setActiveIdx] = useState<number>(initTab());
+  const [settingTarget, setSettingTarget] = useState<SettingTarget>(initTab());
 
   const buttonHeight = 70;
   const heightMergin = 20; // これがないと、スクロールバーが出てしまう…
   const mainHeight = (props.height - buttonHeight - heightMergin);
 
   const AddSetting = () => {
+    if (!tabColorSetting) { return; }
     const newValue = {
       name: DirName(props.trgDir),
       color: {
@@ -47,54 +52,163 @@ export function TabColorSettingPane(
       }
     }
     const newSetting = structuredClone(tabColorSetting);
-    const fondIdx = tabColorSetting.findIndex(setting => Match(setting, props.trgDir));
-    const insertPos = (fondIdx === -1) ? newSetting.length : fondIdx;
-    newSetting.splice(insertPos, 0, newValue)
+    const fondIdx = tabColorSetting.settings.findIndex(setting => Match(setting, props.trgDir));
+    const insertPos = (fondIdx === -1) ? newSetting.settings.length : fondIdx;
+    newSetting.settings.splice(insertPos, 0, newValue)
     setTabColorSetting(newSetting)
-    setActiveIdx(insertPos);
+    setSettingTarget(insertPos);
   }
 
 
   function MoveUp(trgIdx: number): void {
+    if (!tabColorSetting) { return; }
     if (trgIdx == 0) { return }
 
     const newSetting = structuredClone(tabColorSetting);;
-    [newSetting[trgIdx], newSetting[trgIdx - 1]] = [newSetting[trgIdx - 1], newSetting[trgIdx]]
+    [newSetting.settings[trgIdx], newSetting.settings[trgIdx - 1]] = [newSetting.settings[trgIdx - 1], newSetting.settings[trgIdx]]
     setTabColorSetting(newSetting)
-    setActiveIdx(trgIdx - 1);
+    setSettingTarget(trgIdx - 1);
   }
   function MoveDown(trgIdx: number): void {
-    if (trgIdx == tabColorSetting.length - 1) { return }
+    if (!tabColorSetting) { return; }
+    if (trgIdx == tabColorSetting.settings.length - 1) { return }
 
     const newSetting = structuredClone(tabColorSetting);;
-    [newSetting[trgIdx], newSetting[trgIdx + 1]] = [newSetting[trgIdx + 1], newSetting[trgIdx]]
+    [newSetting.settings[trgIdx], newSetting.settings[trgIdx + 1]] = [newSetting.settings[trgIdx + 1], newSetting.settings[trgIdx]]
     setTabColorSetting(newSetting)
-    setActiveIdx(trgIdx + 1);
+    setSettingTarget(trgIdx + 1);
   }
 
   function DeleteSetting(trgIdx: number): void {
+    if (!tabColorSetting) { return; }
+
     const newSetting = structuredClone(tabColorSetting);;
-    newSetting.splice(trgIdx, 1);
+    newSetting.settings.splice(trgIdx, 1);
     setTabColorSetting(newSetting)
 
-    if (activeIdx >= newSetting.length) {
-      setActiveIdx(newSetting.length - 1);
+    if (trgIdx >= newSetting.settings.length) {
+      setSettingTarget(newSetting.settings.length - 1);
+    }
+  }
+
+  const toComboItem = (type: MatchingType) => {
+    return { value: type, label: comboLabel(type) };
+  }
+  const comboLabel = (type: MatchingType) => {
+    switch (type) {
+      case 'regexp': return 'Regexp';
+      case 'start_with': return 'Start with';
+      case 'end_with': return 'End with';
     }
   }
 
   const Impl = () => {
-    const setting = tabColorSetting[activeIdx];
+    if (settingTarget === 'DefaultColor') {
+      return DefaultColorSettingImpl();
+    }
+    if (typeof (settingTarget) === 'number') {
+      return SettingsImpl(settingTarget);
+    }
+  }
 
-    const toComboItem = (type: MatchingType) => {
-      return { value: type, label: comboLabel(type) };
-    }
-    const comboLabel = (type: MatchingType) => {
-      switch (type) {
-        case 'regexp': return 'Regexp';
-        case 'start_with': return 'Start with';
-        case 'end_with': return 'End with';
-      }
-    }
+  const DefaultColorSettingImpl = () => {
+    if (!tabColorSetting) { return <></>; }
+
+    const setting = tabColorSetting.default;
+
+    return <div
+      css={css({
+        display: 'flex',
+        flexDirection: 'column',
+        height: mainHeight,
+      })}
+    >
+      <label>
+        BackGroundColor
+        <input
+          style={TextInputStyle()}
+          type="text"
+          css={css({ width: '5em', })}
+          value={setting.backGround}
+          onChange={e => {
+            const newSetting = structuredClone(tabColorSetting);
+            newSetting.default.backGround = e.target.value;
+            setTabColorSetting(newSetting)
+          }}
+        />
+        <input
+          type="color"
+          list="color-list"
+          value={setting.backGround}
+          onChange={e => {
+            const newSetting = structuredClone(tabColorSetting);
+            newSetting.default.backGround = e.target.value;
+            setTabColorSetting(newSetting)
+          }}
+        />
+      </label>
+      <label>
+        StringColor
+        <input
+          style={TextInputStyle()}
+          type="text"
+          css={css({ width: '5em', })}
+          value={setting.string}
+          onChange={e => {
+            const newSetting = structuredClone(tabColorSetting);
+            newSetting.default.string = e.target.value;
+            setTabColorSetting(newSetting)
+          }}
+        />
+        <input
+          type="color"
+          list="color-list"
+          value={setting.string}
+          onChange={e => {
+            const newSetting = structuredClone(tabColorSetting);
+            newSetting.default.string = e.target.value;
+            setTabColorSetting(newSetting)
+          }}
+        />
+      </label>
+      <label>
+        FrameHighlightColor
+        <input
+          style={TextInputStyle()}
+          type="text"
+          css={css({ width: '5em', })}
+          value={setting.activeHightlight}
+          onChange={e => {
+            const newSetting = structuredClone(tabColorSetting);
+            newSetting.default.activeHightlight = e.target.value;
+            setTabColorSetting(newSetting)
+          }}
+        />
+        <input
+          type="color"
+          list="color-list"
+          value={setting.activeHightlight}
+          onChange={e => {
+            const newSetting = structuredClone(tabColorSetting);
+            newSetting.default.activeHightlight = e.target.value;
+            setTabColorSetting(newSetting)
+          }}
+        />
+      </label>
+      <div
+        css={css({
+          display: 'flex',
+          flexDirection: 'row',
+        })}
+      >
+      </div>
+    </div>
+  }
+
+  const SettingsImpl = (trgIdx: number) => {
+    if (!tabColorSetting) { return <></>; }
+
+    const setting = tabColorSetting.settings[trgIdx];
 
     return <div
       css={css({
@@ -114,7 +228,7 @@ export function TabColorSettingPane(
           value={setting.name}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].name = e.target.value;
+            newSetting.settings[trgIdx].name = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -128,7 +242,7 @@ export function TabColorSettingPane(
           value={setting.color.backGround}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].color.backGround = e.target.value;
+            newSetting.settings[trgIdx].color.backGround = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -138,7 +252,7 @@ export function TabColorSettingPane(
           value={setting.color.backGround}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].color.backGround = e.target.value;
+            newSetting.settings[trgIdx].color.backGround = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -152,7 +266,7 @@ export function TabColorSettingPane(
           value={setting.color.string}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].color.string = e.target.value;
+            newSetting.settings[trgIdx].color.string = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -162,7 +276,7 @@ export function TabColorSettingPane(
           value={setting.color.string}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].color.string = e.target.value;
+            newSetting.settings[trgIdx].color.string = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -176,7 +290,7 @@ export function TabColorSettingPane(
           value={setting.color.activeHightlight}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].color.activeHightlight = e.target.value;
+            newSetting.settings[trgIdx].color.activeHightlight = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -186,7 +300,7 @@ export function TabColorSettingPane(
           value={setting.color.activeHightlight}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].color.activeHightlight = e.target.value;
+            newSetting.settings[trgIdx].color.activeHightlight = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -207,7 +321,7 @@ export function TabColorSettingPane(
           onChange={(val) => {
             if (val === null) { return; }
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].match.type = val.value;
+            newSetting.settings[trgIdx].match.type = val.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -216,10 +330,10 @@ export function TabColorSettingPane(
             TextInputStyle(),
             { width: '100%', })}
           type="text"
-          value={tabColorSetting[activeIdx].match.string}
+          value={tabColorSetting.settings[trgIdx].match.string}
           onChange={e => {
             const newSetting = structuredClone(tabColorSetting);
-            newSetting[activeIdx].match.string = e.target.value;
+            newSetting.settings[trgIdx].match.string = e.target.value;
             setTabColorSetting(newSetting)
           }}
         />
@@ -227,19 +341,19 @@ export function TabColorSettingPane(
       <div>
         <button
           css={ButtonStyle()}
-          onClick={() => MoveUp(activeIdx)}
+          onClick={() => MoveUp(trgIdx)}
         >
           ↑
         </button>
         <button
           css={ButtonStyle()}
-          onClick={() => MoveDown(activeIdx)}
+          onClick={() => MoveDown(trgIdx)}
         >
           ↓
         </button>
         <button
           css={ButtonStyle()}
-          onClick={() => DeleteSetting(activeIdx)}
+          onClick={() => DeleteSetting(trgIdx)}
         >
           Delete
         </button>
@@ -276,16 +390,35 @@ export function TabColorSettingPane(
           >
             +
           </button>
+          <Button
+            css={ButtonStyle()}
+            style={{
+              textTransform: 'none',
+              border: (settingTarget === 'DefaultColor') ? '5px solid ' + tabColorSetting?.default.activeHightlight : '',
+              background: tabColorSetting?.default.backGround,
+              color: tabColorSetting?.default.string,
+            }}
+            onClick={() => { setSettingTarget('DefaultColor') }}
+          >
+            Default</Button>
           {
-            tabColorSetting.map((setting, idx) => {
+            tabColorSetting?.settings.map((setting, idx) => {
+              const color = setting.color;
+              const backGround = ColorCodeString.new(color.backGround)?.val
+                ?? tabColorSetting.default.backGround;
+              const string = ColorCodeString.new(color.string)?.val
+                ?? tabColorSetting.default.string;
+              const activeHightlight = ColorCodeString.new(color.activeHightlight)?.val
+                ?? tabColorSetting.default.activeHightlight;
+
               return <Button
                 style={{
                   textTransform: 'none',
-                  border: (idx === activeIdx) ? '5px solid ' + setting.color.activeHightlight : '',
-                  background: setting.color.backGround,
-                  color: setting.color.string,
+                  border: (idx === settingTarget) ? '5px solid ' + activeHightlight : '',
+                  background: backGround,
+                  color: string,
                 }}
-                onClick={() => { setActiveIdx(idx) }}
+                onClick={() => { setSettingTarget(idx) }}
                 key={'Setting' + idx}
               >
                 {setting.name}
@@ -307,6 +440,7 @@ export function TabColorSettingPane(
         <button
           css={ButtonStyle()}
           onClick={() => {
+            if (!tabColorSetting) { return; }
             props.setTabColorSetting(tabColorSetting)
             props.finishSetting()
           }}

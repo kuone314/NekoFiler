@@ -9,7 +9,7 @@ import { PaneTabs } from './PaneTabs';
 import { css } from '@emotion/react'
 
 import { LogInfo, LogMessagePein } from './LogMessagePane';
-import { TabColorSetting } from './TabColorSetting';
+import { TabColorMatcher, TabColorSettings } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
@@ -34,7 +34,7 @@ function GetActive(tab_info: TabsInfo) {
 export function MainModeView(
   props: {
     height: number,
-    tabColorSetting: TabColorSetting[],
+    tabColorSetting?: TabColorSettings,
     setTabColor: (tabColorSettingTrgDir: string) => void,
     setFileListRowColor: () => void,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,

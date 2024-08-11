@@ -8,7 +8,7 @@ import { separator } from './FilePathSeparator';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { TabColor, TabColorSetting } from './TabColorSetting';
+import { TabColor, TabColorMatcher, TabColorSettings } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
@@ -34,7 +34,7 @@ export const PaneTabs = (
     isActive: boolean,
     height: number,
     pathAry: TabsInfo,
-    tabColorSetting: TabColorSetting[]
+    tabColorSetting?: TabColorSettings
     onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
     onItemNumChanged: (newItemNum: number) => void,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
