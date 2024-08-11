@@ -7,24 +7,33 @@ import { ISettingInfo, writeSettings, readSettings } from "./ReadWriteSettings";
 import { Matcher } from "./Matcher";
 import { MatchingType } from "./Matcher";
 import { MatchImpl } from "./Matcher";
+import { ColorCodeString } from "./ColorCodeString";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export interface TabColorSetting {
+export type TabColorSettings = {
+  settings: TabColorMatcher[],
+  default: TabColor,
+}
+
+export type TabColor = {
+  backGround: string;
+  string: string;
+  activeHightlight: string;
+};
+
+export interface TabColorMatcher {
   name: string,
-  color: {
-    backGround: string,
-    string: string,
-    activeHightlight: string,
-  },
+  color: TabColor,
   match: Matcher
 }
 
 class Version {
   static oldest = 5;
-  static latest = Version.oldest;
+  static add_default_color = 6;
+  static latest = Version.add_default_color;
 }
 
-class SettingInfo implements ISettingInfo<TabColorSetting[]> {
+class SettingInfo implements ISettingInfo<TabColorSettings> {
   filePath = "device_specific/tab_color.json5";
   latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
@@ -32,68 +41,104 @@ class SettingInfo implements ISettingInfo<TabColorSetting[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: TabColorSetting[]) => readSetting;
+  UpgradeSetting = async (readVersion: number, readSetting: TabColorSettings) => {
+    let result = readSetting;
+    if (readVersion < Version.add_default_color) {
+      result = {
+        default: defaultColor,
+        settings: readSetting as any as TabColorMatcher[],
+      }
+    }
+    return result
+  };
 }
 
-export async function writeTabColorSetting(setting: TabColorSetting[]) {
+export async function writeTabColorSetting(setting: TabColorSettings) {
   writeSettings(new SettingInfo, setting);
 }
 
-export async function readTabColorSetting(): Promise<TabColorSetting[]> {
+export async function readTabColorSetting(): Promise<TabColorSettings> {
   const read = await readSettings(new SettingInfo);
   return read ?? GenerateDefaultCommandSeting();
 }
 
-export function Match(setting: TabColorSetting, path: string): boolean {
+export function Match(setting: TabColorMatcher, path: string): boolean {
   const path_ary = Object.values(SEPARATOR)
     .map(separator => ApplySeparator(path, separator) + separator);
   return !!path_ary.find(path => MatchImpl(setting.match, path));
 }
 
 export function TabColor(
-  settings: TabColorSetting[],
+  setting: TabColorSettings | undefined,
   borderWidth: number,
   isActive: boolean,
   path: string
 ) {
-  const setting = settings.find(setting => Match(setting, path));
-  const colorSetting = setting?.color ?? { backGround: '#ffffff', string: '#000000', activeHightlight: '#ff0000' };
-  const borderColor = (isActive) ? colorSetting.activeHightlight : colorSetting.backGround;
+  if (setting === undefined) { return css(); }
+
+  const matched_setting = setting.settings.find(setting => Match(setting, path));
+  if (!matched_setting) {
+    const borderColor = (isActive) ? setting.default.activeHightlight : setting.default.backGround;
+    return css({
+      background: setting.default.backGround,
+      color: setting.default.string,
+      border: borderWidth + 'px solid ' + borderColor,
+    })
+  }
+
+  const color = matched_setting.color;
+  const backGround = ColorCodeString.new(color.backGround)?.val
+    ?? setting.default.backGround;
+  const string = ColorCodeString.new(color.string)?.val
+    ?? setting.default.string;
+  const activeHightlight = ColorCodeString.new(color.activeHightlight)?.val
+    ?? setting.default.activeHightlight;
+
+  const borderColor = (isActive) ? activeHightlight : backGround;
   return css({
-    background: colorSetting.backGround,
-    color: colorSetting.string,
+    background: backGround,
+    color: string,
     border: borderWidth + 'px solid ' + borderColor,
   })
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function GenerateDefaultCommandSeting(): TabColorSetting[] {
-  const result: TabColorSetting[] = [
-    {
-      name: 'Drive C:',
-      color: {
-        backGround: '#ffff00',
-        string: '#000000',
-        activeHightlight: '#ff0000',
+const defaultColor = {
+  backGround: "#000000",
+  string: "#ffffff",
+  activeHightlight: "#ff0000"
+};
+
+function GenerateDefaultCommandSeting(): TabColorSettings {
+  const result: TabColorSettings = {
+    default: defaultColor,
+    settings: [
+      {
+        name: 'Drive C:',
+        color: {
+          backGround: '#0000ff',
+          string: '',
+          activeHightlight: '',
+        },
+        match: {
+          type: MatchingType.start_with,
+          string: 'C:/',
+        },
       },
-      match: {
-        type: MatchingType.start_with,
-        string: 'C:/',
+      {
+        name: 'Drive D:',
+        color: {
+          backGround: '#2e5f6b',
+          string: '',
+          activeHightlight: '',
+        },
+        match: {
+          type: MatchingType.start_with,
+          string: 'D:/',
+        },
       },
-    },
-    {
-      name: 'Drive D:',
-      color: {
-        backGround: '#00ff00',
-        string: '#000000',
-        activeHightlight: '#ff0000',
-      },
-      match: {
-        type: MatchingType.start_with,
-        string: 'D:/',
-      },
-    },
-  ];
+    ]
+  };
 
   writeTabColorSetting(result);
 

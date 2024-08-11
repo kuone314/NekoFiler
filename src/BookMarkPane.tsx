@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { TabColor, TabColorSetting } from './TabColorSetting';
+import { TabColor, TabColorMatcher, TabColorSettings } from './TabColorSetting';
 import { MatchingType } from "./Matcher";
 import { Button } from '@mui/material';
 import Select from 'react-select'
@@ -59,7 +59,7 @@ function IsValidIndex<T>(
 export function BookMarkPane(
   props: {
     height: number
-    colorSetting: TabColorSetting[]
+    colorSetting?: TabColorSettings
     currendDir: string
     accessDirectry: (dir: string) => void
   }
