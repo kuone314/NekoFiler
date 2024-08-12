@@ -127,7 +127,6 @@ function LopPane(
 
 
 export function LogMessagePein(props: {
-  height: number
 })
   : [JSX.Element, LogMessagePeinFunc,] {
   const [logAry, setLogAry] = useState<LogPaneInfo[]>([]);
@@ -189,9 +188,8 @@ export function LogMessagePein(props: {
     <>
       <div
         css={css({
-          height: props.height,
           width: '100%',
-          overflow: 'scroll'
+          overflow: 'auto'
         })}
         ref={logPaneRef}
       >
