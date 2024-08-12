@@ -229,87 +229,24 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: 'auto auto auto auto auto auto 1fr auto', // button button button button button logPane statusBar
+            gridTemplateRows: 'auto 1fr auto', // Settings logPane statusBar
             height: props.height - 20,
           })}
         >
-          <button
-            css={css(
-              ButtonStyle(),
-              {
-                width: '85pt',
-                height: buttonHeight,
-                padding: '10px',
-              })}
-            onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
-            separator:{separator}
-          </button>
-          <button
-            css={css(
-              ButtonStyle(),
-              {
-                width: '85pt',
-                height: buttonHeight,
-                padding: '10px',
-              })}
-            onClick={() => props.setTabColor(getPath())}>
-            Set Tab Color
-          </button>
-          <button
-            css={css(
-              ButtonStyle(),
-              {
-                width: '85pt',
-                height: buttonHeight,
-                padding: '10px',
-              })}
-            onClick={() => props.setFileListRowColor()}>
-            Set File List Row Color
-          </button>
-          <button
-            css={css(
-              ButtonStyle(),
-              {
-                width: '85pt',
-                height: buttonHeight,
-                padding: '10px',
-              })}
-            onClick={() => props.setKeyBind(null)}>
-            Set KeyBind
-          </button>
-          <button
-            css={css(
-              ButtonStyle(),
-              {
-                width: '85pt',
-                height: buttonHeight,
-                padding: '10px',
-              })}
-            onClick={() => props.setContextMenu()}>
-            Set ContextMenu
-          </button>
-          <button
-            css={css(
-              ButtonStyle(),
-              {
-                width: '85pt',
-                height: buttonHeight,
-                padding: '10px',
-              })}
-            onClick={OpenSettingDir}>
-            Setting Dir
-          </button>
-          <button
-            css={css(
-              ButtonStyle(),
-              {
-                width: '85pt',
-                height: buttonHeight,
-                padding: '10px',
-              })}
-            onClick={() => Update()}>
-            Update
-          </button>
+          {
+            SettingButtons(
+              setSeparator,
+              separator,
+              props.height,
+              props.tabColorSetting,
+              props.setTabColor,
+              props.setFileListRowColor,
+              props.setKeyBind,
+              props.setContextMenu,
+              getPath,
+              OpenSettingDir,
+              Update)
+          }
           {logMessagePein}
           <div // statas bar
             css={css({
@@ -324,3 +261,99 @@ export function MainModeView(
     </>
   );
 }
+
+
+function SettingButtons(
+  setSeparator: React.Dispatch<React.SetStateAction<separator>>,
+  separator: string,
+  height: number,
+  tabColorSetting: TabColorSettings | undefined,
+  setTabColor: (tabColorSettingTrgDir: string) => void,
+  setFileListRowColor: () => void,
+  setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
+  setContextMenu: () => void,
+  getPath: () => string,
+  OpenSettingDir: () => Promise<void>,
+  Update: () => void
+) {
+  return <div>
+    <button
+      css={css(
+        ButtonStyle(),
+        {
+          width: '85pt',
+          height: buttonHeight,
+          padding: '10px',
+        })}
+      onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
+      separator:{separator}
+    </button>
+    <button
+      css={css(
+        ButtonStyle(),
+        {
+          width: '85pt',
+          height: buttonHeight,
+          padding: '10px',
+        })}
+      onClick={() => setTabColor(getPath())}>
+      Set Tab Color
+    </button>
+    <button
+      css={css(
+        ButtonStyle(),
+        {
+          width: '85pt',
+          height: buttonHeight,
+          padding: '10px',
+        })}
+      onClick={() => setFileListRowColor()}>
+      Set File List Row Color
+    </button>
+    <button
+      css={css(
+        ButtonStyle(),
+        {
+          width: '85pt',
+          height: buttonHeight,
+          padding: '10px',
+        })}
+      onClick={() => setKeyBind(null)}>
+      Set KeyBind
+    </button>
+    <button
+      css={css(
+        ButtonStyle(),
+        {
+          width: '85pt',
+          height: buttonHeight,
+          padding: '10px',
+        })}
+      onClick={() => setContextMenu()}>
+      Set ContextMenu
+    </button>
+    <button
+      css={css(
+        ButtonStyle(),
+        {
+          width: '85pt',
+          height: buttonHeight,
+          padding: '10px',
+        })}
+      onClick={OpenSettingDir}>
+      Setting Dir
+    </button>
+    <button
+      css={css(
+        ButtonStyle(),
+        {
+          width: '85pt',
+          height: buttonHeight,
+          padding: '10px',
+        })}
+      onClick={() => Update()}>
+      Update
+    </button>
+  </div>;
+}
+
