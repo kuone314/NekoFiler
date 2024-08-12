@@ -88,6 +88,8 @@ export function MainModeView(
     return GetActive(tabsPathAry[oppositeIndex]).path;
   }
 
+  const [openSettings, setOpenSettings] = useState(false);
+
   const [itemNums, setItemNums] = useState<number[]>([0, 0]);
   const setItemNum = (value: number, idx: number) => {
     setItemNums(cur => {
@@ -233,19 +235,25 @@ export function MainModeView(
             height: props.height - 20,
           })}
         >
+          <button
+            css={css(ButtonStyle())}
+            onClick={() => { setOpenSettings(!openSettings) }}
+          >settings</button>
           {
-            SettingButtons(
-              setSeparator,
-              separator,
+            openSettings ?
+              SettingButtons(
+                setSeparator,
+                separator,
               props.height,
               props.tabColorSetting,
               props.setTabColor,
               props.setFileListRowColor,
               props.setKeyBind,
               props.setContextMenu,
-              getPath,
-              OpenSettingDir,
-              Update)
+                getPath,
+                OpenSettingDir,
+                Update)
+              : <></>
           }
           {logMessagePein}
           <div // statas bar
