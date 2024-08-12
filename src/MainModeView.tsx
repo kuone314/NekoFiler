@@ -231,9 +231,7 @@ export function MainModeView(
           css={css({
             display: 'grid',
             gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr 0.1fr 0.4f 0.1fr', // button button button button button logPane statusBar
-            // height: '100%',
             height: props.height - 20,
-            // overflow: 'scroll',
           })}
         >
           <button
