@@ -115,7 +115,6 @@ export function MainModeView(
   const [separator, setSeparator] = useState<separator>('\\');
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
-    height: props.height - 20 - (buttonHeight * 7 + statusBarHeight),
   });
   const addLogMessage = (message: LogInfo) => {
     logMessagePeinFunc.addMessage(message);
@@ -230,7 +229,7 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: '0.1fr 0.1fr 0.1fr 0.1fr 0.1fr 0.4f 0.1fr', // button button button button button logPane statusBar
+            gridTemplateRows: 'auto auto auto auto auto auto 1fr auto', // button button button button button logPane statusBar
             height: props.height - 20,
           })}
         >
