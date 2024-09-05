@@ -30,6 +30,7 @@ import { MenuitemStyle } from './ThemeStyle';
 export const MainPanel = (
   props: {
     isActive: boolean,
+    panel_idx: number,
     initPath: string,
     pined: boolean,
     onPathChanged: (newPath: string) => void
@@ -346,6 +347,7 @@ export const MainPanel = (
   const [fileList, FileListFunctions] = FileList(
     {
       isActive: props.isActive,
+      panel_idx: props.panel_idx,
       onSelectItemNumChanged: props.onSelectItemNumChanged,
       accessParentDir: accessParentDir,
       accessDirectry: (dirName: string) => accessDirectry(nameToPath(dirName)),

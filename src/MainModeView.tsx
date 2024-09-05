@@ -209,6 +209,7 @@ export function MainModeView(
                   <ErrorBoundary FallbackComponent={ErrorFallback}>
                     <PaneTabs
                       isActive={isActive}
+                      panel_idx={idx}
                       height={paneHeight}
                       pathAry={pathAry}
                       tabColorSetting={props.tabColorSetting}

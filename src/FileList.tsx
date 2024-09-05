@@ -62,6 +62,7 @@ export interface FileListFunc {
 export function FileList(
   props: {
     isActive: boolean,
+    panel_idx: number,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     accessParentDir: () => void,
     accessDirectry: (dirName: string) => void,
