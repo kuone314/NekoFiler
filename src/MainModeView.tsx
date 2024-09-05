@@ -192,39 +192,41 @@ export function MainModeView(
           })}
         >
           {
-            tabsPathAry.map((pathAry, idx) => {
-              const isActive = idx === currentPaneIndex;
-              return <div
-                style={
-                  {
-                    border: isActive ? '2px solid #ff0000' : '2px solid #ffffff',
-                    overflow: 'auto',
+            tabsPathAry
+              // .slice(0, 1) // デバッグ用 1ペイン化
+              .map((pathAry, idx) => {
+                const isActive = idx === currentPaneIndex;
+                return <div
+                  style={
+                    {
+                      border: isActive ? '2px solid #ff0000' : '2px solid #ffffff',
+                      overflow: 'auto',
+                    }
                   }
-                }
-                onFocus={() => { setCurrentPaneIndex(idx); }}
-                key={'Tabs' + idx}
-              >
-                <ErrorBoundary FallbackComponent={ErrorFallback}>
-                  <PaneTabs
-                    isActive={isActive}
-                    height={paneHeight}
-                    pathAry={pathAry}
-                    tabColorSetting={props.tabColorSetting}
-                    onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
-                    onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
-                    onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
-                    getOppositePath={getOppositePath}
-                    addLogMessage={addLogMessage}
-                    setTabColor={props.setTabColor}
-                    separator={separator}
-                    gridRef={grid[idx]}
-                    focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
-                    focusCommandBar={() => commandBarFunc.focus()}
-                    setKeyBind={props.setKeyBind}
-                  />
-                </ErrorBoundary>
-              </div>
-            })
+                  onFocus={() => { setCurrentPaneIndex(idx); }}
+                  key={'Tabs' + idx}
+                >
+                  <ErrorBoundary FallbackComponent={ErrorFallback}>
+                    <PaneTabs
+                      isActive={isActive}
+                      height={paneHeight}
+                      pathAry={pathAry}
+                      tabColorSetting={props.tabColorSetting}
+                      onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
+                      onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
+                      onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
+                      getOppositePath={getOppositePath}
+                      addLogMessage={addLogMessage}
+                      setTabColor={props.setTabColor}
+                      separator={separator}
+                      gridRef={grid[idx]}
+                      focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
+                      focusCommandBar={() => commandBarFunc.focus()}
+                      setKeyBind={props.setKeyBind}
+                    />
+                  </ErrorBoundary>
+                </div>
+              })
           }
           {commandBar}
         </div>
@@ -244,12 +246,12 @@ export function MainModeView(
               SettingButtons(
                 setSeparator,
                 separator,
-              props.height,
-              props.tabColorSetting,
-              props.setTabColor,
-              props.setFileListRowColor,
-              props.setKeyBind,
-              props.setContextMenu,
+                props.height,
+                props.tabColorSetting,
+                props.setTabColor,
+                props.setFileListRowColor,
+                props.setKeyBind,
+                props.setContextMenu,
                 getPath,
                 OpenSettingDir,
                 Update)
