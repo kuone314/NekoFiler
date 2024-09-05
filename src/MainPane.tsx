@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
-import { FileList, Entries } from './FileList';
+import { FileList, Entries, FileListFunc } from './FileList';
 
 import { BUILDIN_COMMAND_TYPE, commandExecuter } from './CommandInfo';
 import { KeyBindSetting, COMMAND_TYPE, readKeyBindSetting, match } from './KeyBindInfo';
@@ -77,7 +77,7 @@ export const MainPanel = (
     props.onItemNumChanged(newEntries?.length ?? 0);
     setIsValidDir(newEntries !== null);
     if (newEntries !== null) {
-      FileListFunctions.initEntries(newEntries, trgFile);
+      FileListFunctions.current?.initEntries(newEntries, trgFile);
     }
   }
 
@@ -91,9 +91,9 @@ export const MainPanel = (
       setIsValidDir(false);
     } else {
       if (!isValidDir) {
-        FileListFunctions.initEntries(newEntries, "");
+        FileListFunctions.current?.initEntries(newEntries, "");
       } else {
-        FileListFunctions.updateEntries(newEntries);
+        FileListFunctions.current?.updateEntries(newEntries);
       }
     }
   }
@@ -137,20 +137,20 @@ export const MainPanel = (
     srcKey: React.KeyboardEvent<HTMLDivElement> | null
   ) => {
     switch (commandName) {
-      case BUILDIN_COMMAND_TYPE.accessCurrentItem: FileListFunctions.accessCurrentItem(); return;
+      case BUILDIN_COMMAND_TYPE.accessCurrentItem: FileListFunctions.current?.accessCurrentItem(); return;
       case BUILDIN_COMMAND_TYPE.accessParentDir: accessParentDir(); return;
-      case BUILDIN_COMMAND_TYPE.moveUp: FileListFunctions.moveUp(); return;
-      case BUILDIN_COMMAND_TYPE.moveUpSelect: FileListFunctions.moveUpSelect(); return;
-      case BUILDIN_COMMAND_TYPE.moveDown: FileListFunctions.moveDown(); return;
-      case BUILDIN_COMMAND_TYPE.moveDownSelect: FileListFunctions.moveDownSelect(); return;
-      case BUILDIN_COMMAND_TYPE.moveTop: FileListFunctions.moveTop(); return;
-      case BUILDIN_COMMAND_TYPE.moveTopSelect: FileListFunctions.moveTopSelect(); return;
-      case BUILDIN_COMMAND_TYPE.moveBottom: FileListFunctions.moveBottom(); return;
-      case BUILDIN_COMMAND_TYPE.moveBottomSelect: FileListFunctions.moveBottomSelect(); return;
-      case BUILDIN_COMMAND_TYPE.selectAll: FileListFunctions.selectAll(); return;
-      case BUILDIN_COMMAND_TYPE.clearSelection: FileListFunctions.clearSelection(); return;
-      case BUILDIN_COMMAND_TYPE.toggleSelection: FileListFunctions.toggleSelection(); return;
-      case BUILDIN_COMMAND_TYPE.selectCurrentOnly: FileListFunctions.selectCurrentOnly(); return;
+      case BUILDIN_COMMAND_TYPE.moveUp: FileListFunctions.current?.moveUp(); return;
+      case BUILDIN_COMMAND_TYPE.moveUpSelect: FileListFunctions.current?.moveUpSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveDown: FileListFunctions.current?.moveDown(); return;
+      case BUILDIN_COMMAND_TYPE.moveDownSelect: FileListFunctions.current?.moveDownSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveTop: FileListFunctions.current?.moveTop(); return;
+      case BUILDIN_COMMAND_TYPE.moveTopSelect: FileListFunctions.current?.moveTopSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveBottom: FileListFunctions.current?.moveBottom(); return;
+      case BUILDIN_COMMAND_TYPE.moveBottomSelect: FileListFunctions.current?.moveBottomSelect(); return;
+      case BUILDIN_COMMAND_TYPE.selectAll: FileListFunctions.current?.selectAll(); return;
+      case BUILDIN_COMMAND_TYPE.clearSelection: FileListFunctions.current?.clearSelection(); return;
+      case BUILDIN_COMMAND_TYPE.toggleSelection: FileListFunctions.current?.toggleSelection(); return;
+      case BUILDIN_COMMAND_TYPE.selectCurrentOnly: FileListFunctions.current?.selectCurrentOnly(); return;
       case BUILDIN_COMMAND_TYPE.addNewTab: addNewTab(); return;
       case BUILDIN_COMMAND_TYPE.removeTab: removeTab(); return;
       case BUILDIN_COMMAND_TYPE.removeOtherTabs: removeOtherTabs(); return;
@@ -183,7 +183,7 @@ export const MainPanel = (
       execShellCommand(
         command.action.command_name,
         dir,
-        FileListFunctions.selectingItemName(),
+        FileListFunctions.current?.selectingItemName() ?? [],
         props.getOppositePath(),
         props.separator);
       return
@@ -324,7 +324,7 @@ export const MainPanel = (
             onClick={e => execShellCommand(
               command.command_name,
               dir,
-              FileListFunctions.selectingItemName(),
+              FileListFunctions.current?.selectingItemName() ?? [],
               props.getOppositePath(),
               props.separator
             )}
@@ -344,22 +344,7 @@ export const MainPanel = (
     }
   }, [isContextMenuOpen])
 
-  const [fileList, FileListFunctions] = FileList(
-    {
-      isActive: props.isActive,
-      panel_idx: props.panel_idx,
-      onSelectItemNumChanged: props.onSelectItemNumChanged,
-      accessParentDir: accessParentDir,
-      accessDirectry: (dirName: string) => accessDirectry(nameToPath(dirName)),
-      accessFile: (fileName: string) => {
-        const decoretedPath = '&"./' + fileName + '"';
-        executeShellCommand('Access file', decoretedPath, dir);
-      },
-      focusOppositePane: props.focusOppositePane,
-      getOppositePath: props.getOppositePath,
-      gridRef: myGrid,
-    }
-  );
+  const FileListFunctions = useRef<FileListFunc>(null);
 
   const nameToPath = (name: string) => (dir.length === 0)
     ? name
@@ -376,7 +361,7 @@ export const MainPanel = (
 
   const [filterBar, filterBarFunc] = FileFilterBar(
     {
-      onFilterChanged: (filter) => FileListFunctions.setFilter(filter),
+      onFilterChanged: (filter) => FileListFunctions.current?.setFilter(filter),
       onEndEdit: () => myGrid.current?.focus(),
     }
   );
@@ -410,7 +395,20 @@ export const MainPanel = (
         >
           {
             isValidDir
-              ? fileList
+              ? <FileList
+                isActive={props.isActive}
+                panel_idx={props.panel_idx}
+                onSelectItemNumChanged={props.onSelectItemNumChanged}
+                accessParentDir={accessParentDir}
+                accessDirectry={(dirName: string) => accessDirectry(nameToPath(dirName))}
+                accessFile={(fileName: string) => {
+                  const decoretedPath = '&"./' + fileName + '"';
+                  executeShellCommand('Access file', decoretedPath, dir);
+                }}
+                focusOppositePane={props.focusOppositePane}
+                getOppositePath={props.getOppositePath}
+                gridRef={myGrid}
+              />
               : <div>Directry Unfound.</div>
           }
         </div>

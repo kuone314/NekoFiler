@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import React from 'react';
 
 
@@ -59,8 +59,7 @@ export interface FileListFunc {
   selectCurrentOnly: () => void,
 };
 
-export function FileList(
-  props: {
+type FileListProps = {
     isActive: boolean,
     panel_idx: number,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
@@ -70,8 +69,9 @@ export function FileList(
     focusOppositePane: () => void,
     getOppositePath: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
-  }
-): [JSX.Element, FileListFunc,] {
+};
+
+export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => {
   const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -485,8 +485,9 @@ export function FileList(
     toggleSelection: toggleSelection,
     selectCurrentOnly,
   }
+  useImperativeHandle(ref, () => functions);
 
-  const element = <div>
+  return <div>
     <table
       css={
         {
@@ -555,9 +556,7 @@ export function FileList(
       onMouseMove={(event) => { onMouseMove(entries.length, event) }}
     >{filteredItemNumInfo()} </div>
   </div >
-
-  return [element, functions];
-}
+});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function SequenceAry(rangeTerm1: number, rangeTerm2: number) {
