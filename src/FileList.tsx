@@ -12,20 +12,20 @@ import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export type Entry = {
-  icon: string | null,
-  name: string,
-  is_dir: boolean,
-  extension: string,
-  size: number,
+export type FileListItem = {
+  file_icon: string | null,
+  file_name: string,
+  is_directory: boolean,
+  file_extension: string,
+  file_size: number,
   date: string,
 };
 
-export type Entries = Array<Entry>;
+export type Entries = Array<FileListItem>;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export interface IEntryFilter {
-  IsMatch(entry: Entry): boolean;
+export interface IFileListItemFilter {
+  IsMatch(entry: FileListItem): boolean;
   GetMatchingIdxAry(fileName: string): number[];
 }
 
@@ -44,7 +44,7 @@ export interface FileListFunc {
   accessCurrentItem: () => void,
   initEntries: (newEntries: Entries, initItem: string) => void,
   updateEntries: (newEntries: Entries) => void,
-  setFilter: (filter: IEntryFilter | null) => void,
+  setFilter: (filter: IFileListItemFilter | null) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -82,9 +82,9 @@ export function FileList(
     const newEntries = [...srcEntries];
     newEntries.sort((entry_1, entry_2) => {
       switch (sortKey) {
-        case 'name': return entry_1.name.toLowerCase() > entry_2.name.toLowerCase() ? 1 : -1;
+        case 'name': return entry_1.file_name.toLowerCase() > entry_2.file_name.toLowerCase() ? 1 : -1;
         case 'type': return ToTypeName(entry_1) > ToTypeName(entry_2) ? 1 : -1;
-        case 'size': return entry_1.size > entry_2.size ? 1 : -1;
+        case 'size': return entry_1.file_size > entry_2.file_size ? 1 : -1;
         case 'date': return entry_1.date > entry_2.date ? 1 : -1;
       }
     });
@@ -128,10 +128,10 @@ export function FileList(
     const newEntries = filter ? newOrgEntries.filter(filter.IsMatch) : [...newOrgEntries];
 
     const inherit = entries
-      .map(entry => newEntries.find(newEntry => newEntry.name == entry.name))
+      .map(entry => newEntries.find(newEntry => newEntry.file_name == entry.file_name))
       .filter(opt => opt)
-      .map(opt => opt as Entry);
-    const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.name == entry.name));
+      .map(opt => opt as FileListItem);
+    const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.file_name == entry.file_name));
 
     const newEntriesOrderKeeped = [...inherit, ...added];
     const newIndex = (added.length == 0)
@@ -148,7 +148,7 @@ export function FileList(
     setEntries(newEntriesOrderKeeped);
   }
 
-  const [filter, setFilter] = useState<IEntryFilter | null>(null);
+  const [filter, setFilter] = useState<IFileListItemFilter | null>(null);
   useEffect(() => { OnFilterUpdate(); }, [filter]);
 
   function OnFilterUpdate() {
@@ -156,12 +156,12 @@ export function FileList(
 
     const newIndex = (() => {
       const firstMatchEntryAfterCurrent = orgEntries
-        .slice(orgEntries.findIndex(entry => entry.name === currentItemName()))
+        .slice(orgEntries.findIndex(entry => entry.file_name === currentItemName()))
         .find(entry => filter ? filter.IsMatch(entry) : true);
 
-      const firstMatchNameAfterCurrent = firstMatchEntryAfterCurrent?.name
+      const firstMatchNameAfterCurrent = firstMatchEntryAfterCurrent?.file_name
       return (firstMatchNameAfterCurrent !== undefined)
-        ? newEntries.findIndex(entry => entry.name === firstMatchNameAfterCurrent)
+        ? newEntries.findIndex(entry => entry.file_name === firstMatchNameAfterCurrent)
         : LastIndex(newEntries);
     })();
 
@@ -178,7 +178,7 @@ export function FileList(
 
   const currentItemName = () => {
     if (!IsValidIndex(entries, currentIndex)) { return null; }
-    return entries[currentIndex].name;
+    return entries[currentIndex].file_name;
   }
 
   const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
@@ -314,10 +314,10 @@ export function FileList(
 
   const accessItemByIdx = async (rowIdx: number) => {
     const entry = entries[rowIdx];
-    if (entry.is_dir) {
-      props.accessDirectry(entry.name);
+    if (entry.is_directory) {
+      props.accessDirectry(entry.file_name);
     } else {
-      props.accessFile(entry.name);
+      props.accessFile(entry.file_name);
     }
   }
   const accessCurrentItem = () => {
@@ -332,7 +332,7 @@ export function FileList(
 
     return rowIdxAry
       .filter(idx => 0 <= idx && idx < entries.length)
-      .map(idx => entries[idx].name);
+      .map(idx => entries[idx].file_name);
   }
 
   const moveUp = () => { setupCurrentIndex(currentIndex - 1, false) }
@@ -409,8 +409,8 @@ export function FileList(
 
     const entry = entries[row_idx];
     const found = colorSetting.settings.find(setting => {
-      if (setting.matcher.isDirectory !== entry.is_dir) { return false; }
-      if (!MatchImpl(setting.matcher.nameMatcher, entry.name)) { return false; }
+      if (setting.matcher.isDirectory !== entry.is_directory) { return false; }
+      if (!MatchImpl(setting.matcher.nameMatcher, entry.file_name)) { return false; }
       return true;
     });
     if (found) {
@@ -537,11 +537,11 @@ export function FileList(
               css={table_color(idx)}
             >
               <td>
-                <img src={`data:image/bmp;base64,${entry.icon}`} />
+                <img src={`data:image/bmp;base64,${entry.file_icon}`} />
               </td>
-              <td css={table_border}>{FileNameWithEmphasis(entry.name)}</td>
+              <td css={table_border}>{FileNameWithEmphasis(entry.file_name)}</td>
               <td css={table_border}>{ToTypeName(entry)}</td>
-              <td css={table_border}>{entry.is_dir ? '-' : entry.size}</td>
+              <td css={table_border}>{entry.is_directory ? '-' : entry.file_size}</td>
               <td css={table_border}>{entry.date}</td>
             </tr>
           </tbody>
@@ -572,12 +572,12 @@ function SequenceAry(rangeTerm1: number, rangeTerm2: number) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function ToTypeName(entry: Entry) {
-  return entry.is_dir
+function ToTypeName(entry: FileListItem) {
+  return entry.is_directory
     ? 'folder'
-    : entry.extension.length === 0
+    : entry.file_extension.length === 0
       ? '-'
-      : entry.extension
+      : entry.file_extension
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -587,8 +587,8 @@ function CalcNewSelectIndexAry(
   newEntries: Entries
 ) {
   const newIdxAry = [...selectingIndexArray]
-    .map(idx => entries[idx].name)
-    .map(name => newEntries.findIndex(entry => entry.name === name))
+    .map(idx => entries[idx].file_name)
+    .map(name => newEntries.findIndex(entry => entry.file_name === name))
     .filter(idx => idx != -1);
   return new Set([...newIdxAry])
 }
@@ -598,7 +598,7 @@ function CalcNewCurrentIndex(
   newCurrentItem: string | null,
   currentIndex: number,
 ): number {
-  const findResult = newEntries.findIndex(entry => entry.name === newCurrentItem);
+  const findResult = newEntries.findIndex(entry => entry.file_name === newCurrentItem);
   if (findResult !== -1) { return findResult; }
   if (currentIndex >= newEntries.length) {
     return Math.max(newEntries.length - 1, 0);

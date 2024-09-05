@@ -4,7 +4,7 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import Select from 'react-select'
-import { Entry, IEntryFilter } from './FileList';
+import { FileListItem, IFileListItemFilter } from './FileList';
 import { Sequence } from './Utility';
 import { ComboBoxStyle, TextInputStyle } from './ThemeStyle';
 
@@ -39,7 +39,7 @@ export interface FileFilterBarFunc {
 
 export function FileFilterBar(
   props: {
-    onFilterChanged: (filter: IEntryFilter | null) => void,
+    onFilterChanged: (filter: IFileListItemFilter | null) => void,
     onEndEdit: () => void,
   }
 ): [JSX.Element, FileFilterBarFunc] {
@@ -50,19 +50,19 @@ export function FileFilterBar(
   }, [filter, filterType]);
   const createFilter = () => {
     if (filter === '') { return null; }
-    class FilterImpl implements IEntryFilter {
-      IsMatch(entry: Entry): boolean {
+    class FilterImpl implements IFileListItemFilter {
+      IsMatch(entry: FileListItem): boolean {
         if (filter.length === 0) { return true; }
-        return (MatchIndexAry(entry.name.toLowerCase(), filter).length !== 0);
+        return (MatchIndexAry(entry.file_name.toLowerCase(), filter).length !== 0);
       }
       GetMatchingIdxAry(fileName: string): number[] {
         return MatchIndexAry(fileName.toLowerCase(), filter);
       }
     }
 
-    class RegExprFilter implements IEntryFilter {
-      IsMatch(entry: Entry): boolean {
-        return (new RegExp(filter)).test(entry.name.toLowerCase());
+    class RegExprFilter implements IFileListItemFilter {
+      IsMatch(entry: FileListItem): boolean {
+        return (new RegExp(filter)).test(entry.file_name.toLowerCase());
       }
       GetMatchingIdxAry(fileName: string): number[] {
         const regExp = new RegExp(filter);
