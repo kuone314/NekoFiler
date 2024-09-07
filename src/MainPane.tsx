@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, } from './AddressBar';
-import { FileList, Entries } from './FileList';
+import { FileList, FileListFunc, FileListInfo, IFileListItemFilter, } from './FileList';
 
 import { BUILDIN_COMMAND_TYPE, commandExecuter } from './CommandInfo';
 import { KeyBindSetting, COMMAND_TYPE, readKeyBindSetting, match } from './KeyBindInfo';
@@ -25,11 +25,23 @@ import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
 import { FileFilterBar, FileFilterType } from './FileFilterBar';
 import { MenuitemStyle } from './ThemeStyle';
+import { UnlistenFn, listen } from '@tauri-apps/api/event';
+import { Exist } from './Utility';
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export type PaneInfo = {
+  pane_idx: number,
+  dirctry_path: string,
+  init_focus_item: string,
+  file_list_info: FileListInfo | null,
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const MainPanel = (
   props: {
     isActive: boolean,
+    panel_idx: number,
     initPath: string,
     pined: boolean,
     onPathChanged: (newPath: string) => void
@@ -46,67 +58,64 @@ export const MainPanel = (
   }
 ) => {
   const [dir, setDir] = useState<string>(props.initPath);
-  useEffect(() => { setDir(props.initPath) }, [props.initPath]);
-  const [isValidDir, setIsValidDir] = useState<boolean>(false);
 
+  useEffect(() => {
+    filterBarFunc.clearFilter();
+    AccessDirectory(dir, null);
+    props.onPathChanged(dir);
+  }, [dir]);
 
-  const accessDirectry = async (path: string) => {
+  const [fileListInfo, setFileListInfo] = useState<FileListInfo | null>(null);
+  const [initFocusFile, setInitFocusFile] = useState("");
+
+  useEffect(() => props.onItemNumChanged(fileListInfo?.item_list.length ?? 0), [fileListInfo]);
+
+  const [filter, setFilter] = useState<IFileListItemFilter | null>(null);
+  const [filterBar, filterBarFunc] = FileFilterBar(
+    {
+      onFilterChanged: setFilter,
+      onEndEdit: () => myGrid.current?.focus(),
+    }
+  );
+
+  useEffect(() => {
+    let unlisten: UnlistenFn | null;
+    (async () => {
+      unlisten = await listen('update_path_list', event => {
+        const payload = (event.payload as PaneInfo);
+        if (payload.pane_idx !== props.panel_idx) { return; }
+        if (payload.dirctry_path !== dir) { return; }
+
+        setFileListInfo(payload.file_list_info);
+        setInitFocusFile(payload.init_focus_item);
+      });
+    })()
+    return () => { if (unlisten) { unlisten(); } }
+  }, [dir])
+
+  const onAddressInputed = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
-      .catch(error => {
-        setDir(path);
-        setIsValidDir(false);
-        return null;
-      }
-      );
-    if (!adjusted) { return; }
-    AccessDirectory(adjusted.dir, adjusted.filename);
+      .catch(error => { return null; });
+    AccessDirectory(
+      adjusted?.dir ?? path,
+      adjusted?.filename ?? "");
   }
 
-
-  const AccessDirectory = async (newDir: string, trgFile: string) => {
+  const AccessDirectory = async (newDir: string, trgFile: string | null) => {
     if (props.pined && dir !== newDir) {
       props.tabFuncs.addNewTab(newDir);
       return;
     }
 
-    const newEntries = await invoke<Entries>("get_entries", { path: newDir })
-      .catch(err => { return null; });
-
     setDir(newDir);
-    props.onItemNumChanged(newEntries?.length ?? 0);
-    setIsValidDir(newEntries !== null);
-    if (newEntries !== null) {
-      FileListFunctions.initEntries(newEntries, trgFile);
-    }
+    const paneInfo = await invoke<PaneInfo>("set_dirctry_path", {
+      paneIdx: props.panel_idx,
+      path: newDir,
+      initialFocus: trgFile,
+    });
+    setFileListInfo(paneInfo.file_list_info);
+    setInitFocusFile(paneInfo.init_focus_item);
   }
-
-  const UpdateList = async () => {
-    const newEntries = await invoke<Entries>("get_entries", { path: dir })
-      .catch(err => { return null; });
-
-    props.onItemNumChanged(newEntries?.length ?? 0);
-
-    if (!newEntries) {
-      setIsValidDir(false);
-    } else {
-      if (!isValidDir) {
-        FileListFunctions.initEntries(newEntries, "");
-      } else {
-        FileListFunctions.updateEntries(newEntries);
-      }
-    }
-  }
-
-  useEffect(() => {
-    filterBarFunc.clearFilter();
-    AccessDirectory(dir, "");
-    props.onPathChanged(dir);
-  }, [dir]);
-
-  useInterval(
-    () => UpdateList(),
-    1500
-  );
 
   const focusAddoressBar = () => {
     setFocusToListOnContextMenuClosed(false);
@@ -135,21 +144,22 @@ export const MainPanel = (
     commandName: string,
     srcKey: React.KeyboardEvent<HTMLDivElement> | null
   ) => {
+    if (!FileListFunctions) { return; }
     switch (commandName) {
-      case BUILDIN_COMMAND_TYPE.accessCurrentItem: FileListFunctions.accessCurrentItem(); return;
+      case BUILDIN_COMMAND_TYPE.accessCurrentItem: FileListFunctions.current?.accessCurrentItem(); return;
       case BUILDIN_COMMAND_TYPE.accessParentDir: accessParentDir(); return;
-      case BUILDIN_COMMAND_TYPE.moveUp: FileListFunctions.moveUp(); return;
-      case BUILDIN_COMMAND_TYPE.moveUpSelect: FileListFunctions.moveUpSelect(); return;
-      case BUILDIN_COMMAND_TYPE.moveDown: FileListFunctions.moveDown(); return;
-      case BUILDIN_COMMAND_TYPE.moveDownSelect: FileListFunctions.moveDownSelect(); return;
-      case BUILDIN_COMMAND_TYPE.moveTop: FileListFunctions.moveTop(); return;
-      case BUILDIN_COMMAND_TYPE.moveTopSelect: FileListFunctions.moveTopSelect(); return;
-      case BUILDIN_COMMAND_TYPE.moveBottom: FileListFunctions.moveBottom(); return;
-      case BUILDIN_COMMAND_TYPE.moveBottomSelect: FileListFunctions.moveBottomSelect(); return;
-      case BUILDIN_COMMAND_TYPE.selectAll: FileListFunctions.selectAll(); return;
-      case BUILDIN_COMMAND_TYPE.clearSelection: FileListFunctions.clearSelection(); return;
-      case BUILDIN_COMMAND_TYPE.toggleSelection: FileListFunctions.toggleSelection(); return;
-      case BUILDIN_COMMAND_TYPE.selectCurrentOnly: FileListFunctions.selectCurrentOnly(); return;
+      case BUILDIN_COMMAND_TYPE.moveUp: FileListFunctions.current?.moveUp(); return;
+      case BUILDIN_COMMAND_TYPE.moveUpSelect: FileListFunctions.current?.moveUpSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveDown: FileListFunctions.current?.moveDown(); return;
+      case BUILDIN_COMMAND_TYPE.moveDownSelect: FileListFunctions.current?.moveDownSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveTop: FileListFunctions.current?.moveTop(); return;
+      case BUILDIN_COMMAND_TYPE.moveTopSelect: FileListFunctions.current?.moveTopSelect(); return;
+      case BUILDIN_COMMAND_TYPE.moveBottom: FileListFunctions.current?.moveBottom(); return;
+      case BUILDIN_COMMAND_TYPE.moveBottomSelect: FileListFunctions.current?.moveBottomSelect(); return;
+      case BUILDIN_COMMAND_TYPE.selectAll: FileListFunctions.current?.selectAll(); return;
+      case BUILDIN_COMMAND_TYPE.clearSelection: FileListFunctions.current?.clearSelection(); return;
+      case BUILDIN_COMMAND_TYPE.toggleSelection: FileListFunctions.current?.toggleSelection(); return;
+      case BUILDIN_COMMAND_TYPE.selectCurrentOnly: FileListFunctions.current?.selectCurrentOnly(); return;
       case BUILDIN_COMMAND_TYPE.addNewTab: addNewTab(); return;
       case BUILDIN_COMMAND_TYPE.removeTab: removeTab(); return;
       case BUILDIN_COMMAND_TYPE.removeOtherTabs: removeOtherTabs(); return;
@@ -173,6 +183,7 @@ export const MainPanel = (
     command: KeyBindSetting,
     srcKey: React.KeyboardEvent<HTMLDivElement> | null
   ) => {
+    if (!FileListFunctions) { return; }
     if (command.action.type === COMMAND_TYPE.build_in) {
       execBuildInCommand(command.action.command_name, srcKey);
       return
@@ -182,7 +193,7 @@ export const MainPanel = (
       execShellCommand(
         command.action.command_name,
         dir,
-        FileListFunctions.selectingItemName(),
+        FileListFunctions.current?.selectingItemName() ?? [],
         props.getOppositePath(),
         props.separator);
       return
@@ -311,6 +322,7 @@ export const MainPanel = (
   const [contextMenuPosX, setContextMenuPosX] = useState(0);
   const [contextMenuPosY, setContextMenuPosY] = useState(0);
   const contextMenu = () => {
+    if (!FileListFunctions) { return <></>; }
     return <ControlledMenu
       state={isContextMenuOpen ? 'open' : 'closed'}
       onClose={() => { setContextMenuOpen(false); }}
@@ -323,7 +335,7 @@ export const MainPanel = (
             onClick={e => execShellCommand(
               command.command_name,
               dir,
-              FileListFunctions.selectingItemName(),
+              FileListFunctions.current?.selectingItemName() ?? [],
               props.getOppositePath(),
               props.separator
             )}
@@ -343,21 +355,7 @@ export const MainPanel = (
     }
   }, [isContextMenuOpen])
 
-  const [fileList, FileListFunctions] = FileList(
-    {
-      isActive: props.isActive,
-      onSelectItemNumChanged: props.onSelectItemNumChanged,
-      accessParentDir: accessParentDir,
-      accessDirectry: (dirName: string) => accessDirectry(nameToPath(dirName)),
-      accessFile: (fileName: string) => {
-        const decoretedPath = '&"./' + fileName + '"';
-        executeShellCommand('Access file', decoretedPath, dir);
-      },
-      focusOppositePane: props.focusOppositePane,
-      getOppositePath: props.getOppositePath,
-      gridRef: myGrid,
-    }
-  );
+  const FileListFunctions = useRef<FileListFunc>(null);
 
   const nameToPath = (name: string) => (dir.length === 0)
     ? name
@@ -367,14 +365,7 @@ export const MainPanel = (
     {
       dirPath: dir,
       separator: props.separator,
-      confirmInput: (path) => accessDirectry(path),
-      onEndEdit: () => myGrid.current?.focus(),
-    }
-  );
-
-  const [filterBar, filterBarFunc] = FileFilterBar(
-    {
-      onFilterChanged: (filter) => FileListFunctions.setFilter(filter),
+      confirmInput: (path) => onAddressInputed(path),
       onEndEdit: () => myGrid.current?.focus(),
     }
   );
@@ -407,8 +398,26 @@ export const MainPanel = (
           }}
         >
           {
-            isValidDir
-              ? fileList
+            fileListInfo
+              ? <FileList
+                isActive={props.isActive}
+                panel_idx={props.panel_idx}
+                dirctoryPath={dir}
+                focusTarget={initFocusFile}
+                filter={filter}
+                onSelectItemNumChanged={props.onSelectItemNumChanged}
+                accessParentDir={accessParentDir}
+                accessDirectry={(dirName: string) => AccessDirectory(nameToPath(dirName), null)}
+                accessFile={(fileName: string) => {
+                  const decoretedPath = '&"./' + fileName + '"';
+                  executeShellCommand('Access file', decoretedPath, dir);
+                }}
+                focusOppositePane={props.focusOppositePane}
+                getOppositePath={props.getOppositePath}
+                gridRef={myGrid}
+                ref={FileListFunctions}
+                fileListInfo={fileListInfo.item_list}
+              />
               : <div>Directry Unfound.</div>
           }
         </div>
@@ -418,3 +427,4 @@ export const MainPanel = (
     </>
   );
 }
+
