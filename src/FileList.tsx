@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import React from 'react';
 
 
@@ -10,23 +10,33 @@ import { IsValidIndex, LastIndex } from './Utility';
 import { MatchImpl } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
+import { listen, UnlistenFn } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type FileListItem = {
-  file_icon: string | null,
+  is_selected: boolean,
   file_name: string,
-  is_directory: boolean,
   file_extension: string,
-  file_size: number,
-  date: string,
-};
+  is_directory: boolean,
+  file_icon: string | null,
+  file_size: number | null,
+  date: string | null,
+}
 
-export type Entries = Array<FileListItem>;
+export type FileListInfo = {
+  item_list: FileListItem[],
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface IFileListItemFilter {
   IsMatch(entry: FileListItem): boolean;
   GetMatchingIdxAry(fileName: string): number[];
+}
+
+type FilteredFileListItem = {
+  item: FileListItem,
+  org_idx: number,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,9 +52,6 @@ type SortKey = typeof SORT_KEY[keyof typeof SORT_KEY];
 export interface FileListFunc {
   selectingItemName: () => string[],
   accessCurrentItem: () => void,
-  initEntries: (newEntries: Entries, initItem: string) => void,
-  updateEntries: (newEntries: Entries) => void,
-  setFilter: (filter: IFileListItemFilter | null) => void,
   moveUp: () => void,
   moveUpSelect: () => void,
   moveDown: () => void,
@@ -60,138 +67,89 @@ export interface FileListFunc {
 };
 
 type FileListProps = {
-    isActive: boolean,
-    panel_idx: number,
-    onSelectItemNumChanged: (newSelectItemNum: number) => void,
-    accessParentDir: () => void,
-    accessDirectry: (dirName: string) => void,
-    accessFile: (fileName: string) => void,
-    focusOppositePane: () => void,
-    getOppositePath: () => void,
-    gridRef?: React.RefObject<HTMLDivElement>,
+  isActive: boolean,
+  panel_idx: number,
+  dirctoryPath: string,
+  fileListInfo: FileListItem[],
+  focusTarget: string,
+  filter: IFileListItemFilter | null,
+  onSelectItemNumChanged: (newSelectItemNum: number) => void,
+  accessParentDir: () => void,
+  accessDirectry: (dirName: string) => void,
+  accessFile: (fileName: string) => void,
+  focusOppositePane: () => void,
+  getOppositePath: () => void,
+  gridRef?: React.RefObject<HTMLDivElement>,
 };
 
 export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => {
-  const [sortKey, setSortKey] = useState<SortKey>(SORT_KEY.name);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [filteredEntries, setFilteredEntries] = useState<FilteredFileListItem[]>([]);
 
-  const [orgEntries, setOrgEntries] = useState<Entries>([]);
-  const [entries, setEntries] = useState<Entries>([]);
-
-  const setupEntries = (srcEntries: Entries, selectTrg: string | null) => {
-    const newEntries = [...srcEntries];
-    newEntries.sort((entry_1, entry_2) => {
-      switch (sortKey) {
-        case 'name': return entry_1.file_name.toLowerCase() > entry_2.file_name.toLowerCase() ? 1 : -1;
-        case 'type': return ToTypeName(entry_1) > ToTypeName(entry_2) ? 1 : -1;
-        case 'size': return entry_1.file_size > entry_2.file_size ? 1 : -1;
-        case 'date': return entry_1.date > entry_2.date ? 1 : -1;
-      }
+  function invokeSetCurrentItem(val: string) {
+    invoke<void>("set_focus_item", {
+      paneidx: props.panel_idx,
+      focusitem: val,
     });
-
-    const newFinterdEntries = filter ? newEntries.filter(filter.IsMatch) : [...newEntries];
-
-    const newIdxAry = CalcNewSelectIndexAry(
-      selectingIndexArray,
-      entries,
-      newFinterdEntries);
-
-    const newIndex = CalcNewCurrentIndex(newFinterdEntries, selectTrg, currentIndex);
-
-
-    setOrgEntries(newEntries);
-    setEntries(newFinterdEntries);
-    setSelectingIndexArray(new Set([...newIdxAry]));
-    setAdjustMargin(defaultAdjustMargin);
-    setCurrentIndex(newIndex);
   }
+
+
   useEffect(() => {
-    setupEntries(orgEntries, currentItemName());
-  }, [sortKey]);
+    const newFilteredFileList = props.fileListInfo
+      .map((fileListItem, orgIdx) => { return { item: fileListItem, org_idx: orgIdx, } })
+      .filter(item => props.filter?.IsMatch(item.item) ?? true)
+    setFilteredEntries(newFilteredFileList);
 
+    props.onSelectItemNumChanged(newFilteredFileList.filter(item => item.item.is_selected).length);
 
-  const initEntries = (newEntries: Entries, initItem: string) => {
-    setSelectingIndexArray(new Set());
-    setupEntries(newEntries, initItem);
-  }
+    const isSelectedItemFilterd = props.fileListInfo
+      .filter(item => !(props.filter?.IsMatch(item) ?? true))
+      .some(item => item.is_selected);
+    if (isSelectedItemFilterd) {
 
-  const updateEntries = (newOrgEntries: Entries) => {
-    // 既にある物の位置は変えない。
-    // 新規の物を下に追加しする。
-    // 新規がある場合は、新規の物のみを選択状態にする。
-    const orgEntriesNormalized = orgEntries.map(entry => JSON.stringify(entry)).sort();
-    const newEntriesNormalized = newOrgEntries.map(entry => JSON.stringify(entry)).sort();
-
-    const modified = JSON.stringify(orgEntriesNormalized) !== JSON.stringify(newEntriesNormalized);
-    if (!modified) { return; }
-
-    const newEntries = filter ? newOrgEntries.filter(filter.IsMatch) : [...newOrgEntries];
-
-    const inherit = entries
-      .map(entry => newEntries.find(newEntry => newEntry.file_name == entry.file_name))
-      .filter(opt => opt)
-      .map(opt => opt as FileListItem);
-    const added = newEntries.filter(newEntry => !entries.some(entry => newEntry.file_name == entry.file_name));
-
-    const newEntriesOrderKeeped = [...inherit, ...added];
-    const newIndex = (added.length == 0)
-      ? CalcNewCurrentIndex(newEntriesOrderKeeped, currentItemName(), currentIndex)
-      : inherit.length;
-    setCurrentIndex(newIndex);
-
-    const newIdxAry = (added.length != 0)
-      ? SequenceAry(inherit.length, inherit.length + added.length - 1)
-      : CalcNewSelectIndexAry(selectingIndexArray, entries, newEntriesOrderKeeped);
-    setSelectingIndexArray(new Set([...newIdxAry]));
-
-    setOrgEntries(newOrgEntries);
-    setEntries(newEntriesOrderKeeped);
-  }
-
-  const [filter, setFilter] = useState<IFileListItemFilter | null>(null);
-  useEffect(() => { OnFilterUpdate(); }, [filter]);
-
-  function OnFilterUpdate() {
-    const newEntries = filter ? orgEntries.filter(filter.IsMatch) : [...orgEntries];
-
-    const newIndex = (() => {
-      const firstMatchEntryAfterCurrent = orgEntries
-        .slice(orgEntries.findIndex(entry => entry.file_name === currentItemName()))
-        .find(entry => filter ? filter.IsMatch(entry) : true);
-
-      const firstMatchNameAfterCurrent = firstMatchEntryAfterCurrent?.file_name
-      return (firstMatchNameAfterCurrent !== undefined)
-        ? newEntries.findIndex(entry => entry.file_name === firstMatchNameAfterCurrent)
-        : LastIndex(newEntries);
-    })();
-
-    const newIdxAry = CalcNewSelectIndexAry(
-      selectingIndexArray,
-      entries,
-      newEntries);
-
-    setEntries(newEntries);
-    setCurrentIndex(newIndex);
-    setSelectingIndexArray(new Set([...newIdxAry]));
-  }
-
-
-  const currentItemName = () => {
-    if (!IsValidIndex(entries, currentIndex)) { return null; }
-    return entries[currentIndex].file_name;
-  }
-
-  const [selectingIndexArray, setSelectingIndexArray] = useState<Set<number>>(new Set([]));
-  useEffect(() => {
-    const fixedSelections = [...selectingIndexArray].filter(idx => 0 <= idx && idx < entries.length);
-    const fixedSelectionSet = new Set([...fixedSelections]);
-    if (selectingIndexArray.size != fixedSelectionSet.size) {
-      setSelectingIndexArray(fixedSelectionSet);
+      const newSelectionIdx = newFilteredFileList.filter(item => item.item.is_selected).map(item => item.org_idx)
+      invoke<void>("set_selecting_idx", {
+        paneidx: props.panel_idx,
+        newSelectIdxList: newSelectionIdx,
+      });
     }
-  }, [selectingIndexArray]);
+
+    const foundIndex = newFilteredFileList.findIndex(item => item.item.file_name === props.focusTarget);
+    if (foundIndex === -1) {
+      const updateFocusItemOnFiltered = () => {
+        if (!props.filter) { return; }
+        const orgIdx = props.fileListInfo.findIndex(item => item.file_name === props.focusTarget);
+        if (orgIdx === -1) { return; }
+        const finterdNum = props.fileListInfo.slice(0, orgIdx).filter(item => !props.filter!.IsMatch(item)).length;
+        const newIndex = (orgIdx - finterdNum);
+        if (!IsValidIndex(props.fileListInfo, newIndex)) { return; }
+
+        const newFocusItem = props.fileListInfo[newIndex].file_name;
+        invokeSetCurrentItem(newFocusItem);
+      }
+    }
+  }, [props.fileListInfo, props.filter, props.focusTarget])
+
+
+  function invokeSort(sortKey: string) {
+    const payloadKey = (() => {
+      switch (sortKey) {
+        case 'name': return "Name";
+        case 'type': return "FileType";
+        case 'size': return "Size";
+        case 'date': return "Date";
+      }
+    })();
+    invoke('sort_file_list', {
+      paneidx: props.panel_idx,
+      sorkKey: payloadKey,
+    });
+  }
+
   const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
-    let new_ary = new Set([...selectingIndexArray, ...SequenceAry(rangeTerm1, rangeTerm2)]);
-    setSelectingIndexArray(new_ary);
+    invoke<void>("add_selecting_idx", {
+      paneidx: props.panel_idx,
+      additionalSelectIdxList: SequenceAry(rangeTerm1, rangeTerm2),
+    });
   }
 
   const [colorSetting, setColorSetting] = useState<FileListRowColorSettings | null>(null);
@@ -203,26 +161,25 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }, []);
 
 
-  useEffect(() => {
-    props.onSelectItemNumChanged(selectingIndexArray.size);
-  }, [selectingIndexArray]);
 
   useEffect(() => {
     myGrid.current?.focus();
   }, []);
 
 
+  const currentIndex = filteredEntries.findIndex(item => item.item.file_name === props.focusTarget);
+  const setCurrentIndex = (newIndex: number) => {
+    if (!IsValidIndex(filteredEntries, newIndex)) { return; }
+    invokeSetCurrentItem(filteredEntries[newIndex].item.file_name);
+  }
+
   const setupCurrentIndex = (newIndex: number, select: boolean) => {
-    if (currentIndex === newIndex) { return; }
-    if (newIndex < 0) { return; }
-    if (newIndex >= entries.length) { return; }
-
+    if (!IsValidIndex(filteredEntries, newIndex)) { return; }
+    if (select) {
+      addSelectingIndexRange(currentIndex, newIndex);
+    }
+    setCurrentIndex(newIndex);
     setAdjustMargin(defaultAdjustMargin);
-    setCurrentIndex(newIndex)
-
-    if (!select) { return }
-
-    addSelectingIndexRange(currentIndex, newIndex);
   }
 
   const defaultAdjustMargin = 2;
@@ -261,7 +218,10 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
   useEffect(() => {
     adjustScroll();
-  }, [currentIndex]);
+  }, []);
+  useEffect(() => {
+    adjustScroll();
+  }, [props.dirctoryPath,props.focusTarget]);
 
   interface MouseSelectInfo {
     startIndex: number,
@@ -292,7 +252,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     } else {
       setSelectingIndexArray(SequenceAry(start.startIndex, newIdx));
     }
-    if (newIdx < entries.length) {
+    if (newIdx < filteredEntries.length) {
       const isDrag = (start.startIndex !== newIdx);
       setAdjustMargin(isDrag ? 1 : 0);
       setCurrentIndex(newIdx);
@@ -300,7 +260,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
   const onMouseUp = (row_idx: number) => {
     setMouseSelectInfo(null);
-    if (row_idx < entries.length) {
+    if (row_idx < filteredEntries.length) {
       setAdjustMargin(0);
       setCurrentIndex(row_idx);
     }
@@ -308,31 +268,31 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
 
   const onRowdoubleclick = (row_idx: number, event: React.MouseEvent<Element>) => {
-    accessItemByIdx(row_idx);
+    accessCurrentItem()
     event.stopPropagation();
   };
 
-  const accessItemByIdx = async (rowIdx: number) => {
-    const entry = entries[rowIdx];
+  const accessCurrentItem = () => {
+    if (!IsValidIndex(filteredEntries, currentIndex)) { return; }
+    const entry = filteredEntries[currentIndex].item;
     if (entry.is_directory) {
       props.accessDirectry(entry.file_name);
     } else {
       props.accessFile(entry.file_name);
     }
   }
-  const accessCurrentItem = () => {
-    accessItemByIdx(currentIndex);
-  }
 
   const selectingItemName = () => {
-    if (entries.length === 0) { return [''] }
+    if (filteredEntries.length === 0) { return [''] }
 
-    let rowIdxAry = [...selectingIndexArray]
-    if (rowIdxAry.length === 0) { rowIdxAry = [currentIndex]; }
+    const result = filteredEntries
+      .map(item => item.item)
+      .filter(item => item.is_selected)
+      .map(item => item.file_name);
 
-    return rowIdxAry
-      .filter(idx => 0 <= idx && idx < entries.length)
-      .map(idx => entries[idx].file_name);
+    return (result.length === 0)
+      ? [filteredEntries[currentIndex].item.file_name]
+      : result;
   }
 
   const moveUp = () => { setupCurrentIndex(currentIndex - 1, false) }
@@ -341,32 +301,40 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   const moveDownSelect = () => { setupCurrentIndex(currentIndex + 1, true) }
   const moveTop = () => { setupCurrentIndex(0, false) }
   const moveTopSelect = () => { setupCurrentIndex(0, true) }
-  const moveBottom = () => { setupCurrentIndex(entries.length - 1, false) }
-  const moveBottomSelect = () => { setupCurrentIndex(entries.length - 1, true) }
+  const moveBottom = () => { setupCurrentIndex(filteredEntries.length - 1, false) }
+  const moveBottomSelect = () => { setupCurrentIndex(filteredEntries.length - 1, true) }
   const selectAll = () => {
-    const isSelectAll = (selectingIndexArray.size === entries.length);
+    const isSelectAll = filteredEntries.map(item => item.item).every(item => item.is_selected);
     if (isSelectAll) {
       clearSelection();
     } else {
-      addSelectingIndexRange(0, entries.length - 1)
+      addSelectingIndexRange(0, filteredEntries.length - 1)
     }
   }
   const clearSelection = () => {
-    setSelectingIndexArray(new Set());
+    invoke<void>("set_selecting_idx", {
+      paneidx: props.panel_idx,
+      newSelectIdxList: [],
+    });
   }
   const toggleSelection = () => {
-    let new_ary = new Set([...selectingIndexArray]);
-    if (selectingIndexArray.has(currentIndex)) {
-      new_ary.delete(currentIndex);
-    } else {
-      new_ary.add(currentIndex);
-    }
-    setSelectingIndexArray(new_ary)
+    invoke<void>("toggle_selection", {
+      paneidx: props.panel_idx,
+      trgIdx: filteredEntries[currentIndex].org_idx,
+    });
   }
   const selectCurrentOnly = () => {
-    setSelectingIndexArray(new Set([currentIndex]));
+    setSelectingIndexArray([currentIndex]);
   }
 
+  function setSelectingIndexArray(newIdxList: Array<number>) {
+    invoke<void>("set_selecting_idx", {
+      paneidx: props.panel_idx,
+      newSelectIdxList: [...newIdxList]
+        .filter(idx => IsValidIndex(filteredEntries, idx))
+        .map(idx => filteredEntries[idx].org_idx),
+    });
+  }
 
   const myGrid = props.gridRef ?? React.createRef<HTMLDivElement>();
   const table_header = React.createRef<HTMLTableSectionElement>();
@@ -402,12 +370,12 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       });
     }
 
-    const isSelectionColor = props.isActive && selectingIndexArray.has(row_idx);
+    const entry = filteredEntries[row_idx].item;
+    const isSelectionColor = props.isActive && entry.is_selected;
     if (isSelectionColor) {
       return toTableColor(colorSetting.selectionColor);
     }
 
-    const entry = entries[row_idx];
     const found = colorSetting.settings.find(setting => {
       if (setting.matcher.isDirectory !== entry.is_directory) { return false; }
       if (!MatchImpl(setting.matcher.nameMatcher, entry.file_name)) { return false; }
@@ -437,21 +405,16 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   const table_header_color = css({
     border: '1pt solid ' + theme.stringDefaultColor,
   });
-  const table_header_font = (sortType: SortKey) => {
-    return css({
-      fontWeight: (sortKey === sortType) ? 'bold' : 'normal',
-    });
-  }
 
   const filteredItemNumInfo = () => {
-    const filteredNum = (orgEntries.length - entries.length);
+    const filteredNum = (props.fileListInfo.length - filteredEntries.length);
     if (filteredNum === 0) { return '.' } // 余白を設けるため、空文字にはしない
     return filteredNum + ' file(s) filterd.'
   }
 
   function FileNameWithEmphasis(fileName: string): React.ReactNode {
-    const emphasisIdxAry = (filter !== null)
-      ? filter.GetMatchingIdxAry(fileName)
+    const emphasisIdxAry = (props.filter !== null)
+      ? props.filter.GetMatchingIdxAry(fileName)
       : [];
     const charFlagPairs = fileName.split('').map((str, idx) => {
       const flag = emphasisIdxAry.includes(idx);
@@ -468,10 +431,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
   const functions = {
     selectingItemName: selectingItemName,
-    accessCurrentItem: accessCurrentItem,
-    initEntries: initEntries,
-    updateEntries: updateEntries,
-    setFilter: setFilter,
+    accessCurrentItem,
     moveUp: moveUp,
     moveUpSelect: moveUpSelect,
     moveDown: moveDown,
@@ -509,25 +469,26 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
             css={{ width: '10' }}
           />{/* icon */}
           <th
-            onClick={() => setSortKey(SORT_KEY.name)}
-            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.name),]}
+            onClick={() => invokeSort(SORT_KEY.name)}
+            css={[table_resizable, table_header_color,]}
           >FileName</th>
           <th
-            onClick={() => setSortKey(SORT_KEY.type)}
-            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.type),]}
+            onClick={() => invokeSort(SORT_KEY.type)}
+            css={[table_resizable, table_header_color,]}
           >type</th>
           <th
-            onClick={() => setSortKey(SORT_KEY.size)}
-            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.size),]}
+            onClick={() => invokeSort(SORT_KEY.size)}
+            css={[table_resizable, table_header_color,]}
           >size</th>
           <th
-            onClick={() => setSortKey(SORT_KEY.date)}
-            css={[table_resizable, table_header_color, table_header_font(SORT_KEY.date),]}
+            onClick={() => invokeSort(SORT_KEY.date)}
+            css={[table_resizable, table_header_color,]}
           >date</th>
         </tr>
       </thead>
       {
-        entries.map((entry, idx) => {
+        filteredEntries.map((item, idx) => {
+          const entry = item.item;
           return <tbody key={'List' + idx}>
             <tr
               ref={(idx === currentIndex) ? current_row : null}
@@ -538,11 +499,11 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
               css={table_color(idx)}
             >
               <td>
-                <img src={`data:image/bmp;base64,${entry.file_icon}`} />
+                <img src={`data:image/bmp;base64,${entry.file_icon ?? ""}`} />
               </td>
               <td css={table_border}>{FileNameWithEmphasis(entry.file_name)}</td>
-              <td css={table_border}>{ToTypeName(entry)}</td>
-              <td css={table_border}>{entry.is_directory ? '-' : entry.file_size}</td>
+              <td css={table_border}>{entry.file_extension}</td>
+              <td css={table_border}>{entry.file_size ?? "-"}</td>
               <td css={table_border}>{entry.date}</td>
             </tr>
           </tbody>
@@ -551,56 +512,22 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     </table>
     <div
       style={{ height: 50, }}
-      onMouseDown={(event) => { onMouseDown(entries.length, event) }}
-      onMouseUp={(event) => { onMouseUp(entries.length) }}
-      onMouseMove={(event) => { onMouseMove(entries.length, event) }}
+      onMouseDown={(event) => { onMouseDown(filteredEntries.length, event) }}
+      onMouseUp={(event) => { onMouseUp(filteredEntries.length) }}
+      onMouseMove={(event) => { onMouseMove(filteredEntries.length, event) }}
     >{filteredItemNumInfo()} </div>
   </div >
 });
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function SequenceAry(rangeTerm1: number, rangeTerm2: number) {
   const sttIdx = Math.min(rangeTerm1, rangeTerm2);
   const endIdx = Math.max(rangeTerm1, rangeTerm2);
 
-  let new_ary = new Set<number>();
+  let new_ary = new Array<number>();
   for (let idx = sttIdx; idx <= endIdx; idx++) {
-    new_ary.add(idx);
+    new_ary.push(idx);
   }
   return new_ary;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-function ToTypeName(entry: FileListItem) {
-  return entry.is_directory
-    ? 'folder'
-    : entry.file_extension.length === 0
-      ? '-'
-      : entry.file_extension
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-function CalcNewSelectIndexAry(
-  selectingIndexArray: Set<number>,
-  entries: Entries,
-  newEntries: Entries
-) {
-  const newIdxAry = [...selectingIndexArray]
-    .map(idx => entries[idx].file_name)
-    .map(name => newEntries.findIndex(entry => entry.file_name === name))
-    .filter(idx => idx != -1);
-  return new Set([...newIdxAry])
-}
-
-function CalcNewCurrentIndex(
-  newEntries: Entries,
-  newCurrentItem: string | null,
-  currentIndex: number,
-): number {
-  const findResult = newEntries.findIndex(entry => entry.file_name === newCurrentItem);
-  if (findResult !== -1) { return findResult; }
-  if (currentIndex >= newEntries.length) {
-    return Math.max(newEntries.length - 1, 0);
-  }
-  return currentIndex;
 }
