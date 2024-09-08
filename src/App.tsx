@@ -99,6 +99,13 @@ function ViewImpl(): JSX.Element {
       scrollbarColor: theme.stringDefaultColor + ' ' + theme.elementDefaultColor
     })}
   >
+    <style>
+      {`
+          input::selection {
+            background-color: ${theme.elementSelectionColor}
+          }
+        `}
+    </style>
     {Impl()}
   </div >
 
