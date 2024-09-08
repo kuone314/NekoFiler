@@ -22,6 +22,8 @@ interface ThemeContextType {
   setStringDefaultColor: (newColor: string) => void;
   stringDisabledColor: string;
   setStringDisabledColor: (newColor: string) => void;
+  stringErrorColor: string;
+  setStringErrorColor: (newColor: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -46,6 +48,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [elementSelectionColor, setElementSelectionColor] = useState<string>('blue')
   const [stringDefaultColor, setStringDefaultColor] = useState<string>('#ffffff');
   const [stringDisabledColor, setStringDisabledColor] = useState<string>('#c0c0c0')
+  const [stringErrorColor, setStringErrorColor] = useState<string>('#ff0000')
 
   return (
     <ThemeContext.Provider value={{
@@ -61,6 +64,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       setStringDefaultColor: setStringDefaultColor,
       stringDisabledColor: stringDisabledColor,
       setStringDisabledColor: setStringDisabledColor,
+      stringErrorColor: stringErrorColor,
+      setStringErrorColor: setStringErrorColor,
     }}>
       {children}
     </ThemeContext.Provider>

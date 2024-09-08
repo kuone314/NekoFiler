@@ -8,7 +8,7 @@ import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import { Box } from "@mui/material";
 
 import { IoIosArrowDropright, IoIosArrowDropdown } from "react-icons/io";
-import { TextInputStyle } from "./ThemeStyle";
+import { TextInputStyle, useTheme } from "./ThemeStyle";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface LogMessagePeinFunc {
@@ -88,6 +88,7 @@ function LopPane(
     </>
   }
 
+  const theme = useTheme();
   return <>
     <Box
       css={css({
@@ -109,7 +110,7 @@ function LopPane(
       >
         <div
           css={css({
-            color: isError() ? 'red' : '',
+            color: isError() ? theme.stringErrorColor : '',
           })}
         >
           {logInfo.title}
