@@ -109,7 +109,7 @@ function LopPane(
       >
         <div
           css={css({
-            color: isError() ? 'red' : 'black',
+            color: isError() ? 'red' : '',
           })}
         >
           {logInfo.title}
