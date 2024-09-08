@@ -45,7 +45,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [backgroundColor, setBackgroundColor] = useState<string>('#000000');
   const [elementDefaultColor, setElementDefaultColor] = useState<string>('#303030');
   const [elementHilightColor, setElementHilightColor] = useState<string>('#555555');
-  const [elementSelectionColor, setElementSelectionColor] = useState<string>('blue')
+  const [elementSelectionColor, setElementSelectionColor] = useState<string>('#336ee6')
   const [stringDefaultColor, setStringDefaultColor] = useState<string>('#ffffff');
   const [stringDisabledColor, setStringDisabledColor] = useState<string>('#c0c0c0')
   const [stringErrorColor, setStringErrorColor] = useState<string>('#ff0000')
