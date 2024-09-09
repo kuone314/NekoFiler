@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "amaterasu_filer",
+    "productName": "neko_filer",
     "version": "0.0.0"
   },
   "tauri": {
@@ -28,7 +28,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "amaterasu-filer",
+      "identifier": "neko-filer",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -57,7 +57,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "amaterasu_filer",
+        "title": "neko_filer",
         "width": 800
       }
     ]
