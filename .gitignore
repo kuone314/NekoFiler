@@ -25,6 +25,6 @@ dist-ssr
 *.sln
 *.sw?
 
-AmaterasuFilerSettings
+neko_filer_settings
 neko_filer.exe
 /src-tauri/Cargo.lock

@@ -104,7 +104,7 @@ export const shellCommandTemplate = `# Available variables
 # $current_dir = "C:\\XXX";
 # $opposite_dir = "C\\YYY";
 # $dialog_input_str_ary = @("Foo","Bar");
-# $script_dir = "C:\\AmaterasuFilerSettings\\general\\script\\";
+# $script_dir = "C:\\neko_filer_settings\\general\\script\\";
 `;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@ pub fn write_setting_file(filename: &str, content: &str) -> Option<()> {
 
 #[tauri::command]
 pub fn setting_dir() -> Option<std::path::PathBuf> {
-    let dir_name = "AmaterasuFilerSettings";
+    let dir_name = "neko_filer_settings";
 
     let current_dir = env::current_dir().ok()?;
     let result = current_dir.join(dir_name);
