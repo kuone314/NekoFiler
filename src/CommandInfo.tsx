@@ -77,7 +77,7 @@ class Version {
 }
 
 class SettingInfo implements ISettingInfo<ShellCommand[]> {
-  filePath = "General/shell_commands.json5";
+  filePath = "general/shell_commands.json5";
   latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
