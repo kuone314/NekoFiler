@@ -21,7 +21,7 @@ pub fn update_filer(version: &str) -> Result<(), String> {
     let error_msg = format!(
         r#"
 Failed download versiont {}
-See https://github.com/kuone314/AMATERASU-Filer/releases
+See https://github.com/kuone314/NekoFiler/releases
 "#,
         &version
     );
@@ -37,7 +37,7 @@ See https://github.com/kuone314/AMATERASU-Filer/releases
 fn download_filer(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf> {
     let download_command = format!(
         "{}{}{}",
-        r#"curl.exe -sLJO https://github.com/kuone314/AMATERASU-Filer/releases/download/"#,
+        r#"curl.exe -sLJO https://github.com/kuone314/NekoFiler/releases/download/"#,
         latest_version,
         r#"/neko_filer.exe"#
     );
