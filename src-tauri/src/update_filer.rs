@@ -84,7 +84,7 @@ fn kick_replace_shell_command(
     }
     "#;
 
-    let replace_script_path = &work_dir_path.join("replace_amaterasu_filer_to_newer_ver.ps1");
+    let replace_script_path = &work_dir_path.join("replace_neko_filer_to_newer_ver.ps1");
     let remove_files_command = format!(
         r#"
 remove-item "{}" -force
