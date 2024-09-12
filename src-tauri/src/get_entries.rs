@@ -274,7 +274,7 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
 
     if !added.is_empty() {
         for item in &mut remain {
-            item.is_selected = !item.is_selected;
+            item.is_selected = false;
         }
     }
 
