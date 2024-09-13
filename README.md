@@ -3,7 +3,7 @@
 
 - 起動
   - Release より exe をダウンロードして実行して下さい。
-  - 起動後、設定ファイルを含む `AmaterasuFilerSettings`フォルダが生成されます。
+  - 起動後、設定ファイルを含む `neko_filer_settings`フォルダが生成されます。
 
 # 基本操作
 
@@ -17,7 +17,7 @@
 
 ## キー操作
 
-- キー操作は、`AmaterasuFilerSettings/key_bind.json5` を参照
+- キー操作は、`neko_filer_settings/key_bind.json5` を参照
   - アプリ内に、参照,設定の機能を追加予定
 - 同一キーに複数コマンドを指定した場合、どの機能を動かすかのメニューが表示されます。
 
@@ -63,8 +63,8 @@
 # 配色指定
 - 以下の設定ファイルを編集することで、タブの色,ファイル名の色を変更できます。
   - 正規表現でマッチさせます。
-* `AmaterasuFilerSettings/tab_color.json5`
-* `AmaterasuFilerSettings/file_name_color.json5`
+* `neko_filer_settings/tab_color.json5`
+* `neko_filer_settings/file_name_color.json5`
 
 # その他機能
 
@@ -82,9 +82,6 @@
   - e.g. 削除前に確認ダイアログを出す、など。
   - このため、ファイルのコピーなども、スクリプトへ処理を委譲している。
 
-
-## 名前の由来
-- 命名に困ったら、星座や神話の神様から名前を取ると良いという話を聞き、この名前にしました。
 
 ## 環境
 

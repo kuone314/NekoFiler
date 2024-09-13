@@ -77,7 +77,7 @@ class Version {
 }
 
 class SettingInfo implements ISettingInfo<ShellCommand[]> {
-  filePath = "General/shell_commands.json5";
+  filePath = "general/shell_commands.json5";
   latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
@@ -104,7 +104,7 @@ export const shellCommandTemplate = `# Available variables
 # $current_dir = "C:\\XXX";
 # $opposite_dir = "C\\YYY";
 # $dialog_input_str_ary = @("Foo","Bar");
-# $script_dir = "C:\\AmaterasuFilerSettings\\general\\script\\";
+# $script_dir = "C:\\neko_filer_settings\\general\\script\\";
 `;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

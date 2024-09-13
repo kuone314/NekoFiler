@@ -21,7 +21,7 @@ pub fn update_filer(version: &str) -> Result<(), String> {
     let error_msg = format!(
         r#"
 Failed download versiont {}
-See https://github.com/kuone314/AMATERASU-Filer/releases
+See https://github.com/kuone314/NekoFiler/releases
 "#,
         &version
     );
@@ -37,9 +37,9 @@ See https://github.com/kuone314/AMATERASU-Filer/releases
 fn download_filer(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf> {
     let download_command = format!(
         "{}{}{}",
-        r#"curl.exe -sLJO https://github.com/kuone314/AMATERASU-Filer/releases/download/"#,
+        r#"curl.exe -sLJO https://github.com/kuone314/NekoFiler/releases/download/"#,
         latest_version,
-        r#"/amaterasu_filer.exe"#
+        r#"/neko_filer.exe"#
     );
     let _ = Command::new("Powershell")
         .args(["-Command", &download_command])
@@ -47,7 +47,7 @@ fn download_filer(latest_version: &str, work_dir_path: &Path) -> Option<PathBuf>
         .current_dir(&work_dir_path)
         .output();
 
-    let downloaded_exe_path = &work_dir_path.join("amaterasu_filer.exe");
+    let downloaded_exe_path = &work_dir_path.join("neko_filer.exe");
     if !downloaded_exe_path.is_file() {
         return None;
     }
@@ -84,7 +84,7 @@ fn kick_replace_shell_command(
     }
     "#;
 
-    let replace_script_path = &work_dir_path.join("replace_amaterasu_filer_to_newer_ver.ps1");
+    let replace_script_path = &work_dir_path.join("replace_neko_filer_to_newer_ver.ps1");
     let remove_files_command = format!(
         r#"
 remove-item "{}" -force

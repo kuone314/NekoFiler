@@ -3,7 +3,7 @@
 #[tauri::command]
 pub fn get_latest_version() -> Option<String> {
     let html = get_release_page_htlm()?;
-    let key_text_front = r#"kuone314/AMATERASU-Filer/releases/tag/"#;
+    let key_text_front = r#"kuone314/NekoFiler/releases/tag/"#;
     let found = html.find(key_text_front)?;
 
     let remain = &html[found + key_text_front.len()..];
@@ -19,7 +19,7 @@ fn get_release_page_htlm() -> Option<String> {
     let mut data = Vec::new();
     let mut handle = Easy::new();
     handle
-        .url("https://github.com/kuone314/AMATERASU-Filer/releases")
+        .url("https://github.com/kuone314/NekoFiler/releases")
         .unwrap();
     {
         let mut transfer = handle.transfer();

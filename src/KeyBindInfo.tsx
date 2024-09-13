@@ -86,7 +86,7 @@ function ToShellCommand(oldSettng: KeyBindSettingBeforeSplitCommandsSetting): Sh
 }
 
 class SettingInfo implements ISettingInfo<KeyBindSetting[]> {
-  filePath = "General/key_bind.json5";
+  filePath = "general/key_bind.json5";
   latestVersion = Version.latest;
   IsValidVersion = (version: number) => {
     if (version < Version.oldest) { return false; }
