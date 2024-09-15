@@ -12,14 +12,14 @@ use tauri::Manager;
 mod get_exe_dir;
 use get_exe_dir::get_exe_dir;
 
-mod get_entries;
-use get_entries::add_selecting_idx;
-use get_entries::set_dirctry_path;
-use get_entries::set_focus_item;
-use get_entries::set_selecting_idx;
-use get_entries::sort_file_list;
-use get_entries::toggle_selection;
-use get_entries::update_file_list;
+mod pane_info;
+use pane_info::add_selecting_idx;
+use pane_info::set_dirctry_path;
+use pane_info::set_focus_item;
+use pane_info::set_selecting_idx;
+use pane_info::sort_file_list;
+use pane_info::toggle_selection;
+use pane_info::update_file_list;
 
 mod setting_file;
 use setting_file::read_setting_file;
