@@ -42,7 +42,7 @@ impl Executer {
     }
   }
 
-  fn push_log_stack(
+  fn push_log(
     &self,
     app_handle: &AppHandle,
   ) -> () {
@@ -61,7 +61,7 @@ impl Executer {
     &mut self,
     app_handle: &AppHandle,
   ) -> Option<()> {
-    self.push_log_stack(&app_handle);
+    self.push_log(&app_handle);
 
     let output = Command::new("Powershell")
       .args(["-WindowStyle", "Hidden"])
@@ -75,7 +75,7 @@ impl Executer {
     self.stdout = std_out.to_string();
     self.stderr = std_err.to_string();
     self.return_code = output.status.code();
-    self.push_log_stack(&app_handle);
+    self.push_log(&app_handle);
 
     Some(())
   }
