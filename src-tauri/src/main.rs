@@ -1,6 +1,6 @@
 #![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
+  all(not(debug_assertions), target_os = "windows"),
+  windows_subsystem = "windows"
 )]
 
 #[macro_use]
@@ -39,36 +39,36 @@ use get_latest_version::get_latest_version;
 use update_filer::update_filer;
 
 fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            set_dirctry_path,
-            add_selecting_idx,
-            set_selecting_idx,
-            toggle_selection,
-            set_focus_item,
-            sort_file_list,
-            adjust_addressbar_str,
-            execute_shell_command,
-            read_setting_file,
-            write_setting_file,
-            setting_dir,
-            get_exe_dir,
-            get_latest_version,
-            update_filer,
-        ])
-        .setup(|app| {
-            let app_handle = app.app_handle();
-            std::thread::spawn(move || loop {
-                std::thread::sleep(Duration::from_secs(1));
-                notify_command_log(&app_handle);
-                update_file_list(&app_handle);
-            });
+  tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![
+      set_dirctry_path,
+      add_selecting_idx,
+      set_selecting_idx,
+      toggle_selection,
+      set_focus_item,
+      sort_file_list,
+      adjust_addressbar_str,
+      execute_shell_command,
+      read_setting_file,
+      write_setting_file,
+      setting_dir,
+      get_exe_dir,
+      get_latest_version,
+      update_filer,
+    ])
+    .setup(|app| {
+      let app_handle = app.app_handle();
+      std::thread::spawn(move || loop {
+        std::thread::sleep(Duration::from_secs(1));
+        notify_command_log(&app_handle);
+        update_file_list(&app_handle);
+      });
 
-            #[cfg(debug_assertions)]
-            app.get_window("main").unwrap().open_devtools();
+      #[cfg(debug_assertions)]
+      app.get_window("main").unwrap().open_devtools();
 
-            Ok(())
-        })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+      Ok(())
+    })
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
 }
