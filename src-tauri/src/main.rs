@@ -31,7 +31,6 @@ use adjust_addressbar_str::adjust_addressbar_str;
 
 mod execute_shell_command;
 use execute_shell_command::execute_shell_command;
-use execute_shell_command::notify_command_log;
 
 mod get_latest_version;
 mod update_filer;
@@ -60,7 +59,6 @@ fn main() {
       let app_handle = app.app_handle();
       std::thread::spawn(move || loop {
         std::thread::sleep(Duration::from_secs(1));
-        notify_command_log(&app_handle);
         update_file_list(&app_handle);
       });
 
