@@ -22,7 +22,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { ButtonStyle } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const buttonHeight = 50;
 const statusBarHeight = 25;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +286,7 @@ function SettingButtons(
   OpenSettingDir: () => Promise<void>,
   Update: () => void
 ) {
+  const buttonHeight = 50;
   const settingButtonStyle = css(
     ButtonStyle(),
     {
