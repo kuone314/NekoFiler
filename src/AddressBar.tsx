@@ -48,14 +48,24 @@ export function AddressBar(
   }
 
   const element = <input
-  style={TextInputStyle()}
+    style={TextInputStyle()}
     type="text"
     value={addressbarStr}
     onChange={e => setAddressbarStr(e.target.value)}
     onKeyDown={onKeyDown}
     onFocus={e => { setIsFocused(true), inputBoxRef.current?.select() }}
     onPaste={e => {
-      const str = e.clipboardData.getData('text');
+      const pastedText = e.clipboardData.getData('text');
+
+      const input = e.target as HTMLInputElement;
+      const selectionStart = input.selectionStart || 0;
+      const selectionEnd = input.selectionEnd || 0;
+
+      const str
+        = addressbarStr.slice(0, selectionStart)
+        + pastedText
+        + addressbarStr.slice(selectionEnd);
+
       setAddressbarStr(str);
       props.confirmInput(str);
       props.onEndEdit();
