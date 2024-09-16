@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import React from 'react';
 
 import { separator, ApplySeparator } from './FilePathSeparator';
@@ -13,14 +13,13 @@ export interface AddressBarFunc {
   isFocus: () => boolean,
 };
 
-export function AddressBar(
-  props: {
-    dirPath: string,
-    separator: separator,
-    confirmInput: (path: string) => void,
-    onEndEdit: () => void,
-  }
-): [JSX.Element, AddressBarFunc] {
+type AddressBarProps = {
+  dirPath: string,
+  separator: separator,
+  confirmInput: (path: string) => void,
+  onEndEdit: () => void,
+};
+export const AddressBar = forwardRef<AddressBarFunc, AddressBarProps>((props, ref) => {
   const [addressbarStr, setAddressbarStr] = useState<string>(props.dirPath);
   useEffect(() => {
     setAddressbarStr(ApplySeparator(props.dirPath, props.separator));
@@ -46,23 +45,31 @@ export function AddressBar(
     focus: () => inputBoxRef.current?.focus(),
     isFocus: () => isFocused,
   }
+  useImperativeHandle(ref, () => functions);
 
-  const element = <input
-  style={TextInputStyle()}
+  return <input
+    style={TextInputStyle()}
     type="text"
     value={addressbarStr}
     onChange={e => setAddressbarStr(e.target.value)}
     onKeyDown={onKeyDown}
     onFocus={e => { setIsFocused(true), inputBoxRef.current?.select() }}
     onPaste={e => {
-      const str = e.clipboardData.getData('text');
+      const pastedText = e.clipboardData.getData('text');
+
+      const input = e.target as HTMLInputElement;
+      const selectionStart = input.selectionStart || 0;
+      const selectionEnd = input.selectionEnd || 0;
+
+      const str
+        = addressbarStr.slice(0, selectionStart)
+        + pastedText
+        + addressbarStr.slice(selectionEnd);
+
       setAddressbarStr(str);
       props.confirmInput(str);
-      props.onEndEdit();
     }}
     onBlur={e => { setIsFocused(false), setAddressbarStr(props.dirPath) }}
     ref={inputBoxRef}
   />
-
-  return [element, functions];
-}
+});
