@@ -22,7 +22,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { ButtonStyle } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const buttonHeight = 50;
 const statusBarHeight = 25;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,81 +286,51 @@ function SettingButtons(
   OpenSettingDir: () => Promise<void>,
   Update: () => void
 ) {
-  return <div>
+  const buttonHeight = 50;
+  const settingButtonStyle = css(
+    ButtonStyle(),
+    {
+      width: '85pt',
+      height: buttonHeight,
+      padding: '10px',
+    });
+  return <div
+    css={css({
+      display: 'grid',
+      gridTemplateRows: 'repeat(7,auto) 1fr ',
+    })}>
     <button
-      css={css(
-        ButtonStyle(),
-        {
-          width: '85pt',
-          height: buttonHeight,
-          padding: '10px',
-        })}
+      css={settingButtonStyle}
       onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
       separator:{separator}
     </button>
     <button
-      css={css(
-        ButtonStyle(),
-        {
-          width: '85pt',
-          height: buttonHeight,
-          padding: '10px',
-        })}
+      css={settingButtonStyle}
       onClick={() => setTabColor(getPath())}>
       Set Tab Color
     </button>
     <button
-      css={css(
-        ButtonStyle(),
-        {
-          width: '85pt',
-          height: buttonHeight,
-          padding: '10px',
-        })}
+      css={settingButtonStyle}
       onClick={() => setFileListRowColor()}>
       Set File List Row Color
     </button>
     <button
-      css={css(
-        ButtonStyle(),
-        {
-          width: '85pt',
-          height: buttonHeight,
-          padding: '10px',
-        })}
+      css={settingButtonStyle}
       onClick={() => setKeyBind(null)}>
       Set KeyBind
     </button>
     <button
-      css={css(
-        ButtonStyle(),
-        {
-          width: '85pt',
-          height: buttonHeight,
-          padding: '10px',
-        })}
+      css={settingButtonStyle}
       onClick={() => setContextMenu()}>
       Set ContextMenu
     </button>
     <button
-      css={css(
-        ButtonStyle(),
-        {
-          width: '85pt',
-          height: buttonHeight,
-          padding: '10px',
-        })}
+      css={settingButtonStyle}
       onClick={OpenSettingDir}>
       Setting Dir
     </button>
     <button
-      css={css(
-        ButtonStyle(),
-        {
-          width: '85pt',
-          height: buttonHeight,
-          padding: '10px',
-        })}
+      css={settingButtonStyle}
       onClick={() => Update()}>
       Update
     </button>
