@@ -68,7 +68,6 @@ export function AddressBar(
 
       setAddressbarStr(str);
       props.confirmInput(str);
-      props.onEndEdit();
     }}
     onBlur={e => { setIsFocused(false), setAddressbarStr(props.dirPath) }}
     ref={inputBoxRef}

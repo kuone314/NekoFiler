@@ -99,6 +99,9 @@ export const MainPanel = (
     AccessDirectory(
       adjusted?.dir ?? path,
       adjusted?.filename ?? "");
+    if (adjusted) {
+      myGrid.current?.focus();
+    }
   }
 
   const AccessDirectory = async (newDir: string, trgFile: string | null) => {
