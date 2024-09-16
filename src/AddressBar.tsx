@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import React from 'react';
 
 import { separator, ApplySeparator } from './FilePathSeparator';
@@ -13,14 +13,13 @@ export interface AddressBarFunc {
   isFocus: () => boolean,
 };
 
-export function AddressBar(
-  props: {
-    dirPath: string,
-    separator: separator,
-    confirmInput: (path: string) => void,
-    onEndEdit: () => void,
-  }
-): [JSX.Element, AddressBarFunc] {
+type AddressBarProps = {
+  dirPath: string,
+  separator: separator,
+  confirmInput: (path: string) => void,
+  onEndEdit: () => void,
+};
+export const AddressBar = forwardRef<AddressBarFunc, AddressBarProps>((props, ref) => {
   const [addressbarStr, setAddressbarStr] = useState<string>(props.dirPath);
   useEffect(() => {
     setAddressbarStr(ApplySeparator(props.dirPath, props.separator));
@@ -46,8 +45,9 @@ export function AddressBar(
     focus: () => inputBoxRef.current?.focus(),
     isFocus: () => isFocused,
   }
+  useImperativeHandle(ref, () => functions);
 
-  const element = <input
+  return <input
     style={TextInputStyle()}
     type="text"
     value={addressbarStr}
@@ -72,6 +72,4 @@ export function AddressBar(
     onBlur={e => { setIsFocused(false), setAddressbarStr(props.dirPath) }}
     ref={inputBoxRef}
   />
-
-  return [element, functions];
-}
+});

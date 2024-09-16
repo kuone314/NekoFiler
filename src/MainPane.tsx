@@ -4,7 +4,7 @@ import React from 'react';
 
 
 import { separator } from './FilePathSeparator';
-import { AddressBar, } from './AddressBar';
+import { AddressBar, AddressBarFunc, } from './AddressBar';
 import { FileList, FileListFunc, FileListInfo, IFileListItemFilter, } from './FileList';
 
 import { BUILDIN_COMMAND_TYPE, commandExecuter } from './CommandInfo';
@@ -122,7 +122,7 @@ export const MainPanel = (
 
   const focusAddoressBar = () => {
     setFocusToListOnContextMenuClosed(false);
-    addressBarFunc.focus();
+    addressBarFunc.current?.focus();
   }
   const focusFilterBar = () => {
     setFocusToListOnContextMenuClosed(false);
@@ -213,7 +213,7 @@ export const MainPanel = (
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
     if (isMenuOpen || isContextMenuOpen) { return; }
-    const isFocusAddressBar = addressBarFunc.isFocus() || filterBarFunc.isFocus();
+    const isFocusAddressBar = addressBarFunc.current?.isFocus() || filterBarFunc.isFocus();
     const validKeyBindInfo = isFocusAddressBar
       ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
       : keyBindInfo;
@@ -359,19 +359,12 @@ export const MainPanel = (
   }, [isContextMenuOpen])
 
   const FileListFunctions = useRef<FileListFunc>(null);
+  const addressBarFunc = useRef<AddressBarFunc>(null);
 
   const nameToPath = (name: string) => (dir.length === 0)
     ? name
     : (dir + props.separator + name);
 
-  const [addressBar, addressBarFunc] = AddressBar(
-    {
-      dirPath: dir,
-      separator: props.separator,
-      confirmInput: (path) => onAddressInputed(path),
-      onEndEdit: () => myGrid.current?.focus(),
-    }
-  );
 
   return (
     <>
@@ -386,7 +379,13 @@ export const MainPanel = (
         })}
       >
         {contextMenu()}
-        {addressBar}
+        <AddressBar
+          dirPath={dir}
+          separator={props.separator}
+          confirmInput={(path) => onAddressInputed(path)}
+          onEndEdit={() => myGrid.current?.focus()}
+          ref={addressBarFunc}
+        />
         {filterBar}
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
