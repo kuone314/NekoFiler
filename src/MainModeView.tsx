@@ -293,8 +293,12 @@ function SettingButtons(
       width: '85pt',
       height: buttonHeight,
       padding: '10px',
-    })
-  return <div>
+    });
+  return <div
+    css={css({
+      display: 'grid',
+      gridTemplateRows: 'repeat(7,auto) 1fr ',
+    })}>
     <button
       css={settingButtonStyle}
       onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
