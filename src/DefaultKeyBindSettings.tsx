@@ -300,7 +300,7 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
         type: 'build_in',
         command_name: 'toPrevTab',
       },
-      valid_on_addressbar: true,
+      valid_on_addressbar: false,
     },
     {
       display_name: 'toNextTab',
@@ -309,7 +309,7 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
         type: 'build_in',
         command_name: 'toNextTab',
       },
-      valid_on_addressbar: true,
+      valid_on_addressbar: false,
     },
     {
       display_name: 'accessCurrentItem',
