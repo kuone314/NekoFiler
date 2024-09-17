@@ -212,15 +212,6 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
       },
       valid_on_addressbar: false,
     },
-    // {
-    //   display_name: 'clearSelection',
-    //   key: 'Escape',
-    //   action: {
-    //     type: 'build_in',
-    //     command_name: 'clearSelection',
-    //   },
-    //   valid_on_addressbar: false,
-    // },
     {
       display_name: 'toggleSelection',
       key: 'Space',
