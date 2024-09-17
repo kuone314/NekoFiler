@@ -97,7 +97,7 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
     },
     {
       display_name: 'Copy file path',
-      key: 'ctrl+alt+c',
+      key: 'ctrl+c',
       action: {
         type: 'power_shell',
         command_name: 'Copy file path',
