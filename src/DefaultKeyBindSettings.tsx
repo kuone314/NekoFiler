@@ -97,7 +97,7 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
     },
     {
       display_name: 'Copy file path',
-      key: 'ctrl+alt+c',
+      key: 'ctrl+c',
       action: {
         type: 'power_shell',
         command_name: 'Copy file path',
@@ -212,15 +212,6 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
       },
       valid_on_addressbar: false,
     },
-    // {
-    //   display_name: 'clearSelection',
-    //   key: 'Escape',
-    //   action: {
-    //     type: 'build_in',
-    //     command_name: 'clearSelection',
-    //   },
-    //   valid_on_addressbar: false,
-    // },
     {
       display_name: 'toggleSelection',
       key: 'Space',
@@ -309,7 +300,7 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
         type: 'build_in',
         command_name: 'toPrevTab',
       },
-      valid_on_addressbar: true,
+      valid_on_addressbar: false,
     },
     {
       display_name: 'toNextTab',
@@ -318,7 +309,7 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
         type: 'build_in',
         command_name: 'toNextTab',
       },
-      valid_on_addressbar: true,
+      valid_on_addressbar: false,
     },
     {
       display_name: 'accessCurrentItem',
