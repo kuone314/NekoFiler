@@ -104,7 +104,8 @@ export const MainPanel = (
     }
   }
 
-  const AccessDirectory = async (newDir: string, trgFile: string | null) => {
+  const AccessDirectory = async (trgDir: string, trgFile: string | null) => {
+    const newDir = await normalize(trgDir);
     if (props.pined && dir !== newDir) {
       props.tabFuncs.addNewTab(newDir);
       return;
@@ -264,8 +265,9 @@ export const MainPanel = (
       return;
     }
 
-    const parentDir = await normalize(dir + props.separator + '..');
-    AccessDirectory(parentDir, dirName);
+    AccessDirectory(
+      dir + props.separator + '..',
+       dirName);
   };
 
   const onDoubleClick = () => {
