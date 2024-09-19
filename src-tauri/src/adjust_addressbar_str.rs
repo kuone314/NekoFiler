@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path::PathBuf, str::FromStr};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,7 +16,7 @@ pub fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String>
     });
   }
 
-  let Ok(path) = dunce::canonicalize(str) else {
+  let Ok(path) = PathBuf::from_str(str) else {
     return Err("unfond".to_string());
   };
 
