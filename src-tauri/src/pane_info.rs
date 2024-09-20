@@ -367,7 +367,8 @@ fn drive_list() -> Vec<String> {
   raw_ary
     .split(|&x| x == 0)
     .filter(|x| !x.is_empty())
-    .map(|drive| String::from_utf8(drive.to_vec()).unwrap())
+    .filter_map(|drive| String::from_utf8(drive.to_vec()).ok())
+    .map(|drive|drive.replace(r":\",":"))
     .collect()
 }
 
