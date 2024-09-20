@@ -105,7 +105,11 @@ export const MainPanel = (
   }
 
   const AccessDirectory = async (trgDir: string, trgFile: string | null) => {
-    const newDir = await normalize(trgDir);
+    // normalize だと、ドライブ直下が `C:\\` となるので、一旦末端の区切りを削除してから、区切りを付加する。
+    const newDir = (trgDir === "")
+      ? ""
+      : RemoveTrailingSeparators(await normalize(trgDir)) + props.separator;
+
     if (props.pined && dir !== newDir) {
       props.tabFuncs.addNewTab(newDir);
       return;
@@ -267,7 +271,7 @@ export const MainPanel = (
 
     AccessDirectory(
       dir + props.separator + '..',
-       dirName);
+      dirName);
   };
 
   const onDoubleClick = () => {
@@ -430,5 +434,9 @@ export const MainPanel = (
       {commandSelectMenu()}
     </>
   );
+}
+
+function RemoveTrailingSeparators(path: string): string {
+  return path.replace(/\\+$/, ''); // 正規化で、区切りは`\`になっている事前提。
 }
 
