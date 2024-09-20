@@ -335,8 +335,8 @@ fn get_file_list(path: &str) -> Option<Vec<FileBaseInfo>> {
       drive_list()
         .into_iter()
         .map(|file_name| FileBaseInfo {
+          meta_data: fs::metadata(&file_name).ok(),
           file_name,
-          meta_data: None,
         })
         .collect(),
     );
