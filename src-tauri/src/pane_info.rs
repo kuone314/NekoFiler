@@ -16,6 +16,7 @@ use get_file_icon::get_file_icon;
 
 use tauri::{AppHandle, Manager};
 
+#[derive(Debug)]
 pub struct FileBaseInfo {
   file_name: String,
   meta_data: Option<Metadata>,
@@ -333,11 +334,11 @@ fn get_file_list(path: &str) -> Option<Vec<FileBaseInfo>> {
     // Linux対応するなら、この辺の処理の変更が要るはず。
     return Some(
       drive_list()
-        .into_iter()
-        .map(|file_name| FileBaseInfo {
-          file_name,
-          meta_data: None,
-        })
+      .into_iter()
+      .map(|file_name| FileBaseInfo {
+        meta_data: fs::metadata(&file_name).ok(),
+        file_name,
+      })
         .collect(),
     );
   }
@@ -366,7 +367,8 @@ fn drive_list() -> Vec<String> {
   raw_ary
     .split(|&x| x == 0)
     .filter(|x| !x.is_empty())
-    .map(|drive| String::from_utf8(drive.to_vec()).unwrap())
+    .filter_map(|drive| String::from_utf8(drive.to_vec()).ok())
+    .map(|drive|drive.replace(r":\",":"))
     .collect()
 }
 
