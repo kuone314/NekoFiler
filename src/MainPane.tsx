@@ -411,6 +411,10 @@ export const MainPanel = (
                 isActive={props.isActive}
                 panel_idx={props.panel_idx}
                 dirctoryPath={dir}
+                updateFileListInfo={(paneInfo) => {
+                  setFileListInfo(paneInfo.file_list_info);
+                  setInitFocusFile(paneInfo.init_focus_item);
+                }}
                 focusTarget={initFocusFile}
                 filter={filter}
                 onSelectItemNumChanged={props.onSelectItemNumChanged}

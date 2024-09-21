@@ -12,6 +12,7 @@ import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api';
+import { PaneInfo } from './MainPane';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type FileListItem = {
@@ -71,6 +72,7 @@ type FileListProps = {
   panel_idx: number,
   dirctoryPath: string,
   fileListInfo: FileListItem[],
+  updateFileListInfo: (info: PaneInfo) => void,
   focusTarget: string,
   filter: IFileListItemFilter | null,
   onSelectItemNumChanged: (newSelectItemNum: number) => void,
@@ -85,48 +87,52 @@ type FileListProps = {
 export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => {
   const [filteredEntries, setFilteredEntries] = useState<FilteredFileListItem[]>([]);
 
-  function invokeSetCurrentItem(val: string) {
-    invoke<void>("set_focus_item", {
+  async function invokeSetCurrentItem(val: string) {
+    const paneInfo = await invoke<PaneInfo>("set_focus_item", {
       paneidx: props.panel_idx,
       focusitem: val,
     });
+    props.updateFileListInfo(paneInfo);
   }
 
 
   useEffect(() => {
-    const newFilteredFileList = props.fileListInfo
-      .map((fileListItem, orgIdx) => { return { item: fileListItem, org_idx: orgIdx, } })
-      .filter(item => props.filter?.IsMatch(item.item) ?? true)
-    setFilteredEntries(newFilteredFileList);
+    (async () => {
+      const newFilteredFileList = props.fileListInfo
+        .map((fileListItem, orgIdx) => { return { item: fileListItem, org_idx: orgIdx, } })
+        .filter(item => props.filter?.IsMatch(item.item) ?? true)
+      setFilteredEntries(newFilteredFileList);
 
-    props.onSelectItemNumChanged(newFilteredFileList.filter(item => item.item.is_selected).length);
+      props.onSelectItemNumChanged(newFilteredFileList.filter(item => item.item.is_selected).length);
 
-    const isSelectedItemFilterd = props.fileListInfo
-      .filter(item => !(props.filter?.IsMatch(item) ?? true))
-      .some(item => item.is_selected);
-    if (isSelectedItemFilterd) {
+      const isSelectedItemFilterd = props.fileListInfo
+        .filter(item => !(props.filter?.IsMatch(item) ?? true))
+        .some(item => item.is_selected);
+      if (isSelectedItemFilterd) {
 
-      const newSelectionIdx = newFilteredFileList.filter(item => item.item.is_selected).map(item => item.org_idx)
-      invoke<void>("set_selecting_idx", {
-        paneidx: props.panel_idx,
-        newSelectIdxList: newSelectionIdx,
-      });
-    }
-
-    const foundIndex = newFilteredFileList.findIndex(item => item.item.file_name === props.focusTarget);
-    if (foundIndex === -1) {
-      const updateFocusItemOnFiltered = () => {
-        if (!props.filter) { return; }
-        const orgIdx = props.fileListInfo.findIndex(item => item.file_name === props.focusTarget);
-        if (orgIdx === -1) { return; }
-        const finterdNum = props.fileListInfo.slice(0, orgIdx).filter(item => !props.filter!.IsMatch(item)).length;
-        const newIndex = (orgIdx - finterdNum);
-        if (!IsValidIndex(props.fileListInfo, newIndex)) { return; }
-
-        const newFocusItem = props.fileListInfo[newIndex].file_name;
-        invokeSetCurrentItem(newFocusItem);
+        const newSelectionIdx = newFilteredFileList.filter(item => item.item.is_selected).map(item => item.org_idx)
+        const paneInfo = await invoke<PaneInfo>("set_selecting_idx", {
+          paneidx: props.panel_idx,
+          newSelectIdxList: newSelectionIdx,
+        });
+        props.updateFileListInfo(paneInfo);
       }
-    }
+
+      const foundIndex = newFilteredFileList.findIndex(item => item.item.file_name === props.focusTarget);
+      if (foundIndex === -1) {
+        const updateFocusItemOnFiltered = () => {
+          if (!props.filter) { return; }
+          const orgIdx = props.fileListInfo.findIndex(item => item.file_name === props.focusTarget);
+          if (orgIdx === -1) { return; }
+          const finterdNum = props.fileListInfo.slice(0, orgIdx).filter(item => !props.filter!.IsMatch(item)).length;
+          const newIndex = (orgIdx - finterdNum);
+          if (!IsValidIndex(props.fileListInfo, newIndex)) { return; }
+
+          const newFocusItem = props.fileListInfo[newIndex].file_name;
+          invokeSetCurrentItem(newFocusItem);
+        }
+      }
+    })()
   }, [props.fileListInfo, props.filter, props.focusTarget])
 
 
@@ -145,11 +151,12 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     });
   }
 
-  const addSelectingIndexRange = (rangeTerm1: number, rangeTerm2: number) => {
-    invoke<void>("add_selecting_idx", {
+  const addSelectingIndexRange = async (rangeTerm1: number, rangeTerm2: number) => {
+    const paneInfo = await invoke<PaneInfo>("add_selecting_idx", {
       paneidx: props.panel_idx,
       additionalSelectIdxList: SequenceAry(rangeTerm1, rangeTerm2),
     });
+    props.updateFileListInfo(paneInfo);
   }
 
   const [colorSetting, setColorSetting] = useState<FileListRowColorSettings | null>(null);
@@ -221,7 +228,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }, []);
   useEffect(() => {
     adjustScroll();
-  }, [props.dirctoryPath,props.focusTarget]);
+  }, [props.dirctoryPath, props.focusTarget]);
 
   interface MouseSelectInfo {
     startIndex: number,
@@ -311,29 +318,32 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       addSelectingIndexRange(0, filteredEntries.length - 1)
     }
   }
-  const clearSelection = () => {
-    invoke<void>("set_selecting_idx", {
+  const clearSelection = async () => {
+    const paneInfo = await invoke<PaneInfo>("set_selecting_idx", {
       paneidx: props.panel_idx,
       newSelectIdxList: [],
     });
+    props.updateFileListInfo(paneInfo);
   }
-  const toggleSelection = () => {
-    invoke<void>("toggle_selection", {
+  const toggleSelection = async () => {
+    const paneInfo = await invoke<PaneInfo>("toggle_selection", {
       paneidx: props.panel_idx,
       trgIdx: filteredEntries[currentIndex].org_idx,
     });
+    props.updateFileListInfo(paneInfo);
   }
   const selectCurrentOnly = () => {
     setSelectingIndexArray([currentIndex]);
   }
 
-  function setSelectingIndexArray(newIdxList: Array<number>) {
-    invoke<void>("set_selecting_idx", {
+  async function setSelectingIndexArray(newIdxList: Array<number>) {
+    const paneInfo = await invoke<PaneInfo>("set_selecting_idx", {
       paneidx: props.panel_idx,
       newSelectIdxList: [...newIdxList]
         .filter(idx => IsValidIndex(filteredEntries, idx))
         .map(idx => filteredEntries[idx].org_idx),
     });
+    props.updateFileListInfo(paneInfo);
   }
 
   const myGrid = props.gridRef ?? React.createRef<HTMLDivElement>();
