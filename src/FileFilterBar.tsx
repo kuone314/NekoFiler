@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import React from 'react';
 
 /** @jsxImportSource @emotion/react */
@@ -37,12 +37,12 @@ export interface FileFilterBarFunc {
   isFocus: () => boolean,
 };
 
-export function FileFilterBar(
-  props: {
-    onFilterChanged: (filter: IFileListItemFilter | null) => void,
-    onEndEdit: () => void,
-  }
-): [JSX.Element, FileFilterBarFunc] {
+type FileFilterBarProps = {
+  onFilterChanged: (filter: IFileListItemFilter | null) => void,
+  onEndEdit: () => void,
+};
+
+export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((props, ref) => {
   const [filter, setFilter] = useState<string>('');
   const [filterType, setFilterType] = useState<FileFilterType>('str_match');
   useEffect(() => {
@@ -90,8 +90,18 @@ export function FileFilterBar(
     }
   };
 
+  const functions = {
+    addFilterString: (str: string) => setFilter(filter + str),
+    deleteFilterSingleSingle: () => setFilter(filter.slice(0, -1)),
+    clearFilter: () => setFilter(``),
+    focus: () => inputBoxRef.current?.focus(),
+    setType: (filterType: FileFilterType) => setFilterType(filterType),
+    isFocus: () => isFocus,
+  }
+  useImperativeHandle(ref, () => functions);
+
   const inputBoxRef = React.createRef<HTMLInputElement>();
-  const element = <div
+  return <div
     css={css({
       display: 'grid',
       gridTemplateColumns: 'auto auto auto',
@@ -123,18 +133,7 @@ export function FileFilterBar(
       ref={inputBoxRef}
     />
   </div>
-
-  return [
-    element,
-    {
-      addFilterString: (str: string) => setFilter(filter + str),
-      deleteFilterSingleSingle: () => setFilter(filter.slice(0, -1)),
-      clearFilter: () => setFilter(``),
-      focus: () => inputBoxRef.current?.focus(),
-      setType: (filterType: FileFilterType) => setFilterType(filterType),
-      isFocus: () => isFocus,
-    }];
-}
+});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function MatchIndexAry(

@@ -23,7 +23,7 @@ import { executeShellCommand } from './RustFuncs';
 import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
-import { FileFilterBar, FileFilterType } from './FileFilterBar';
+import { FileFilterBar, FileFilterBarFunc, FileFilterType } from './FileFilterBar';
 import { MenuitemStyle } from './ThemeStyle';
 import { UnlistenFn, listen } from '@tauri-apps/api/event';
 import { Exist } from './Utility';
@@ -58,7 +58,7 @@ export const MainPanel = (
   }
 ) => {
   useEffect(() => {
-    filterBarFunc.clearFilter();
+    filterBarFunc.current?.clearFilter();
     AccessDirectory(props.dirPath, null);
   }, [props.dirPath]);
 
@@ -68,12 +68,7 @@ export const MainPanel = (
   useEffect(() => props.onItemNumChanged(fileListInfo?.item_list.length ?? 0), [fileListInfo]);
 
   const [filter, setFilter] = useState<IFileListItemFilter | null>(null);
-  const [filterBar, filterBarFunc] = FileFilterBar(
-    {
-      onFilterChanged: setFilter,
-      onEndEdit: () => myGrid.current?.focus(),
-    }
-  );
+  const filterBarFunc = useRef<FileFilterBarFunc>(null);
 
   useEffect(() => {
     let unlisten: UnlistenFn | null;
@@ -127,7 +122,7 @@ export const MainPanel = (
   }
   const focusFilterBar = () => {
     setFocusToListOnContextMenuClosed(false);
-    filterBarFunc.focus();
+    filterBarFunc.current?.focus();
   }
   const focusCommandBar = () => {
     setFocusToListOnContextMenuClosed(false);
@@ -173,10 +168,10 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.toNextTab: toNextTab(); return;
       case BUILDIN_COMMAND_TYPE.focusAddoressBar: focusAddoressBar(); return;
       case BUILDIN_COMMAND_TYPE.focusFilterBar: focusFilterBar(); return;
-      case BUILDIN_COMMAND_TYPE.deleteFilterSingleSingle: filterBarFunc.deleteFilterSingleSingle(); return;
-      case BUILDIN_COMMAND_TYPE.clearFilter: filterBarFunc.clearFilter(); return;
-      case BUILDIN_COMMAND_TYPE.setFilterStrMatch: filterBarFunc.setType(`str_match`); return;
-      case BUILDIN_COMMAND_TYPE.setFilterRegExp: filterBarFunc.setType(`reg_expr`); return;
+      case BUILDIN_COMMAND_TYPE.deleteFilterSingleSingle: filterBarFunc.current?.deleteFilterSingleSingle(); return;
+      case BUILDIN_COMMAND_TYPE.clearFilter: filterBarFunc.current?.clearFilter(); return;
+      case BUILDIN_COMMAND_TYPE.setFilterStrMatch: filterBarFunc.current?.setType(`str_match`); return;
+      case BUILDIN_COMMAND_TYPE.setFilterRegExp: filterBarFunc.current?.setType(`reg_expr`); return;
       case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
       case BUILDIN_COMMAND_TYPE.focusCommandBar: focusCommandBar(); return;
       case BUILDIN_COMMAND_TYPE.setKeyBind: props.setKeyBind(srcKey); return;
@@ -214,7 +209,7 @@ export const MainPanel = (
 
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
     if (isMenuOpen || isContextMenuOpen) { return; }
-    const isFocusAddressBar = addressBarFunc.current?.isFocus() || filterBarFunc.isFocus();
+    const isFocusAddressBar = addressBarFunc.current?.isFocus() || filterBarFunc.current?.isFocus();
     const validKeyBindInfo = isFocusAddressBar
       ? keyBindInfo.filter(cmd => cmd.valid_on_addressbar)
       : keyBindInfo;
@@ -246,7 +241,7 @@ export const MainPanel = (
       !keyboard_event.altKey &&
       keyboard_event.key.length === 1;
     if (isSingleKey && !isFocusAddressBar) {
-      filterBarFunc.addFilterString(keyboard_event.key)
+      filterBarFunc.current?.addFilterString(keyboard_event.key)
       return;
     }
   };
@@ -388,7 +383,11 @@ export const MainPanel = (
           onEndEdit={() => myGrid.current?.focus()}
           ref={addressBarFunc}
         />
-        {filterBar}
+        <FileFilterBar
+          onFilterChanged={setFilter}
+          onEndEdit={() => myGrid.current?.focus()}
+          ref={filterBarFunc}
+        />
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
           onDoubleClick={onDoubleClick}
