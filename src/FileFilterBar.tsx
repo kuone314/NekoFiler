@@ -138,7 +138,7 @@ export function FileFilterBar(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function MatchIndexAry(
-  filename: string,
+  fileName: string,
   matcherStr: string
 ): number[] {
   let result: number[] = [];
@@ -146,7 +146,7 @@ export function MatchIndexAry(
     const str = matcherStr[idx];
     const prevMatchIdx = result.at(-1);
     const searchStartIdx = (prevMatchIdx === undefined) ? 0 : prevMatchIdx + 1;
-    const searchStr = filename.slice(searchStartIdx);
+    const searchStr = fileName.slice(searchStartIdx);
     const foundIdx = searchStr.indexOf(str);
     if (foundIdx === -1) { return []; }
     result.push(searchStartIdx + foundIdx);
