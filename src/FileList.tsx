@@ -89,7 +89,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
   async function invokeSetCurrentItem(val: string) {
     const paneInfo = await invoke<PaneInfo>("set_focus_item", {
-      paneidx: props.panel_idx,
+      paneIdx: props.panel_idx,
       focusitem: val,
     });
     props.updateFileListInfo(paneInfo);
@@ -112,7 +112,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
         const newSelectionIdx = newFilteredFileList.filter(item => item.item.is_selected).map(item => item.org_idx)
         const paneInfo = await invoke<PaneInfo>("set_selecting_idx", {
-          paneidx: props.panel_idx,
+          paneIdx: props.panel_idx,
           newSelectIdxList: newSelectionIdx,
         });
         props.updateFileListInfo(paneInfo);
@@ -146,14 +146,14 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       }
     })();
     invoke('sort_file_list', {
-      paneidx: props.panel_idx,
+      paneIdx: props.panel_idx,
       sorkKey: payloadKey,
     });
   }
 
   const addSelectingIndexRange = async (rangeTerm1: number, rangeTerm2: number) => {
     const paneInfo = await invoke<PaneInfo>("add_selecting_idx", {
-      paneidx: props.panel_idx,
+      paneIdx: props.panel_idx,
       additionalSelectIdxList: SequenceAry(rangeTerm1, rangeTerm2),
     });
     props.updateFileListInfo(paneInfo);
@@ -320,14 +320,14 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
   const clearSelection = async () => {
     const paneInfo = await invoke<PaneInfo>("set_selecting_idx", {
-      paneidx: props.panel_idx,
+      paneIdx: props.panel_idx,
       newSelectIdxList: [],
     });
     props.updateFileListInfo(paneInfo);
   }
   const toggleSelection = async () => {
     const paneInfo = await invoke<PaneInfo>("toggle_selection", {
-      paneidx: props.panel_idx,
+      paneIdx: props.panel_idx,
       trgIdx: filteredEntries[currentIndex].org_idx,
     });
     props.updateFileListInfo(paneInfo);
@@ -338,7 +338,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
   async function setSelectingIndexArray(newIdxList: Array<number>) {
     const paneInfo = await invoke<PaneInfo>("set_selecting_idx", {
-      paneidx: props.panel_idx,
+      paneIdx: props.panel_idx,
       newSelectIdxList: [...newIdxList]
         .filter(idx => IsValidIndex(filteredEntries, idx))
         .map(idx => filteredEntries[idx].org_idx),
