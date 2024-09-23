@@ -14,7 +14,7 @@ use once_cell::sync::Lazy;
 mod get_file_icon;
 use get_file_icon::get_file_icon;
 
-use tauri::{AppHandle, Manager};
+use tauri::Manager;
 
 #[derive(Debug)]
 pub struct FileBaseInfo {
@@ -153,24 +153,23 @@ pub fn set_dirctry_path(
 
 #[tauri::command]
 pub fn set_focus_item(
-  app_handle: AppHandle,
-  paneidx: usize,
+  pane_idx: usize,
   focusitem: &str,
-) -> () {
+) -> Option<PaneInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
-    return;
+    return None;
   };
 
-  data_store.pane_info_list[paneidx].init_focus_item = focusitem.to_string();
-  let _ = app_handle.emit_all("update_path_list", &data_store.pane_info_list[paneidx]);
+  data_store.pane_info_list[pane_idx].init_focus_item = focusitem.to_string();
+  Some(data_store.pane_info_list[pane_idx].clone())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-pub fn get_pane_data(paneidx: usize) -> Option<PaneInfo> {
+pub fn get_pane_data(pane_idx: usize) -> Option<PaneInfo> {
   let Ok(data_store) = PANE_DATA.lock() else {
     return None;
   };
-  Some(data_store.pane_info_list[paneidx].clone())
+  Some(data_store.pane_info_list[pane_idx].clone())
 }
 
 pub fn update_pane_data(
@@ -334,11 +333,11 @@ fn get_file_list(path: &str) -> Option<Vec<FileBaseInfo>> {
     // Linux対応するなら、この辺の処理の変更が要るはず。
     return Some(
       drive_list()
-      .into_iter()
-      .map(|file_name| FileBaseInfo {
-        meta_data: fs::metadata(&file_name).ok(),
-        file_name,
-      })
+        .into_iter()
+        .map(|file_name| FileBaseInfo {
+          meta_data: fs::metadata(&file_name).ok(),
+          file_name,
+        })
         .collect(),
     );
   }
@@ -368,7 +367,7 @@ fn drive_list() -> Vec<String> {
     .split(|&x| x == 0)
     .filter(|x| !x.is_empty())
     .filter_map(|drive| String::from_utf8(drive.to_vec()).ok())
-    .map(|drive|drive.replace(r":\",":"))
+    .map(|drive| drive.replace(r":\", ":"))
     .collect()
 }
 
@@ -399,16 +398,15 @@ pub enum SortKey {
 
 #[tauri::command]
 pub fn sort_file_list(
-  app_handle: AppHandle,
-  paneidx: usize,
+  pane_idx: usize,
   sork_key: SortKey,
-) {
+) -> Option<PaneInfo>{
   let Ok(mut data_store) = PANE_DATA.lock() else {
-    return;
+    return None;
   };
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[paneidx].file_list_info else {
-    return;
+  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+    return None;
   };
   match sork_key {
     SortKey::Name => {
@@ -431,43 +429,41 @@ pub fn sort_file_list(
     }
   }
 
-  let _ = app_handle.emit_all("update_path_list", &data_store.pane_info_list[paneidx]);
+  Some(data_store.pane_info_list[pane_idx].clone())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
 pub fn add_selecting_idx(
-  app_handle: AppHandle,
-  paneidx: usize,
+  pane_idx: usize,
   additional_select_idx_list: Vec<usize>,
-) -> () {
+) -> Option<PaneInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
-    return;
+    return None;
   };
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[paneidx].file_list_info else {
-    return;
+  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+    return None;
   };
 
   for idx in additional_select_idx_list {
     file_list_info.item_list[idx].is_selected = true;
   }
 
-  let _ = app_handle.emit_all("update_path_list", &data_store.pane_info_list[paneidx]);
+  Some(data_store.pane_info_list[pane_idx].clone())
 }
 
 #[tauri::command]
 pub fn set_selecting_idx(
-  app_handle: AppHandle,
-  paneidx: usize,
+  pane_idx: usize,
   new_select_idx_list: Vec<usize>,
-) -> () {
+) -> Option<PaneInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
-    return;
+    return None;
   };
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[paneidx].file_list_info else {
-    return;
+  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+    return None;
   };
 
   for item in file_list_info.item_list.iter_mut() {
@@ -478,24 +474,23 @@ pub fn set_selecting_idx(
     file_list_info.item_list[idx].is_selected = true;
   }
 
-  let _ = app_handle.emit_all("update_path_list", &data_store.pane_info_list[paneidx]);
+  Some(data_store.pane_info_list[pane_idx].clone())
 }
 
 #[tauri::command]
 pub fn toggle_selection(
-  app_handle: AppHandle,
-  paneidx: usize,
+  pane_idx: usize,
   trg_idx: usize,
-) -> () {
+) -> Option<PaneInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
-    return;
+    return None;
   };
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[paneidx].file_list_info else {
-    return;
+  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+    return None;
   };
 
   file_list_info.item_list[trg_idx].is_selected = !file_list_info.item_list[trg_idx].is_selected;
 
-  let _ = app_handle.emit_all("update_path_list", &data_store.pane_info_list[paneidx]);
+  Some(data_store.pane_info_list[pane_idx].clone())
 }

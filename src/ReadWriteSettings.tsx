@@ -23,7 +23,7 @@ export async function writeSettings<Setting>(
   await invoke<String>(
     "write_setting_file",
     {
-      filename: settingInfo.filePath,
+      fileName: settingInfo.filePath,
       content: data
     });
 }
@@ -58,7 +58,7 @@ async function readSettingStr(filePath: string)
   const result = await invoke<string | null>(
     "read_setting_file",
     {
-      filename: filePath,
+      fileName: filePath,
     })
     .catch(_ => "");
   return result ?? "";

@@ -263,7 +263,7 @@ async function ExistFile(spcirptFilePath: string): Promise<boolean> {
   const file_content = await invoke<string | null>(
     "read_setting_file",
     {
-      filename: spcirptFilePath,
+      fileName: spcirptFilePath,
     })
     .catch(() => null);
   return (file_content !== null);
@@ -273,7 +273,7 @@ function CreateFile(spcirptFilePath: string) {
   invoke(
     "write_setting_file",
     {
-      filename: spcirptFilePath,
+      fileName: spcirptFilePath,
       content: shellCommandTemplate,
     });
 }

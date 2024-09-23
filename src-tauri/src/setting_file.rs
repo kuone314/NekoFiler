@@ -3,16 +3,16 @@ use std::{env, fs};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 use std::io::Write;
 #[tauri::command]
-pub fn read_setting_file(filename: &str) -> Option<String> {
-  fs::read_to_string(setting_dir()?.join(filename)).ok()
+pub fn read_setting_file(file_name: &str) -> Option<String> {
+  fs::read_to_string(setting_dir()?.join(file_name)).ok()
 }
 
 #[tauri::command]
 pub fn write_setting_file(
-  filename: &str,
+  file_name: &str,
   content: &str,
 ) -> Option<()> {
-  let file_path = setting_dir()?.join(filename);
+  let file_path = setting_dir()?.join(file_name);
   let _ = std::fs::create_dir_all(file_path.parent()?);
   let mut file = fs::File::create(file_path).ok()?;
   file.write_all(content.as_bytes()).ok()
