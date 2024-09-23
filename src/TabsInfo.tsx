@@ -33,7 +33,7 @@ export async function ReadLastOpenedTabs() {
   })
 
   try {
-    const initTabs = await invoke<String>("read_setting_file", { filename: last_opend_setting_file_name });
+    const initTabs = await invoke<String>("read_setting_file", { fileName: last_opend_setting_file_name });
 
     let result = JSON5.parse(initTabs.toString()) as { version: number, data: TabsInfo[], };
     if (result.data.length !== 2) {
@@ -62,6 +62,6 @@ export async function ReadLastOpenedTabs() {
 export function WriteLastOpenedTabs(value: TabsInfo[]) {
   const data = JSON5.stringify({ version: last_opend_setting_current_version, data: value }, null, 2);
   (async () => {
-    await invoke<void>("write_setting_file", { filename: last_opend_setting_file_name, content: data })
+    await invoke<void>("write_setting_file", { fileName: last_opend_setting_file_name, content: data })
   })()
 }

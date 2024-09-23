@@ -140,7 +140,7 @@ export function commandExecuter(
     opposite_dir: string,
     separator: separator,
   ) => {
-    const command_line = await invoke<String>("read_setting_file", { filename: scriptDirPath + script_file_name });
+    const command_line = await invoke<String>("read_setting_file", { fileName: scriptDirPath + script_file_name });
     const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
     const script_dir_full_path = ApplySeparator(settingDir + '\\' + scriptDirPath, separator);
 

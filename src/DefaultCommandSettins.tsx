@@ -82,7 +82,7 @@ export function GenerateDefaultCommandSeting(): ShellCommand[] {
 Set-Clipboard $selecting_item_path_ary;
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Copy file path.ps1",
+      fileName: "general/script/Copy file path.ps1",
       content: script
     })
   })();
@@ -98,7 +98,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 [System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Copy to clopboard.ps1",
+      fileName: "general/script/Copy to clopboard.ps1",
       content: script
     })
   })();
@@ -111,7 +111,7 @@ for ($index = 0; $index -lt $selecting_item_path_ary.count; $index++) {
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Copy to opposite dirctory.ps1",
+      fileName: "general/script/Copy to opposite dirctory.ps1",
       content: script
     })
   })();
@@ -130,7 +130,7 @@ for ($index=0; $index -lt $dialog_input_str_ary.count; $index++){
 }\
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Create Copy.ps1",
+      fileName: "general/script/Create Copy.ps1",
       content: script
     })
   })();
@@ -165,7 +165,7 @@ for ($index = 0; $index -lt $dialog_input_str_ary.count; $index++) {
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Copy and Replace Content.ps1",
+      fileName: "general/script/Copy and Replace Content.ps1",
       content: script
     })
   })();
@@ -181,7 +181,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 [System.Windows.Forms.Clipboard]::SetDataObject($dataObj, $true);
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Cut to clopboard.ps1",
+      fileName: "general/script/Cut to clopboard.ps1",
       content: script
     })
   })();
@@ -191,7 +191,7 @@ $dataObj.SetData("Preferred DropEffect", $memoryStream);
 Remove-Item $selecting_item_path_ary -Recurse -Force;
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Delete file.ps1",
+      fileName: "general/script/Delete file.ps1",
       content: script
     })
   })();
@@ -201,7 +201,7 @@ Remove-Item $selecting_item_path_ary -Recurse -Force;
 Move-Item -Path $selecting_item_path_ary -Destination $opposite_dir
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Move to opposite dirctory.ps1",
+      fileName: "general/script/Move to opposite dirctory.ps1",
       content: script
     })
   })();
@@ -211,7 +211,7 @@ Move-Item -Path $selecting_item_path_ary -Destination $opposite_dir
 $dialog_input_str_ary | % { New-Item $_ -type file };
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/New File.ps1",
+      fileName: "general/script/New File.ps1",
       content: script
     })
   })();
@@ -221,7 +221,7 @@ $dialog_input_str_ary | % { New-Item $_ -type file };
 $dialog_input_str_ary | % { New-Item $_ -type Directory };
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/New Folder.ps1",
+      fileName: "general/script/New Folder.ps1",
       content: script
     })
   })();
@@ -265,7 +265,7 @@ foreach ($filePath in $files) {
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Past from clopboard.ps1",
+      fileName: "general/script/Past from clopboard.ps1",
       content: script
     })
   })();
@@ -277,7 +277,7 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
 }
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/Rename.ps1",
+      fileName: "general/script/Rename.ps1",
       content: script
     })
   })();
@@ -287,7 +287,7 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
  Start-Process PowerShell
 `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/StartUpPowerShell.ps1",
+      fileName: "general/script/StartUpPowerShell.ps1",
       content: script
     })
   })();
@@ -297,7 +297,7 @@ for ($index=0; $index -lt $selecting_item_path_ary.count; $index++){
 Start-Process PowerShell -Verb runas -ArgumentList "-NoExit -Command cd $current_dir"
  `;
     await invoke<void>("write_setting_file", {
-      filename: "general/script/StartUpAdminPowerShell.ps1",
+      fileName: "general/script/StartUpAdminPowerShell.ps1",
       content: script
     })
   })();
