@@ -4,7 +4,7 @@ use std::{fs, path::PathBuf, str::FromStr};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AdjustedAddressbarStr {
   dir: String,
-  filename: String,
+  file_name: String,
 }
 #[tauri::command]
 pub fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String> {
@@ -12,7 +12,7 @@ pub fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String>
   if str.is_empty() {
     return Ok(AdjustedAddressbarStr {
       dir: "".to_string(),
-      filename: "".to_string(),
+      file_name: "".to_string(),
     });
   }
 
@@ -30,7 +30,7 @@ pub fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String>
     };
     return Ok(AdjustedAddressbarStr {
       dir: parent.as_os_str().to_str().unwrap_or_default().to_string(),
-      filename: path
+      file_name: path
         .file_name()
         .unwrap()
         .to_str()
@@ -42,7 +42,7 @@ pub fn adjust_addressbar_str(str: &str) -> Result<AdjustedAddressbarStr, String>
   if file_info.is_dir() {
     return Ok(AdjustedAddressbarStr {
       dir: path.as_os_str().to_str().unwrap_or_default().to_string(),
-      filename: "".to_string(),
+      file_name: "".to_string(),
     });
   }
 
