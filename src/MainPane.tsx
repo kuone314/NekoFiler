@@ -84,7 +84,6 @@ export const MainPanel = (
       unlisten = await listen('update_path_list', event => {
         const payload = (event.payload as PaneInfo);
         if (payload.pane_idx !== props.panel_idx) { return; }
-        if (payload.dirctry_path !== dir) { return; }
 
         setFileListInfo(payload.file_list_info);
         setInitFocusFile(payload.init_focus_item);
