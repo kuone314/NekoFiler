@@ -145,7 +145,7 @@ export function commandExecuter(
     const script_dir_full_path = ApplySeparator(settingDir + '\\' + scriptDirPath, separator);
 
     const path_ary = selecting_item_name_ary
-      .map(path => decoratePath(current_dir + separator + path))
+      .map(path => decoratePath(current_dir + path)) // current_dir は末端に区切り文字がある想定。
       .join(',');
     const name_ary = selecting_item_name_ary
       .map(decoratePath)
