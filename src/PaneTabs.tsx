@@ -233,7 +233,7 @@ export const PaneTabs = (
         <MainPanel
           isActive={props.isActive}
           panel_idx={props.panel_idx}
-          initPath={tabAry[activeTabIdx].path}
+          dirPath={tabAry[activeTabIdx].path}
           pined={tabAry[activeTabIdx].pined}
           onPathChanged={onPathChanged}
           onItemNumChanged={props.onItemNumChanged}
