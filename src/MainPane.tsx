@@ -42,7 +42,7 @@ export const MainPanel = (
   props: {
     isActive: boolean,
     panel_idx: number,
-    initPath: string,
+    dirPath: string,
     pined: boolean,
     onPathChanged: (newPath: string) => void
     onItemNumChanged: (newItemNum: number) => void,
@@ -57,13 +57,10 @@ export const MainPanel = (
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
   }
 ) => {
-  const [dir, setDir] = useState<string>(props.initPath);
-
   useEffect(() => {
     filterBarFunc.clearFilter();
-    AccessDirectory(dir, null);
-    props.onPathChanged(dir);
-  }, [dir]);
+    AccessDirectory(props.dirPath, null);
+  }, [props.dirPath]);
 
   const [fileListInfo, setFileListInfo] = useState<FileListInfo | null>(null);
   const [initFocusFile, setInitFocusFile] = useState("");
@@ -90,7 +87,7 @@ export const MainPanel = (
       });
     })()
     return () => { if (unlisten) { unlisten(); } }
-  }, [dir])
+  }, [])
 
   const onAddressInputed = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
@@ -109,12 +106,12 @@ export const MainPanel = (
       ? ""
       : RemoveTrailingSeparators(await normalize(trgDir)) + props.separator;
 
-    if (props.pined && dir !== newDir) {
+    if (props.pined && props.dirPath !== newDir) {
       props.tabFuncs.addNewTab(newDir);
       return;
     }
 
-    setDir(newDir);
+    props.onPathChanged(newDir);
     const paneInfo = await invoke<PaneInfo>("set_dirctry_path", {
       paneIdx: props.panel_idx,
       path: newDir,
@@ -139,7 +136,7 @@ export const MainPanel = (
 
 
 
-  const addNewTab = () => { props.tabFuncs.addNewTab(dir); }
+  const addNewTab = () => { props.tabFuncs.addNewTab(props.dirPath); }
   const removeTab = () => { props.tabFuncs.removeTab(); }
   const removeOtherTabs = () => { props.tabFuncs.removeOtherTabs(); }
   const removeAllRightTabs = () => { props.tabFuncs.removeAllRightTabs(); }
@@ -199,7 +196,7 @@ export const MainPanel = (
     if (command.action.type === COMMAND_TYPE.power_shell) {
       execShellCommand(
         command.action.command_name,
-        dir,
+        props.dirPath,
         FileListFunctions.current?.selectingItemName() ?? [],
         props.getOppositePath(),
         props.separator);
@@ -260,16 +257,16 @@ export const MainPanel = (
   };
 
   const accessParentDir = async () => {
-    const dirName = await basename(dir).catch(_ => { return null; });
+    const dirName = await basename(props.dirPath).catch(_ => { return null; });
     if (dirName === null) {
       // dir が ドライブ自体(e.g. C:)のケース。
       // 空のパスを指定する事で、ドライブ一覧を出す。
-      AccessDirectory("", dir);
+      AccessDirectory("", props.dirPath);
       return;
     }
 
     AccessDirectory(
-      dir + props.separator + '..',
+      props.dirPath + props.separator + '..',
       dirName);
   };
 
@@ -342,7 +339,7 @@ export const MainPanel = (
             css={menuItemStyle}
             onClick={e => execShellCommand(
               command.command_name,
-              dir,
+              props.dirPath,
               FileListFunctions.current?.selectingItemName() ?? [],
               props.getOppositePath(),
               props.separator
@@ -366,9 +363,9 @@ export const MainPanel = (
   const FileListFunctions = useRef<FileListFunc>(null);
   const addressBarFunc = useRef<AddressBarFunc>(null);
 
-  const nameToPath = (name: string) => (dir.length === 0)
+  const nameToPath = (name: string) => (props.dirPath.length === 0)
     ? name
-    : (dir + props.separator + name);
+    : (props.dirPath + props.separator + name);
 
 
   return (
@@ -385,7 +382,7 @@ export const MainPanel = (
       >
         {contextMenu()}
         <AddressBar
-          dirPath={dir}
+          dirPath={props.dirPath}
           separator={props.separator}
           confirmInput={(path) => onAddressInputed(path)}
           onEndEdit={() => myGrid.current?.focus()}
@@ -409,7 +406,7 @@ export const MainPanel = (
               ? <FileList
                 isActive={props.isActive}
                 panel_idx={props.panel_idx}
-                dirctoryPath={dir}
+                dirctoryPath={props.dirPath}
                 updateFileListInfo={(paneInfo) => {
                   setFileListInfo(paneInfo.file_list_info);
                   setInitFocusFile(paneInfo.init_focus_item);
@@ -421,7 +418,7 @@ export const MainPanel = (
                 accessDirectry={(dirName: string) => AccessDirectory(nameToPath(dirName), null)}
                 accessFile={(fileName: string) => {
                   const decoretedPath = '&"./' + fileName + '"';
-                  executeShellCommand('Access file', decoretedPath, dir);
+                  executeShellCommand('Access file', decoretedPath, props.dirPath);
                 }}
                 focusOppositePane={props.focusOppositePane}
                 getOppositePath={props.getOppositePath}
