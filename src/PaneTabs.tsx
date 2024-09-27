@@ -102,8 +102,11 @@ export const PaneTabs = (
   }
 
   const onPathChanged = (newPath: string) => {
-    tabAry[activeTabIdx].path = newPath
-    props.onTabsChanged(Array.from(tabAry), activeTabIdx);
+    if (tabAry[activeTabIdx].path === newPath) { return; }
+
+    const newTabAry = structuredClone(tabAry);
+    newTabAry[activeTabIdx].path = newPath
+    props.onTabsChanged(newTabAry, activeTabIdx);
   }
 
 
