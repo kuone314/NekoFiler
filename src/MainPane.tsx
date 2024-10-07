@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, AddressBarFunc, } from './AddressBar';
-import { FileList, FileListFunc, FileListInfo, IFileListItemFilter, } from './FileList';
+import { FileList, FileListFunc, FileListUiInfo as FileListInfo, FileListUiInfo, IFileListItemFilter, } from './FileList';
 
 import { BUILDIN_COMMAND_TYPE, commandExecuter } from './CommandInfo';
 import { KeyBindSetting, COMMAND_TYPE, readKeyBindSetting, match } from './KeyBindInfo';
@@ -30,11 +30,9 @@ import { Exist } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export type PaneInfo = {
+export type UpdateFileListUiInfo = {
   pane_idx: number,
-  dirctry_path: string,
-  init_focus_item: string,
-  file_list_info: FileListInfo | null,
+  data: FileListUiInfo | null,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,23 +60,32 @@ export const MainPanel = (
     AccessDirectory(props.dirPath, null);
   }, [props.dirPath]);
 
-  const [fileListInfo, setFileListInfo] = useState<FileListInfo | null>(null);
-  const [initFocusFile, setInitFocusFile] = useState("");
+  const [fileListInfo, setFileListInfo] = useState<FileListUiInfo | null>(null);
 
-  useEffect(() => props.onItemNumChanged(fileListInfo?.item_list.length ?? 0), [fileListInfo]);
+  useEffect(() => props.onItemNumChanged(fileListInfo?.filtered_item_list.length ?? 0), [fileListInfo]);
 
-  const [filter, setFilter] = useState<IFileListItemFilter | null>(null);
   const filterBarFunc = useRef<FileFilterBarFunc>(null);
+  async function setFilter(filterType: FileFilterType, matcherString: String) {
+    const fileListInfo = await invoke<FileListUiInfo | null>(
+      "set_filter",
+      {
+        paneIdx: props.panel_idx,
+        filter: {
+          filter_type: filterType,
+          matcher_str: matcherString,
+        }
+      });
+    setFileListInfo(fileListInfo);
+  }
 
   useEffect(() => {
     let unlisten: UnlistenFn | null;
     (async () => {
       unlisten = await listen('update_path_list', event => {
-        const payload = (event.payload as PaneInfo);
+        const payload = (event.payload as UpdateFileListUiInfo);
         if (payload.pane_idx !== props.panel_idx) { return; }
 
-        setFileListInfo(payload.file_list_info);
-        setInitFocusFile(payload.init_focus_item);
+        setFileListInfo(payload.data);
       });
     })()
     return () => { if (unlisten) { unlisten(); } }
@@ -107,13 +114,12 @@ export const MainPanel = (
     }
 
     props.onPathChanged(newDir);
-    const paneInfo = await invoke<PaneInfo>("set_dirctry_path", {
+    const paneInfo = await invoke<FileListUiInfo>("set_dirctry_path", {
       paneIdx: props.panel_idx,
       path: newDir,
       initialFocus: trgFile,
     });
-    setFileListInfo(paneInfo.file_list_info);
-    setInitFocusFile(paneInfo.init_focus_item);
+    setFileListInfo(paneInfo);
   }
 
   const focusAddoressBar = () => {
@@ -170,8 +176,8 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.focusFilterBar: focusFilterBar(); return;
       case BUILDIN_COMMAND_TYPE.deleteFilterSingleSingle: filterBarFunc.current?.deleteFilterSingleSingle(); return;
       case BUILDIN_COMMAND_TYPE.clearFilter: filterBarFunc.current?.clearFilter(); return;
-      case BUILDIN_COMMAND_TYPE.setFilterStrMatch: filterBarFunc.current?.setType(`str_match`); return;
-      case BUILDIN_COMMAND_TYPE.setFilterRegExp: filterBarFunc.current?.setType(`reg_expr`); return;
+      case BUILDIN_COMMAND_TYPE.setFilterStrMatch: filterBarFunc.current?.setType(`StrMatch`); return;
+      case BUILDIN_COMMAND_TYPE.setFilterRegExp: filterBarFunc.current?.setType(`RegExpr`); return;
       case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
       case BUILDIN_COMMAND_TYPE.focusCommandBar: focusCommandBar(); return;
       case BUILDIN_COMMAND_TYPE.setKeyBind: props.setKeyBind(srcKey); return;
@@ -405,13 +411,8 @@ export const MainPanel = (
               ? <FileList
                 isActive={props.isActive}
                 panel_idx={props.panel_idx}
-                dirctoryPath={props.dirPath}
-                updateFileListInfo={(paneInfo) => {
-                  setFileListInfo(paneInfo.file_list_info);
-                  setInitFocusFile(paneInfo.init_focus_item);
-                }}
-                focusTarget={initFocusFile}
-                filter={filter}
+                fileListInfo={fileListInfo}
+                updateFileListInfo={setFileListInfo}
                 onSelectItemNumChanged={props.onSelectItemNumChanged}
                 accessParentDir={accessParentDir}
                 accessDirectry={(dirName: string) => AccessDirectory(nameToPath(dirName), null)}
@@ -423,7 +424,6 @@ export const MainPanel = (
                 getOppositePath={props.getOppositePath}
                 gridRef={myGrid}
                 ref={FileListFunctions}
-                fileListInfo={fileListInfo.item_list}
               />
               : <div>Directry Unfound.</div>
           }

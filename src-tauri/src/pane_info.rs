@@ -1,9 +1,12 @@
 use std::{
+  collections::HashSet,
   fs::{self, Metadata},
   os::windows::fs::{FileTypeExt, MetadataExt},
   path::PathBuf,
   sync::Mutex,
 };
+
+use tauri::regex::Regex;
 
 use chrono::{DateTime, Local};
 use winapi::um::winbase::GetLogicalDriveStringsA;
@@ -16,6 +19,21 @@ use get_file_icon::get_file_icon;
 
 use tauri::Manager;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Serialize, Clone)]
+pub struct FileListUiInfo {
+  full_item_num: usize,
+  filtered_item_list: Vec<FileListFilteredItem>,
+  focus_idx: usize,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct FileListFilteredItem {
+  file_list_item: FileListItem,
+  matched_idx_list: Vec<usize>,
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug)]
 pub struct FileBaseInfo {
   file_name: String,
@@ -65,7 +83,7 @@ impl FileBaseInfo {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Clone)]
 pub struct FileListItem {
   is_selected: bool,
   file_name: String,
@@ -92,26 +110,183 @@ impl FileListItem {
     }
   }
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct FileListInfo {
-  item_list: Vec<FileListItem>,
+#[derive(Debug, Deserialize, Clone, PartialEq)]
+pub enum FilterType {
+  StrMatch,
+  RegExpr,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, PartialEq)]
+pub struct FilterInfo {
+  filter_type: FilterType,
+  matcher_str: String,
+}
+
+impl FilterInfo {
+  fn new() -> Self {
+    Self {
+      filter_type: FilterType::StrMatch,
+      matcher_str: "".to_string(),
+    }
+  }
+}
+
+type MatchResult = Option<Vec<usize>>;
+impl FilterInfo {
+  fn is_match(
+    &self,
+    target: &String,
+  ) -> MatchResult {
+    if self.matcher_str.is_empty() {
+      return Some(Vec::new());
+    }
+
+    match self.filter_type {
+      FilterType::StrMatch => self.str_match(&target),
+      FilterType::RegExpr => self.reg_expr_match(&target),
+    }
+  }
+  fn str_match(
+    &self,
+    target: &String,
+  ) -> MatchResult {
+    let mut matched_idx_list: Vec<usize> = Vec::new();
+
+    for str_char in self.matcher_str.chars() {
+      let prev_match_idx = matched_idx_list.last().copied();
+      let search_start_idx = prev_match_idx.map_or(0, |idx| idx + 1);
+      let search_str = &target[search_start_idx..];
+
+      if let Some(found_idx) = search_str.find(str_char) {
+        matched_idx_list.push(search_start_idx + found_idx);
+      } else {
+        return None;
+      }
+    }
+
+    Some(matched_idx_list)
+  }
+
+  fn reg_expr_match(
+    &self,
+    target: &String,
+  ) -> MatchResult {
+    let Ok(reg_exp) = Regex::new(self.matcher_str.as_str()) else {
+      return None;
+    };
+
+    let target = target.to_lowercase();
+    let Some(res) = reg_exp.find(target.as_str()) else {
+      return None;
+    };
+    Some((res.start()..res.end()).collect::<Vec<usize>>())
+  }
+}
+
+#[derive(Debug, Clone)]
+pub struct FilterdFileInfo {
+  org_idx: usize,
+  matched_file_name_idx: Vec<usize>,
+}
+
+#[derive(Debug, Clone)]
+pub struct FileListFullInfo {
+  full_item_list: Vec<FileListItem>,
+  filtered_item_info: Vec<FilterdFileInfo>,
+  focus_idx: usize, // filtered_item_list のインデックス
+}
+
+impl FileListFullInfo {
+  fn new(dirctry_path: &String) -> Option<FileListFullInfo> {
+    let file_list = get_file_list(&dirctry_path);
+    let file_list = file_list.map(|file_list| {
+      file_list
+        .iter()
+        .map(|file_data| FileListItem::new(file_data, false))
+        .collect::<Vec<_>>()
+    });
+    file_list.map(|file_list| FileListFullInfo {
+      filtered_item_info: (0..file_list.len())
+        .map(|org_idx| FilterdFileInfo {
+          org_idx,
+          matched_file_name_idx: Vec::new(),
+        })
+        .collect(),
+      focus_idx: 0,
+      full_item_list: file_list,
+    })
+  }
+
+  fn focus_file_name(self: &FileListFullInfo) -> Option<String> {
+    self
+      .filtered_item_info
+      .get(self.focus_idx)
+      .map(|item| self.full_item_list[item.org_idx].file_name.clone())
+  }
+
+  fn to_ui_info(self: &FileListFullInfo) -> FileListUiInfo {
+    let filtered_item_list = self
+      .filtered_item_info
+      .iter()
+      .map(|item| FileListFilteredItem {
+        file_list_item: self.full_item_list[item.org_idx].clone(),
+        matched_idx_list: item.matched_file_name_idx.clone(),
+      })
+      .collect::<Vec<_>>();
+    FileListUiInfo {
+      full_item_num: self.full_item_list.len(),
+      filtered_item_list,
+      focus_idx: self.focus_idx,
+    }
+  }
+
+  fn create(
+    full_item_list: Vec<FileListItem>,
+    full_focus_idx: usize,
+    filter: &FilterInfo,
+  ) -> FileListFullInfo {
+    let before_focus = (0..full_focus_idx)
+      .filter_map(|idx| {
+        let match_result = filter.is_match(&full_item_list[idx].file_name);
+        match_result.map(|matched_file_name_idx| FilterdFileInfo {
+          org_idx: idx,
+          matched_file_name_idx,
+        })
+      })
+      .collect::<Vec<_>>();
+    let after_focus = (full_focus_idx..full_item_list.len())
+      .filter_map(|idx| {
+        let match_result = filter.is_match(&full_item_list[idx].file_name);
+        match_result.map(|matched_file_name_idx| FilterdFileInfo {
+          org_idx: idx,
+          matched_file_name_idx,
+        })
+      })
+      .collect::<Vec<_>>();
+
+    let filtered_item_list = [&before_focus[..], &after_focus[..]].concat();
+    let focus_idx = before_focus.len();
+
+    FileListFullInfo {
+      full_item_list,
+      filtered_item_info: filtered_item_list,
+      focus_idx,
+    }
+  }
+}
+
+#[derive(Debug, Clone)]
 pub struct PaneInfo {
-  pane_idx: usize,
   dirctry_path: String,
-  init_focus_item: String,
-  file_list_info: Option<FileListInfo>,
+  filter: FilterInfo,
+  file_list_info: Option<FileListFullInfo>,
 }
 impl PaneInfo {
-  fn new(pane_idx: usize) -> Self {
+  fn new() -> Self {
     Self {
-      pane_idx,
       dirctry_path: "".to_owned(),
+      filter: FilterInfo::new(),
       file_list_info: None,
-      init_focus_item: "".to_owned(),
     }
   }
 }
@@ -123,7 +298,7 @@ pub struct FilerData {
 impl FilerData {
   fn new() -> Self {
     Self {
-      pane_info_list: [PaneInfo::new(0), PaneInfo::new(1)],
+      pane_info_list: [PaneInfo::new(), PaneInfo::new()],
     }
   }
 }
@@ -135,33 +310,97 @@ pub fn set_dirctry_path(
   pane_idx: usize,
   path: &str,
   initial_focus: Option<String>,
-) -> Option<PaneInfo> {
+) -> Option<FileListUiInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
     return None;
   };
 
-  data_store.pane_info_list[pane_idx].dirctry_path = path.to_string();
+  let pane_info = &mut data_store.pane_info_list[pane_idx];
+  if pane_info.dirctry_path == path {
+    // パスの変更が無ければ、選択要素のみを変更する。
+    let Some(ref mut file_list_info) = &mut pane_info.file_list_info else {
+      return None;
+    };
+    let Some(initial_focus) = initial_focus else {
+      return Some(file_list_info.to_ui_info());
+    };
 
-  data_store.pane_info_list[pane_idx].file_list_info = None;
-  initial_focus.map(|initial_focus| {
-    data_store.pane_info_list[pane_idx].init_focus_item = initial_focus.to_string()
-  });
+    let new_idx = file_list_info
+      .filtered_item_info
+      .iter()
+      .position(|item| file_list_info.full_item_list[item.org_idx].file_name == initial_focus);
 
-  update_file_name_list(&mut data_store.pane_info_list[pane_idx]);
-  Some(data_store.pane_info_list[pane_idx].clone())
+    file_list_info.focus_idx = new_idx.unwrap_or(file_list_info.focus_idx);
+    return Some(file_list_info.to_ui_info());
+  }
+
+  let path = path.to_string();
+  let file_list_info = FileListFullInfo::new(&path);
+
+  let pane_info = PaneInfo {
+    dirctry_path: path,
+    filter: FilterInfo::new(),
+    file_list_info,
+  };
+
+  data_store.pane_info_list[pane_idx] = pane_info;
+  data_store.pane_info_list[pane_idx]
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
 }
 
 #[tauri::command]
-pub fn set_focus_item(
+pub fn set_focus_idx(
   pane_idx: usize,
-  focusitem: &str,
-) -> Option<PaneInfo> {
+  new_focus_idx: usize,
+) -> Option<FileListUiInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
     return None;
   };
 
-  data_store.pane_info_list[pane_idx].init_focus_item = focusitem.to_string();
-  Some(data_store.pane_info_list[pane_idx].clone())
+  let Some(file_list_info) = &mut data_store.pane_info_list[pane_idx].file_list_info else {
+    return None;
+  };
+
+  file_list_info.focus_idx = new_focus_idx;
+  data_store.pane_info_list[pane_idx]
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
+}
+
+#[tauri::command]
+pub fn set_filter(
+  pane_idx: usize,
+  filter: FilterInfo,
+) -> Option<FileListUiInfo> {
+  let Ok(mut data_store) = PANE_DATA.lock() else {
+    return None;
+  };
+
+  let pane_info = &mut data_store.pane_info_list[pane_idx];
+
+  pane_info.filter = filter;
+
+  let Some(file_list_info) = &mut pane_info.file_list_info else {
+    return None;
+  };
+
+  pane_info.file_list_info = Some(FileListFullInfo::create(
+    file_list_info.full_item_list.clone(),
+    0, // インデックスは別途設定
+    &pane_info.filter,
+  ));
+
+  // TODO:インデックスの設定
+  // 元の選択が有るならそれを維持
+  // 無いなら、一致度を定めて、最も一致する物にする。
+
+  data_store.pane_info_list[pane_idx]
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,25 +411,50 @@ pub fn get_pane_data(pane_idx: usize) -> Option<PaneInfo> {
   Some(data_store.pane_info_list[pane_idx].clone())
 }
 
+#[derive(Debug, Serialize, Clone)]
+pub struct UpdateFileListUiInfo {
+  pane_idx: usize,
+  data: Option<FileListUiInfo>,
+}
+
 pub fn update_pane_data(
   app_handle: &tauri::AppHandle,
   pane_idx: usize,
-  prev_init_focus_item: &String,
-  pane_info: PaneInfo,
+  prev_filter: &FilterInfo,
+  prev_focus_idx: &Option<usize>,
+  new_pane_info: PaneInfo,
 ) {
   let Ok(mut data_store) = PANE_DATA.lock() else {
     return;
   };
 
-  if data_store.pane_info_list[pane_idx].init_focus_item != *prev_init_focus_item {
+  let current_pane_info = &mut data_store.pane_info_list[pane_idx];
+  if current_pane_info.filter != *prev_filter {
     return;
   }
-  if data_store.pane_info_list[pane_idx].dirctry_path != pane_info.dirctry_path {
+  if current_pane_info
+    .file_list_info
+    .as_ref()
+    .map(|item| item.focus_idx)
+    != *prev_focus_idx
+  {
+    return;
+  }
+  if current_pane_info.dirctry_path != new_pane_info.dirctry_path {
     return;
   }
 
-  let _ = app_handle.emit_all("update_path_list", &pane_info);
-  data_store.pane_info_list[pane_idx] = pane_info;
+  let _ = app_handle.emit_all(
+    "update_path_list",
+    UpdateFileListUiInfo {
+      pane_idx,
+      data: new_pane_info
+        .file_list_info
+        .as_ref()
+        .map(|item| item.to_ui_info()),
+    },
+  );
+  data_store.pane_info_list[pane_idx] = new_pane_info;
 }
 
 pub fn update_file_list(app_handle: &tauri::AppHandle) {
@@ -198,22 +462,37 @@ pub fn update_file_list(app_handle: &tauri::AppHandle) {
     let Some(mut pane_info) = get_pane_data(pane_idx) else {
       continue;
     };
-    let prev_init_focus_item = pane_info.init_focus_item.clone();
+
+    let prev_filter = pane_info.filter.clone();
+    let prev_focus_idx = pane_info
+      .file_list_info
+      .as_ref()
+      .map(|file_list_info| file_list_info.focus_idx);
 
     update_file_name_list(&mut pane_info);
     update_pane_data(
       app_handle,
       pane_idx,
-      &prev_init_focus_item,
+      &prev_filter,
+      &prev_focus_idx,
       pane_info.clone(),
     );
 
+    // 失敗した時点で、更新処理は打ち止めで良いはず…。
+
+    // フィルタ後の物だけで良いかも。
     pane_info.file_list_info.as_mut().map(|file_list_info| {
-      for file_list_item in file_list_info.item_list.iter_mut() {
+      for file_list_item in file_list_info.full_item_list.iter_mut() {
         update_icon_info(&pane_info.dirctry_path, file_list_item);
       }
     });
-    update_pane_data(app_handle, pane_idx, &prev_init_focus_item, pane_info);
+    update_pane_data(
+      app_handle,
+      pane_idx,
+      &prev_filter,
+      &prev_focus_idx,
+      pane_info,
+    );
   }
 }
 
@@ -235,60 +514,42 @@ fn update_icon_info(
 }
 
 pub fn update_file_name_list(pane_info: &mut PaneInfo) {
-  let new_file_list = get_file_list(&pane_info.dirctry_path);
+  let Some(file_list_info) = &pane_info.file_list_info else {
+    let file_list_info = FileListFullInfo::new(&pane_info.dirctry_path);
+    pane_info.file_list_info = file_list_info;
+    return;
+  };
+
+  let Some(new_file_list) = get_file_list(&pane_info.dirctry_path) else {
+    pane_info.file_list_info = None;
+    return;
+  };
+
+  let org_focus_file_name = file_list_info.focus_file_name();
 
   let new_file_name_list = new_file_list
-    .as_ref()
-    .unwrap_or(&vec![])
-    .into_iter()
+    .iter()
     .map(|item| item.file_name.to_string())
-    .collect::<Vec<_>>();
+    .collect::<HashSet<_>>();
 
   // 既にある物の位置は変えない。
   // 新規の物を下に追加しする。
   // 新規がある場合は、新規の物のみを選択状態にする。
-  if pane_info.file_list_info.is_none() {
-    if !new_file_name_list.contains(&pane_info.init_focus_item) {
-      pane_info.init_focus_item = new_file_name_list.get(0).cloned().unwrap_or_default();
-    }
-
-    let item_list = new_file_list.as_ref().map(|file_list| {
-      file_list
-        .into_iter()
-        .map(|file| FileListItem::new(&file, false))
-        .collect()
-    });
-    pane_info.file_list_info = match item_list {
-      Some(item_list) => Some(FileListInfo { item_list }),
-      None => None,
-    };
-    return;
-  }
-
-  let mut remain = pane_info
-    .file_list_info
-    .as_ref()
-    .unwrap()
-    .item_list
+  let mut remain = file_list_info
+    .full_item_list
     .iter()
-    .filter(|item| {
-      new_file_name_list
-        .iter()
-        .any(|name| *name == item.file_name)
-    })
+    .filter(|item| new_file_name_list.contains(&item.file_name))
     .cloned()
     .collect::<Vec<_>>();
 
   let added = new_file_list
-    .as_ref()
-    .unwrap()
-    .into_iter()
+    .iter()
     .filter(|file| {
       remain
         .iter()
         .all(|remain| remain.file_name != file.file_name)
     })
-    .map(|file| FileListItem::new(file.to_owned(), true))
+    .map(|file| FileListItem::new(&file, true))
     .collect::<Vec<_>>();
 
   if !added.is_empty() {
@@ -297,33 +558,35 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
     }
   }
 
-  let item_list: Vec<_> = [&remain[..], &added[..]].concat();
+  let full_item_list: Vec<_> = [&remain[..], &added[..]].concat();
 
-  if !new_file_name_list.contains(&pane_info.init_focus_item) {
-    let new_idx = pane_info
-      .file_list_info
-      .as_ref()
-      .unwrap()
-      .item_list
+  let full_focus_idx = if !added.is_empty() {
+    remain.len()
+  } else if org_focus_file_name.is_none() {
+    0
+  } else {
+    let org_focus_file_name = org_focus_file_name.unwrap();
+    let full_matched_idx = remain
       .iter()
-      .take_while(|&item| item.file_name != pane_info.init_focus_item)
-      .filter(|item| {
-        new_file_name_list
-          .iter()
-          .any(|name| *name == item.file_name)
-      })
-      .count();
+      .position(|item| item.file_name == org_focus_file_name);
+    if full_matched_idx.is_some() {
+      full_matched_idx.unwrap()
+    } else {
+      // 選択要素が無くなっているケース。消えた要素分繰り上げる形にする。
+      file_list_info
+        .full_item_list
+        .iter()
+        .take_while(|item| item.file_name == org_focus_file_name)
+        .filter(|item| new_file_name_list.contains(&item.file_name))
+        .count()
+    }
+  };
 
-    let new_selection = item_list
-      .get(new_idx)
-      .or_else(|| item_list.last())
-      .map(|item| item.file_name.to_owned())
-      .unwrap_or("".to_owned());
-
-    pane_info.init_focus_item = new_selection.to_string();
-  }
-
-  pane_info.file_list_info = Some(FileListInfo { item_list });
+  pane_info.file_list_info = Some(FileListFullInfo::create(
+    full_item_list,
+    full_focus_idx,
+    &pane_info.filter,
+  ));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -400,7 +663,7 @@ pub enum SortKey {
 pub fn sort_file_list(
   pane_idx: usize,
   sork_key: SortKey,
-) -> Option<PaneInfo>{
+) -> Option<FileListUiInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
     return None;
   };
@@ -408,28 +671,53 @@ pub fn sort_file_list(
   let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
     return None;
   };
+
+  let focus_file_name = file_list_info.focus_file_name();
+
   match sork_key {
     SortKey::Name => {
       file_list_info
-        .item_list
+        .full_item_list
         .sort_by(|a, b| a.file_name.cmp(&b.file_name));
     }
     SortKey::FileType => {
       file_list_info
-        .item_list
+        .full_item_list
         .sort_by(|a, b| a.file_extension.cmp(&b.file_extension));
     }
     SortKey::Size => {
       file_list_info
-        .item_list
+        .full_item_list
         .sort_by(|a, b| a.file_size.cmp(&b.file_size));
     }
     SortKey::Date => {
-      file_list_info.item_list.sort_by(|a, b| a.date.cmp(&b.date));
+      file_list_info
+        .full_item_list
+        .sort_by(|a, b| a.date.cmp(&b.date));
     }
   }
 
-  Some(data_store.pane_info_list[pane_idx].clone())
+  let mut file_list_info = FileListFullInfo::create(
+    std::mem::take(&mut file_list_info.full_item_list),
+    0,
+    &data_store.pane_info_list[pane_idx].filter,
+  );
+
+  file_list_info.focus_idx = focus_file_name
+    .and_then(|name| {
+      file_list_info
+        .filtered_item_info
+        .iter()
+        .position(|item| file_list_info.full_item_list[item.org_idx].file_name == name)
+    })
+    .unwrap_or(0);
+
+  data_store.pane_info_list[pane_idx].file_list_info = Some(file_list_info);
+
+  data_store.pane_info_list[pane_idx]
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -437,7 +725,7 @@ pub fn sort_file_list(
 pub fn add_selecting_idx(
   pane_idx: usize,
   additional_select_idx_list: Vec<usize>,
-) -> Option<PaneInfo> {
+) -> Option<FileListUiInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
     return None;
   };
@@ -447,17 +735,23 @@ pub fn add_selecting_idx(
   };
 
   for idx in additional_select_idx_list {
-    file_list_info.item_list[idx].is_selected = true;
+    let Some(item) = file_list_info.filtered_item_info.get_mut(idx) else {
+      continue;
+    };
+    file_list_info.full_item_list[item.org_idx].is_selected = true;
   }
 
-  Some(data_store.pane_info_list[pane_idx].clone())
+  data_store.pane_info_list[pane_idx]
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
 }
 
 #[tauri::command]
 pub fn set_selecting_idx(
   pane_idx: usize,
   new_select_idx_list: Vec<usize>,
-) -> Option<PaneInfo> {
+) -> Option<FileListUiInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
     return None;
   };
@@ -466,22 +760,28 @@ pub fn set_selecting_idx(
     return None;
   };
 
-  for item in file_list_info.item_list.iter_mut() {
-    item.is_selected = false;
+  for item in file_list_info.filtered_item_info.iter_mut() {
+    file_list_info.full_item_list[item.org_idx].is_selected = false;
   }
 
   for idx in new_select_idx_list {
-    file_list_info.item_list[idx].is_selected = true;
+    let Some(item) = file_list_info.filtered_item_info.get_mut(idx) else {
+      continue;
+    };
+    file_list_info.full_item_list[item.org_idx].is_selected = true;
   }
 
-  Some(data_store.pane_info_list[pane_idx].clone())
+  data_store.pane_info_list[pane_idx]
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
 }
 
 #[tauri::command]
 pub fn toggle_selection(
   pane_idx: usize,
   trg_idx: usize,
-) -> Option<PaneInfo> {
+) -> Option<FileListUiInfo> {
   let Ok(mut data_store) = PANE_DATA.lock() else {
     return None;
   };
@@ -490,7 +790,16 @@ pub fn toggle_selection(
     return None;
   };
 
-  file_list_info.item_list[trg_idx].is_selected = !file_list_info.item_list[trg_idx].is_selected;
+  file_list_info
+    .filtered_item_info
+    .get_mut(trg_idx)
+    .map(|item| {
+      file_list_info.full_item_list[item.org_idx].is_selected =
+        !file_list_info.full_item_list[item.org_idx].is_selected
+    });
 
-  Some(data_store.pane_info_list[pane_idx].clone())
+  data_store.pane_info_list[pane_idx]
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
 }
