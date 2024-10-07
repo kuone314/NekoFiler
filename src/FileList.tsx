@@ -381,9 +381,23 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       return { str, flag };
     });
 
+    const enphansisColor = (() => {
+      if (!colorSetting) { return ``; }
+      const found = colorSetting.settings.find(setting => {
+        if (setting.matcher.isDirectory !== item.file_list_item.is_directory) { return false; }
+        if (!MatchImpl(setting.matcher.nameMatcher, item.file_list_item.file_name)) { return false; }
+        return true;
+      });
+      if (found) {
+        return ColorCodeString.new(found.color.activeHightlight)?.val
+          ?? colorSetting.defaultColor.activeHightlight;
+      }
+      return colorSetting.defaultColor.activeHightlight;
+    })();
+
     return <>
       {charFlagPairs.map((pair, idx) => pair.flag
-        ? <b key={idx}>{pair.str}</b>
+        ? <b style={{ color: enphansisColor }} key={idx}>{pair.str}</b>
         : <span key={idx}>{pair.str}</span>)}
     </>;
   }
