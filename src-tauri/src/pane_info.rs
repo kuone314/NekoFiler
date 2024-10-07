@@ -308,17 +308,21 @@ impl PaneInfo {
 
 #[derive(Debug)]
 pub struct FilerData {
-  pane_info_list: [PaneInfo; 2],
+  pane_info_list: [Lazy<Mutex<PaneInfo>>; 2],
 }
+
 impl FilerData {
   fn new() -> Self {
     Self {
-      pane_info_list: [PaneInfo::new(), PaneInfo::new()],
+      pane_info_list: [
+        Lazy::new(|| Mutex::new(PaneInfo::new())),
+        Lazy::new(|| Mutex::new(PaneInfo::new())),
+      ],
     }
   }
 }
 
-static PANE_DATA: Lazy<Mutex<FilerData>> = Lazy::new(|| Mutex::new(FilerData::new()));
+static PANE_DATA: Lazy<FilerData> = Lazy::new(|| FilerData::new());
 
 #[tauri::command]
 pub fn set_dirctry_path(
@@ -326,11 +330,8 @@ pub fn set_dirctry_path(
   path: &str,
   initial_focus: Option<String>,
 ) -> Option<FileListUiInfo> {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return None;
-  };
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
-  let pane_info = &mut data_store.pane_info_list[pane_idx];
   if pane_info.dirctry_path == path {
     // パスの変更が無ければ、選択要素のみを変更する。
     let Some(ref mut file_list_info) = &mut pane_info.file_list_info else {
@@ -352,14 +353,12 @@ pub fn set_dirctry_path(
   let path = path.to_string();
   let file_list_info = FileListFullInfo::new(&path);
 
-  let pane_info = PaneInfo {
+  *pane_info = PaneInfo {
     dirctry_path: path,
     filter: FilterInfo::new(),
     file_list_info,
   };
-
-  data_store.pane_info_list[pane_idx] = pane_info;
-  data_store.pane_info_list[pane_idx]
+  pane_info
     .file_list_info
     .as_ref()
     .map(|item| item.to_ui_info())
@@ -370,16 +369,14 @@ pub fn set_focus_idx(
   pane_idx: usize,
   new_focus_idx: usize,
 ) -> Option<FileListUiInfo> {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return None;
-  };
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
-  let Some(file_list_info) = &mut data_store.pane_info_list[pane_idx].file_list_info else {
+  let Some(file_list_info) = &mut pane_info.file_list_info else {
     return None;
   };
 
   file_list_info.focus_idx = new_focus_idx;
-  data_store.pane_info_list[pane_idx]
+  pane_info
     .file_list_info
     .as_ref()
     .map(|item| item.to_ui_info())
@@ -390,11 +387,7 @@ pub fn set_filter(
   pane_idx: usize,
   filter: FilterInfo,
 ) -> Option<FileListUiInfo> {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return None;
-  };
-
-  let pane_info = &mut data_store.pane_info_list[pane_idx];
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
   pane_info.filter = filter;
 
@@ -412,18 +405,16 @@ pub fn set_filter(
   // 元の選択が有るならそれを維持
   // 無いなら、一致度を定めて、最も一致する物にする。
 
-  data_store.pane_info_list[pane_idx]
+  pane_info
     .file_list_info
     .as_ref()
     .map(|item| item.to_ui_info())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-pub fn get_pane_data(pane_idx: usize) -> Option<PaneInfo> {
-  let Ok(data_store) = PANE_DATA.lock() else {
-    return None;
-  };
-  Some(data_store.pane_info_list[pane_idx].clone())
+pub fn get_pane_data(pane_idx: usize) -> PaneInfo {
+  let pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
+  pane_info.clone()
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -439,11 +430,8 @@ pub fn update_pane_data(
   prev_focus_idx: &Option<usize>,
   new_pane_info: PaneInfo,
 ) {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return;
-  };
+  let mut current_pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
-  let current_pane_info = &mut data_store.pane_info_list[pane_idx];
   if current_pane_info.filter != *prev_filter {
     return;
   }
@@ -469,14 +457,12 @@ pub fn update_pane_data(
         .map(|item| item.to_ui_info()),
     },
   );
-  data_store.pane_info_list[pane_idx] = new_pane_info;
+  *current_pane_info = new_pane_info;
 }
 
 pub fn update_file_list(app_handle: &tauri::AppHandle) {
   for pane_idx in 0..=1 {
-    let Some(mut pane_info) = get_pane_data(pane_idx) else {
-      continue;
-    };
+    let mut pane_info = get_pane_data(pane_idx);
 
     let prev_filter = pane_info.filter.clone();
     let prev_focus_idx = pane_info
@@ -679,11 +665,9 @@ pub fn sort_file_list(
   pane_idx: usize,
   sork_key: SortKey,
 ) -> Option<FileListUiInfo> {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return None;
-  };
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+  let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;
   };
 
@@ -715,7 +699,7 @@ pub fn sort_file_list(
   let mut file_list_info = FileListFullInfo::create(
     std::mem::take(&mut file_list_info.full_item_list),
     0,
-    &data_store.pane_info_list[pane_idx].filter,
+    &pane_info.filter,
   );
 
   file_list_info.focus_idx = focus_file_name
@@ -727,12 +711,7 @@ pub fn sort_file_list(
     })
     .unwrap_or(0);
 
-  data_store.pane_info_list[pane_idx].file_list_info = Some(file_list_info);
-
-  data_store.pane_info_list[pane_idx]
-    .file_list_info
-    .as_ref()
-    .map(|item| item.to_ui_info())
+  Some(file_list_info.to_ui_info())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -741,11 +720,9 @@ pub fn add_selecting_idx(
   pane_idx: usize,
   additional_select_idx_list: Vec<usize>,
 ) -> Option<FileListUiInfo> {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return None;
-  };
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+  let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;
   };
 
@@ -756,10 +733,7 @@ pub fn add_selecting_idx(
     file_list_info.full_item_list[item.org_idx].is_selected = true;
   }
 
-  data_store.pane_info_list[pane_idx]
-    .file_list_info
-    .as_ref()
-    .map(|item| item.to_ui_info())
+  Some(file_list_info.to_ui_info())
 }
 
 #[tauri::command]
@@ -767,11 +741,9 @@ pub fn set_selecting_idx(
   pane_idx: usize,
   new_select_idx_list: Vec<usize>,
 ) -> Option<FileListUiInfo> {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return None;
-  };
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+  let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;
   };
 
@@ -786,10 +758,7 @@ pub fn set_selecting_idx(
     file_list_info.full_item_list[item.org_idx].is_selected = true;
   }
 
-  data_store.pane_info_list[pane_idx]
-    .file_list_info
-    .as_ref()
-    .map(|item| item.to_ui_info())
+  Some(file_list_info.to_ui_info())
 }
 
 #[tauri::command]
@@ -797,11 +766,9 @@ pub fn toggle_selection(
   pane_idx: usize,
   trg_idx: usize,
 ) -> Option<FileListUiInfo> {
-  let Ok(mut data_store) = PANE_DATA.lock() else {
-    return None;
-  };
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
 
-  let Some(ref mut file_list_info) = data_store.pane_info_list[pane_idx].file_list_info else {
+  let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;
   };
 
@@ -813,8 +780,5 @@ pub fn toggle_selection(
         !file_list_info.full_item_list[item.org_idx].is_selected
     });
 
-  data_store.pane_info_list[pane_idx]
-    .file_list_info
-    .as_ref()
-    .map(|item| item.to_ui_info())
+  Some(file_list_info.to_ui_info())
 }
