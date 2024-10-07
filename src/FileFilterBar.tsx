@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import React from 'react';
 
 /** @jsxImportSource @emotion/react */
@@ -12,8 +12,8 @@ import { ComboBoxStyle, TextInputStyle } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export const FileFilterType = {
-  str_match: "str_match",
-  reg_expr: "reg_expr",
+  str_match: "StrMatch",
+  reg_expr: "RegExpr",
 } as const;
 export type FileFilterType = typeof FileFilterType[keyof typeof FileFilterType];
 
@@ -22,8 +22,8 @@ const toComboItem = (type: FileFilterType) => {
 }
 const comboLabel = (type: FileFilterType) => {
   switch (type) {
-    case 'str_match': return 'str_match'
-    case 'reg_expr': return 'reg_expr'
+    case 'StrMatch': return 'StrMatch'
+    case 'RegExpr': return 'RegExpr'
   }
 }
 
@@ -37,49 +37,17 @@ export interface FileFilterBarFunc {
   isFocus: () => boolean,
 };
 
-export function FileFilterBar(
-  props: {
-    onFilterChanged: (filter: IFileListItemFilter | null) => void,
-    onEndEdit: () => void,
-  }
-): [JSX.Element, FileFilterBarFunc] {
-  const [filter, setFilter] = useState<string>('');
-  const [filterType, setFilterType] = useState<FileFilterType>('str_match');
+type FileFilterBarProps = {
+  onFilterChanged: (filterType: FileFilterType, matcherString: String) => void,
+  onEndEdit: () => void,
+};
+
+export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((props, ref) => {
+  const [matcherString, setMatcherString] = useState<string>('');
+  const [filterType, setFilterType] = useState<FileFilterType>('StrMatch');
   useEffect(() => {
-    props.onFilterChanged(createFilter());
-  }, [filter, filterType]);
-  const createFilter = () => {
-    if (filter === '') { return null; }
-    class FilterImpl implements IFileListItemFilter {
-      IsMatch(entry: FileListItem): boolean {
-        if (filter.length === 0) { return true; }
-        return (MatchIndexAry(entry.file_name.toLowerCase(), filter).length !== 0);
-      }
-      GetMatchingIdxAry(fileName: string): number[] {
-        return MatchIndexAry(fileName.toLowerCase(), filter);
-      }
-    }
-
-    class RegExprFilter implements IFileListItemFilter {
-      IsMatch(entry: FileListItem): boolean {
-        return (new RegExp(filter)).test(entry.file_name.toLowerCase());
-      }
-      GetMatchingIdxAry(fileName: string): number[] {
-        const regExp = new RegExp(filter);
-        const res = regExp.exec(fileName.toLowerCase());
-        if (res === null) { return []; }
-        const idx = res.index;
-        const len = res[0].length;
-        return Sequence(idx, len);
-      }
-    }
-
-    switch (filterType) {
-      case 'str_match': return new FilterImpl;
-      case 'reg_expr': return new RegExprFilter;
-    }
-  }
-
+    props.onFilterChanged(filterType, matcherString);
+  }, [matcherString, filterType]);
 
   const [isFocus, setIsFocus] = useState(false);
 
@@ -90,8 +58,18 @@ export function FileFilterBar(
     }
   };
 
+  const functions = {
+    addFilterString: (str: string) => setMatcherString(matcherString + str),
+    deleteFilterSingleSingle: () => setMatcherString(matcherString.slice(0, -1)),
+    clearFilter: () => setMatcherString(``),
+    focus: () => inputBoxRef.current?.focus(),
+    setType: (filterType: FileFilterType) => setFilterType(filterType),
+    isFocus: () => isFocus,
+  }
+  useImperativeHandle(ref, () => functions);
+
   const inputBoxRef = React.createRef<HTMLInputElement>();
-  const element = <div
+  return <div
     css={css({
       display: 'grid',
       gridTemplateColumns: 'auto auto auto',
@@ -115,26 +93,15 @@ export function FileFilterBar(
     <input
       style={TextInputStyle()}
       type="text"
-      value={filter}
-      onChange={e => setFilter(e.target.value)}
+      value={matcherString}
+      onChange={e => setMatcherString(e.target.value)}
       onKeyDown={onKeyDown}
       onFocus={_ => setIsFocus(true)}
       onBlur={_ => setIsFocus(false)}
       ref={inputBoxRef}
     />
   </div>
-
-  return [
-    element,
-    {
-      addFilterString: (str: string) => setFilter(filter + str),
-      deleteFilterSingleSingle: () => setFilter(filter.slice(0, -1)),
-      clearFilter: () => setFilter(``),
-      focus: () => inputBoxRef.current?.focus(),
-      setType: (filterType: FileFilterType) => setFilterType(filterType),
-      isFocus: () => isFocus,
-    }];
-}
+});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function MatchIndexAry(

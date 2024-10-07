@@ -15,7 +15,8 @@ use get_exe_dir::get_exe_dir;
 mod pane_info;
 use pane_info::add_selecting_idx;
 use pane_info::set_dirctry_path;
-use pane_info::set_focus_item;
+use pane_info::set_filter;
+use pane_info::set_focus_idx;
 use pane_info::set_selecting_idx;
 use pane_info::sort_file_list;
 use pane_info::toggle_selection;
@@ -41,10 +42,11 @@ fn main() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
       set_dirctry_path,
+      set_filter,
       add_selecting_idx,
       set_selecting_idx,
       toggle_selection,
-      set_focus_item,
+      set_focus_idx,
       sort_file_list,
       adjust_addressbar_str,
       execute_shell_command,
