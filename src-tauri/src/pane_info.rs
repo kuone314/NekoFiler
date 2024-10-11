@@ -326,38 +326,45 @@ pub fn update_pane_data(
 pub fn update_file_list(app_handle: &tauri::AppHandle) {
   for pane_idx in 0..=1 {
     let mut pane_info = get_pane_data(pane_idx);
-
-    let prev_filter = pane_info.filter.clone();
-    let prev_focus_idx = pane_info
-      .file_list_info
-      .as_ref()
-      .map(|file_list_info| file_list_info.focus_idx);
-
-    update_file_name_list(&mut pane_info);
-    update_pane_data(
-      app_handle,
-      pane_idx,
-      &prev_filter,
-      &prev_focus_idx,
-      pane_info.clone(),
-    );
-
-    // 失敗した時点で、更新処理は打ち止めで良いはず…。
-
-    // フィルタ後の物だけで良いかも。
-    pane_info.file_list_info.as_mut().map(|file_list_info| {
-      for file_list_item in file_list_info.full_item_list.iter_mut() {
-        update_icon_info(&pane_info.dirctry_path, file_list_item);
-      }
-    });
-    update_pane_data(
-      app_handle,
-      pane_idx,
-      &prev_filter,
-      &prev_focus_idx,
-      pane_info,
-    );
+    update_pane_info(pane_info, app_handle, pane_idx);
   }
+}
+
+fn update_pane_info(
+  mut pane_info: PaneInfo,
+  app_handle: &tauri::AppHandle,
+  pane_idx: usize,
+) {
+  let prev_filter = pane_info.filter.clone();
+  let prev_focus_idx = pane_info
+    .file_list_info
+    .as_ref()
+    .map(|file_list_info| file_list_info.focus_idx);
+
+  update_file_name_list(&mut pane_info);
+  update_pane_data(
+    app_handle,
+    pane_idx,
+    &prev_filter,
+    &prev_focus_idx,
+    pane_info.clone(),
+  );
+
+  // 失敗した時点で、更新処理は打ち止めで良いはず…。
+
+  // フィルタ後の物だけで良いかも。
+  pane_info.file_list_info.as_mut().map(|file_list_info| {
+    for file_list_item in file_list_info.full_item_list.iter_mut() {
+      update_icon_info(&pane_info.dirctry_path, file_list_item);
+    }
+  });
+  update_pane_data(
+    app_handle,
+    pane_idx,
+    &prev_filter,
+    &prev_focus_idx,
+    pane_info,
+  );
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
