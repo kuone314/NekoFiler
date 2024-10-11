@@ -13,14 +13,14 @@ mod get_exe_dir;
 use get_exe_dir::get_exe_dir;
 
 mod pane_info;
-use pane_info::add_selecting_idx;
 use pane_info::set_dirctry_path;
 use pane_info::set_filter;
 use pane_info::set_focus_idx;
-use pane_info::set_selecting_idx;
-use pane_info::sort_file_list;
-use pane_info::toggle_selection;
 use pane_info::update_file_list;
+use pane_info::sort::sort_file_list;
+use pane_info::selections::add_selecting_idx;
+use pane_info::selections::set_selecting_idx;
+use pane_info::selections::toggle_selection;
 
 mod setting_file;
 use setting_file::read_setting_file;

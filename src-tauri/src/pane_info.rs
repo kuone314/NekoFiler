@@ -1,24 +1,20 @@
-use std::{
-  borrow::Cow,
-  collections::HashSet,
-  fs::{self, Metadata},
-  os::windows::fs::{FileTypeExt, MetadataExt},
-  path::PathBuf,
-  sync::Mutex,
-};
-
-use tauri::regex::Regex;
-
-use chrono::{DateTime, Local};
-use winapi::um::winbase::GetLogicalDriveStringsA;
-use winapi::um::winnt::CHAR;
+use std::{collections::HashSet, path::PathBuf, sync::Mutex};
 
 use once_cell::sync::Lazy;
+
+use tauri::Manager;
 
 mod get_file_icon;
 use get_file_icon::get_file_icon;
 
-use tauri::Manager;
+mod get_file_list;
+use get_file_list::{get_file_list, FileBaseInfo};
+
+mod filter_info;
+use filter_info::FilterInfo;
+
+pub mod selections;
+pub mod sort;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Clone)]
@@ -32,56 +28,6 @@ pub struct FileListUiInfo {
 pub struct FileListFilteredItem {
   file_list_item: FileListItem,
   matched_idx_list: Vec<usize>,
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#[derive(Debug)]
-pub struct FileBaseInfo {
-  file_name: String,
-  meta_data: Option<Metadata>,
-}
-impl FileBaseInfo {
-  fn file_size(&self) -> Option<u64> {
-    if self.is_directory() {
-      return None;
-    }
-    self
-      .meta_data
-      .as_ref()
-      .map(|meta_data| meta_data.file_size())
-  }
-
-  fn is_directory(&self) -> bool {
-    self
-      .meta_data
-      .as_ref()
-      .map(|meta_data| meta_data.file_type())
-      .map(|file_type| file_type.is_dir() || file_type.is_symlink_dir())
-      .unwrap_or_default()
-  }
-
-  fn date(&self) -> Option<String> {
-    let Some(meta_data) = self.meta_data.as_ref() else {
-      return None;
-    };
-    get_date_str(&meta_data)
-  }
-
-  fn file_extension(&self) -> String {
-    if self.is_directory() {
-      return "folder".to_owned();
-    }
-
-    let result = PathBuf::from(&self.file_name)
-      .extension()
-      .unwrap_or_default()
-      .to_string_lossy()
-      .to_string();
-    if result.is_empty() {
-      return "-".to_string();
-    };
-    result
-  }
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -111,93 +57,8 @@ impl FileListItem {
     }
   }
 }
-#[derive(Debug, Deserialize, Clone, PartialEq)]
-pub enum FilterType {
-  StrMatch,
-  RegExpr,
-}
 
-#[derive(Debug, Deserialize, Clone, PartialEq)]
-pub struct FilterInfo {
-  filter_type: FilterType,
-  matcher_str: String,
-}
-
-impl FilterInfo {
-  fn new() -> Self {
-    Self {
-      filter_type: FilterType::StrMatch,
-      matcher_str: "".to_string(),
-    }
-  }
-}
-
-type MatchResult = Option<Vec<usize>>;
-impl FilterInfo {
-  fn is_match(
-    &self,
-    target: &String,
-  ) -> MatchResult {
-    if self.matcher_str.is_empty() {
-      return Some(Vec::new());
-    }
-
-    let exist_upper_case = self.matcher_str.chars().any(|c| c.is_uppercase());
-
-    let matcher_str = if !exist_upper_case {
-      Cow::Owned(self.matcher_str.to_lowercase())
-    } else {
-      Cow::Borrowed(&self.matcher_str)
-    };
-
-    let target = if !exist_upper_case {
-      Cow::Owned(target.to_lowercase())
-    } else {
-      Cow::Borrowed(target)
-    };
-
-    match self.filter_type {
-      FilterType::StrMatch => str_match(&matcher_str, &target),
-      FilterType::RegExpr => reg_expr_match(&matcher_str, &target),
-    }
-  }
-}
-
-fn str_match(
-  matcher_str: &String,
-  target: &String,
-) -> MatchResult {
-  let mut matched_idx_list: Vec<usize> = Vec::new();
-
-  for str_char in matcher_str.chars() {
-    let prev_match_idx = matched_idx_list.last().copied();
-    let search_start_idx = prev_match_idx.map_or(0, |idx| idx + 1);
-    let search_str = &target[search_start_idx..];
-
-    if let Some(found_idx) = search_str.find(str_char) {
-      matched_idx_list.push(search_start_idx + found_idx);
-    } else {
-      return None;
-    }
-  }
-
-  Some(matched_idx_list)
-}
-
-fn reg_expr_match(
-  matcher_str: &String,
-  target: &String,
-) -> MatchResult {
-  let Ok(reg_exp) = Regex::new(matcher_str.as_str()) else {
-    return None;
-  };
-
-  let Some(res) = reg_exp.find(target.as_str()) else {
-    return None;
-  };
-  Some((res.start()..res.end()).collect::<Vec<usize>>())
-}
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Clone)]
 pub struct FilterdFileInfo {
   org_idx: usize,
@@ -289,6 +150,8 @@ impl FileListFullInfo {
     }
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Clone)]
 pub struct PaneInfo {
@@ -588,197 +451,4 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
     full_focus_idx,
     &pane_info.filter,
   ));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-fn get_file_list(path: &str) -> Option<Vec<FileBaseInfo>> {
-  if path.is_empty() {
-    // Windows用 ドライブ一覧の表示
-    // Linux対応するなら、この辺の処理の変更が要るはず。
-    return Some(
-      drive_list()
-        .into_iter()
-        .map(|file_name| FileBaseInfo {
-          meta_data: fs::metadata(&file_name).ok(),
-          file_name,
-        })
-        .collect(),
-    );
-  }
-
-  let path = PathBuf::from(path);
-  let result: Vec<FileBaseInfo> = fs::read_dir(path)
-    .ok()?
-    .filter_map(|entry| entry.ok())
-    .map(|entry| FileBaseInfo {
-      file_name: entry.file_name().to_string_lossy().to_string(),
-      meta_data: entry.metadata().ok(),
-    })
-    .collect();
-  Some(result)
-}
-
-fn drive_list() -> Vec<String> {
-  let (buffer, len) = get_logical_drive_strings();
-
-  let raw_ary: Vec<u8> = buffer
-    .into_iter()
-    .take(len as usize)
-    .map(|val| val as u8)
-    .collect();
-
-  raw_ary
-    .split(|&x| x == 0)
-    .filter(|x| !x.is_empty())
-    .filter_map(|drive| String::from_utf8(drive.to_vec()).ok())
-    .map(|drive| drive.replace(r":\", ":"))
-    .collect()
-}
-
-fn get_logical_drive_strings() -> ([i8; 255], u32) {
-  unsafe {
-    let mut buffer: [CHAR; 255] = [0; 255];
-    let len = GetLogicalDriveStringsA(255, buffer.as_mut_ptr());
-    return (buffer, len);
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-fn get_date_str(file_data: &Metadata) -> Option<String> {
-  let modified_time = file_data.modified().ok()?;
-
-  let local_time: DateTime<Local> = modified_time.into();
-  Some(local_time.format("%Y/%m/%d %H:%M:%S").to_string())
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#[derive(Serialize, Deserialize, Debug)]
-pub enum SortKey {
-  Name,
-  FileType,
-  Size,
-  Date,
-}
-
-#[tauri::command]
-pub fn sort_file_list(
-  pane_idx: usize,
-  sork_key: SortKey,
-) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
-
-  let Some(ref mut file_list_info) = pane_info.file_list_info else {
-    return None;
-  };
-
-  let focus_file_name = file_list_info.focus_file_name();
-
-  match sork_key {
-    SortKey::Name => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.file_name.cmp(&b.file_name));
-    }
-    SortKey::FileType => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.file_extension.cmp(&b.file_extension));
-    }
-    SortKey::Size => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.file_size.cmp(&b.file_size));
-    }
-    SortKey::Date => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.date.cmp(&b.date));
-    }
-  }
-
-  let mut file_list_info = FileListFullInfo::create(
-    std::mem::take(&mut file_list_info.full_item_list),
-    0,
-    &pane_info.filter,
-  );
-
-  file_list_info.focus_idx = focus_file_name
-    .and_then(|name| {
-      file_list_info
-        .filtered_item_info
-        .iter()
-        .position(|item| file_list_info.full_item_list[item.org_idx].file_name == name)
-    })
-    .unwrap_or(0);
-
-  Some(file_list_info.to_ui_info())
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#[tauri::command]
-pub fn add_selecting_idx(
-  pane_idx: usize,
-  additional_select_idx_list: Vec<usize>,
-) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
-
-  let Some(ref mut file_list_info) = pane_info.file_list_info else {
-    return None;
-  };
-
-  for idx in additional_select_idx_list {
-    let Some(item) = file_list_info.filtered_item_info.get_mut(idx) else {
-      continue;
-    };
-    file_list_info.full_item_list[item.org_idx].is_selected = true;
-  }
-
-  Some(file_list_info.to_ui_info())
-}
-
-#[tauri::command]
-pub fn set_selecting_idx(
-  pane_idx: usize,
-  new_select_idx_list: Vec<usize>,
-) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
-
-  let Some(ref mut file_list_info) = pane_info.file_list_info else {
-    return None;
-  };
-
-  for item in file_list_info.filtered_item_info.iter_mut() {
-    file_list_info.full_item_list[item.org_idx].is_selected = false;
-  }
-
-  for idx in new_select_idx_list {
-    let Some(item) = file_list_info.filtered_item_info.get_mut(idx) else {
-      continue;
-    };
-    file_list_info.full_item_list[item.org_idx].is_selected = true;
-  }
-
-  Some(file_list_info.to_ui_info())
-}
-
-#[tauri::command]
-pub fn toggle_selection(
-  pane_idx: usize,
-  trg_idx: usize,
-) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
-
-  let Some(ref mut file_list_info) = pane_info.file_list_info else {
-    return None;
-  };
-
-  file_list_info
-    .filtered_item_info
-    .get_mut(trg_idx)
-    .map(|item| {
-      file_list_info.full_item_list[item.org_idx].is_selected =
-        !file_list_info.full_item_list[item.org_idx].is_selected
-    });
-
-  Some(file_list_info.to_ui_info())
 }
