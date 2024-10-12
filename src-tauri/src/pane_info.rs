@@ -1,4 +1,8 @@
-use std::{collections::HashSet, path::PathBuf, sync::Mutex};
+use std::{
+  collections::HashSet,
+  path::PathBuf,
+  sync::{Mutex, MutexGuard},
+};
 
 use once_cell::sync::Lazy;
 
@@ -152,6 +156,21 @@ impl FileListFullInfo {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#[derive(Debug)]
+pub struct PaneHandler {
+  data: Lazy<Mutex<PaneInfo>>,
+}
+impl PaneHandler {
+  fn get_info<'a>(&'a self) -> MutexGuard<'a, PaneInfo> {
+    self.data.lock().unwrap()
+  }
+
+  fn new() -> Self {
+    Self {
+      data: Lazy::new(|| Mutex::new(PaneInfo::new())),
+    }
+  }
+}
 
 #[derive(Debug, Clone)]
 pub struct PaneInfo {
@@ -171,16 +190,13 @@ impl PaneInfo {
 
 #[derive(Debug)]
 pub struct FilerData {
-  pane_info_list: [Lazy<Mutex<PaneInfo>>; 2],
+  pane_info_list: [PaneHandler; 2],
 }
 
 impl FilerData {
   fn new() -> Self {
     Self {
-      pane_info_list: [
-        Lazy::new(|| Mutex::new(PaneInfo::new())),
-        Lazy::new(|| Mutex::new(PaneInfo::new())),
-      ],
+      pane_info_list: [PaneHandler::new(), PaneHandler::new()],
     }
   }
 }
@@ -193,7 +209,7 @@ pub fn set_dirctry_path(
   path: &str,
   initial_focus: Option<String>,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
 
   if pane_info.dirctry_path == path {
     // パスの変更が無ければ、選択要素のみを変更する。
@@ -232,7 +248,7 @@ pub fn set_focus_idx(
   pane_idx: usize,
   new_focus_idx: usize,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
 
   let Some(file_list_info) = &mut pane_info.file_list_info else {
     return None;
@@ -250,7 +266,7 @@ pub fn set_filter(
   pane_idx: usize,
   filter: FilterInfo,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
 
   pane_info.filter = filter;
 
@@ -276,7 +292,7 @@ pub fn set_filter(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 pub fn get_pane_data(pane_idx: usize) -> PaneInfo {
-  let pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
+  let pane_info = PANE_DATA.pane_info_list[pane_idx].data.lock().unwrap();
   pane_info.clone()
 }
 
@@ -293,7 +309,7 @@ pub fn update_pane_data(
   prev_focus_idx: &Option<usize>,
   new_pane_info: PaneInfo,
 ) {
-  let mut current_pane_info = PANE_DATA.pane_info_list[pane_idx].lock().unwrap();
+  let mut current_pane_info = PANE_DATA.pane_info_list[pane_idx].data.lock().unwrap();
 
   if current_pane_info.filter != *prev_filter {
     return;
