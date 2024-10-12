@@ -303,96 +303,62 @@ pub fn set_filter(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-pub fn get_pane_data(pane_idx: usize) -> PaneInfo {
-  let pane_info = PANE_DATA.pane_info_list[pane_idx].data.lock().unwrap();
-  pane_info.clone()
-}
-
 #[derive(Debug, Serialize, Clone)]
 pub struct UpdateFileListUiInfo {
   pane_idx: usize,
   data: Option<FileListUiInfo>,
 }
 
-pub fn update_pane_data(
+pub fn update_file_list(app_handle: &tauri::AppHandle) {
+  for pane_idx in 0..=1 {
+    update_pane_info(&PANE_DATA.pane_info_list[pane_idx], app_handle);
+  }
+}
+
+fn update_pane_info(
+  pane_handler: &PaneHandler,
   app_handle: &tauri::AppHandle,
-  pane_idx: usize,
-  prev_filter: &FilterInfo,
-  prev_focus_idx: &Option<usize>,
-  new_pane_info: PaneInfo,
 ) {
-  let mut current_pane_info = PANE_DATA.pane_info_list[pane_idx].data.lock().unwrap();
+  let Ok(mut pane_info) = pane_handler.data.try_lock() else {
+    return;
+  };
+  *pane_handler.update_cancel_flag.lock().unwrap() = false;
 
-  if current_pane_info.filter != *prev_filter {
+  update_file_name_list(&mut pane_info);
+  if pane_handler.update_cancel_required() {
     return;
   }
-  if current_pane_info
-    .file_list_info
-    .as_ref()
-    .map(|item| item.focus_idx)
-    != *prev_focus_idx
-  {
-    return;
-  }
-  if current_pane_info.dirctry_path != new_pane_info.dirctry_path {
-    return;
-  }
-
   let _ = app_handle.emit_all(
     "update_path_list",
     UpdateFileListUiInfo {
-      pane_idx,
-      data: new_pane_info
+      pane_idx: pane_handler.pane_idx,
+      data: pane_info
         .file_list_info
         .as_ref()
         .map(|item| item.to_ui_info()),
     },
   );
-  *current_pane_info = new_pane_info;
-}
 
-pub fn update_file_list(app_handle: &tauri::AppHandle) {
-  for pane_idx in 0..=1 {
-    let mut pane_info = get_pane_data(pane_idx);
-    update_pane_info(pane_info, app_handle, pane_idx);
-  }
-}
-
-fn update_pane_info(
-  mut pane_info: PaneInfo,
-  app_handle: &tauri::AppHandle,
-  pane_idx: usize,
-) {
-  let prev_filter = pane_info.filter.clone();
-  let prev_focus_idx = pane_info
-    .file_list_info
-    .as_ref()
-    .map(|file_list_info| file_list_info.focus_idx);
-
-  update_file_name_list(&mut pane_info);
-  update_pane_data(
-    app_handle,
-    pane_idx,
-    &prev_filter,
-    &prev_focus_idx,
-    pane_info.clone(),
-  );
-
-  // 失敗した時点で、更新処理は打ち止めで良いはず…。
+  let dirctry_path = pane_info.dirctry_path.clone();
+  let Some(file_list_info) = &mut pane_info.file_list_info else {
+    return;
+  };
 
   // フィルタ後の物だけで良いかも。
-  pane_info.file_list_info.as_mut().map(|file_list_info| {
-    for file_list_item in file_list_info.full_item_list.iter_mut() {
-      let file_path = &PathBuf::from(&pane_info.dirctry_path).join(&file_list_item.file_name);
-      file_list_item.file_icon = get_file_icon(file_path);
+  for file_list_item in file_list_info.full_item_list.iter_mut() {
+    let file_path = &PathBuf::from(&dirctry_path).join(&file_list_item.file_name);
+    file_list_item.file_icon = get_file_icon(file_path);
+
+    if pane_handler.update_cancel_required() {
+      return;
     }
-  });
-  update_pane_data(
-    app_handle,
-    pane_idx,
-    &prev_filter,
-    &prev_focus_idx,
-    pane_info,
+  }
+  let _ = app_handle.emit_all(
+    "update_path_list",
+    UpdateFileListUiInfo {
+      pane_idx: pane_handler.pane_idx,
+      data: Some(file_list_info.to_ui_info()),
+    },
   );
 }
 
