@@ -158,16 +158,28 @@ impl FileListFullInfo {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug)]
 pub struct PaneHandler {
+  pane_idx: usize,
   data: Lazy<Mutex<PaneInfo>>,
+  update_cancel_flag: Lazy<Mutex<bool>>,
 }
 impl PaneHandler {
   fn get_info<'a>(&'a self) -> MutexGuard<'a, PaneInfo> {
+    *self.update_cancel_flag.lock().unwrap() = true;
     self.data.lock().unwrap()
   }
 
-  fn new() -> Self {
+  fn update_cancel_required(&self) -> bool {
+    let Ok(value) = self.update_cancel_flag.try_lock() else {
+      return false;
+    };
+    *value
+  }
+
+  fn new(pane_idx: usize) -> Self {
     Self {
+      pane_idx,
       data: Lazy::new(|| Mutex::new(PaneInfo::new())),
+      update_cancel_flag: Lazy::new(|| Mutex::new(false)),
     }
   }
 }
@@ -196,7 +208,7 @@ pub struct FilerData {
 impl FilerData {
   fn new() -> Self {
     Self {
-      pane_info_list: [PaneHandler::new(), PaneHandler::new()],
+      pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
   }
 }
@@ -370,7 +382,7 @@ fn update_pane_info(
 
   // フィルタ後の物だけで良いかも。
   pane_info.file_list_info.as_mut().map(|file_list_info| {
-    for file_list_item in file_list_info.full_item_list.iter_mut() {
+  for file_list_item in file_list_info.full_item_list.iter_mut() {
       update_icon_info(&pane_info.dirctry_path, file_list_item);
     }
   });
