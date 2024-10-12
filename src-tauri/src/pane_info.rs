@@ -382,8 +382,9 @@ fn update_pane_info(
 
   // フィルタ後の物だけで良いかも。
   pane_info.file_list_info.as_mut().map(|file_list_info| {
-  for file_list_item in file_list_info.full_item_list.iter_mut() {
-      update_icon_info(&pane_info.dirctry_path, file_list_item);
+    for file_list_item in file_list_info.full_item_list.iter_mut() {
+      let file_path = &PathBuf::from(&pane_info.dirctry_path).join(&file_list_item.file_name);
+      file_list_item.file_icon = get_file_icon(file_path);
     }
   });
   update_pane_data(
@@ -402,14 +403,6 @@ pub struct FileUpdateInfo {
   file_icon: Option<String>,
   file_size: Option<String>,
   date: Option<String>,
-}
-
-fn update_icon_info(
-  directory_path: &String,
-  file_info: &mut FileListItem,
-) {
-  let file_path = &PathBuf::from(&directory_path).join(&file_info.file_name);
-  file_info.file_icon = get_file_icon(file_path);
 }
 
 pub fn update_file_name_list(pane_info: &mut PaneInfo) {
