@@ -105,6 +105,15 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
       valid_on_addressbar: false,
     },
     {
+      display_name: 'Copy file name',
+      key: 'ctrl+c',
+      action: {
+        type: 'power_shell',
+        command_name: 'Copy file name',
+      },
+      valid_on_addressbar: false,
+    },
+    {
       display_name: 'New File',
       key: 'ctrl+n',
       action: {
