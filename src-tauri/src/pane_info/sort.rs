@@ -62,5 +62,9 @@ pub fn sort_file_list(
     })
     .unwrap_or(0);
 
-  Some(file_list_info.to_ui_info())
+  pane_info.file_list_info = Some(file_list_info);
+  pane_info
+    .file_list_info
+    .as_ref()
+    .map(|item| item.to_ui_info())
 }
