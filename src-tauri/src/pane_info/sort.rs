@@ -13,7 +13,7 @@ pub enum SortKey {
 #[tauri::command]
 pub fn sort_file_list(
   pane_idx: usize,
-  sork_key: SortKey,
+  sort_key: SortKey,
 ) -> Option<FileListUiInfo> {
   let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
 
@@ -23,7 +23,7 @@ pub fn sort_file_list(
 
   let focus_file_name = file_list_info.focus_file_name();
 
-  let sorter = match sork_key {
+  let sorter = match sort_key {
     SortKey::Name => |a: &FileListItem, b: &FileListItem| a.file_name.cmp(&b.file_name),
     SortKey::FileType => |a: &FileListItem, b: &FileListItem| a.file_extension.cmp(&b.file_extension),
     SortKey::Size => |a: &FileListItem, b: &FileListItem| a.file_size.cmp(&b.file_size),

@@ -97,7 +97,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     })();
     const paneInfo = await invoke<FileListUiInfo>('sort_file_list', {
       paneIdx: props.panel_idx,
-      sorkKey: payloadKey,
+      sortKey: payloadKey,
     });
     props.updateFileListInfo(paneInfo);
   }
