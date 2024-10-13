@@ -372,7 +372,7 @@ pub struct FileUpdateInfo {
 }
 
 pub fn update_file_name_list(pane_info: &mut PaneInfo) {
-  let Some(file_list_info) = &pane_info.file_list_info else {
+  let Some(mut file_list_info) = std::mem::take(&mut pane_info.file_list_info) else {
     let file_list_info = FileListFullInfo::new(&pane_info.dirctry_path);
     pane_info.file_list_info = file_list_info;
     return;
@@ -395,9 +395,14 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
   // 新規がある場合は、新規の物のみを選択状態にする。
   let mut remain = file_list_info
     .full_item_list
-    .iter()
-    .filter(|item| new_file_list_map.contains_key(&item.file_name))
-    .cloned()
+    .iter_mut()
+    .filter_map(|item| {
+      new_file_list_map.get(&item.file_name).map(|file| {
+        let mut new_item = FileListItem::new(&file, item.is_selected);
+        new_item.file_icon = item.file_icon.take();
+        new_item
+      })
+    })
     .collect::<Vec<_>>();
 
   let remain_file_name_list = remain
