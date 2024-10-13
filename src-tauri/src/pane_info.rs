@@ -400,13 +400,14 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
     .cloned()
     .collect::<Vec<_>>();
 
+  let remain_file_name_list = remain
+    .iter()
+    .map(|item| &item.file_name)
+    .collect::<HashSet<_>>();
+
   let added = new_file_list
     .iter()
-    .filter(|file| {
-      remain
-        .iter()
-        .all(|remain| remain.file_name != file.file_name)
-    })
+    .filter(|file| !remain_file_name_list.contains(&file.file_name))
     .map(|file| FileListItem::new(&file, true))
     .collect::<Vec<_>>();
 
