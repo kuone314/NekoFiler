@@ -1,6 +1,5 @@
+use super::{FileListItem, FileListUiInfo, PANE_DATA};
 use crate::pane_info::FileListFullInfo;
-use super::{FileListUiInfo, PANE_DATA};
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Serialize, Deserialize, Debug)]
@@ -24,28 +23,13 @@ pub fn sort_file_list(
 
   let focus_file_name = file_list_info.focus_file_name();
 
-  match sork_key {
-    SortKey::Name => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.file_name.cmp(&b.file_name));
-    }
-    SortKey::FileType => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.file_extension.cmp(&b.file_extension));
-    }
-    SortKey::Size => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.file_size.cmp(&b.file_size));
-    }
-    SortKey::Date => {
-      file_list_info
-        .full_item_list
-        .sort_by(|a, b| a.date.cmp(&b.date));
-    }
-  }
+  let sorter = match sork_key {
+    SortKey::Name => |a: &FileListItem, b: &FileListItem| a.file_name.cmp(&b.file_name),
+    SortKey::FileType => |a: &FileListItem, b: &FileListItem| a.file_extension.cmp(&b.file_extension),
+    SortKey::Size => |a: &FileListItem, b: &FileListItem| a.file_size.cmp(&b.file_size),
+    SortKey::Date => |a: &FileListItem, b: &FileListItem| a.date.cmp(&b.date),
+  };
+  file_list_info.full_item_list.sort_by(sorter);
 
   let mut new_file_list_info = FileListFullInfo::create(
     std::mem::take(&mut file_list_info.full_item_list),
