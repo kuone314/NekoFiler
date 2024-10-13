@@ -47,22 +47,22 @@ pub fn sort_file_list(
     }
   }
 
-  let mut file_list_info = FileListFullInfo::create(
+  let mut new_file_list_info = FileListFullInfo::create(
     std::mem::take(&mut file_list_info.full_item_list),
     0,
     &pane_info.filter,
   );
 
-  file_list_info.focus_idx = focus_file_name
+  new_file_list_info.focus_idx = focus_file_name
     .and_then(|name| {
-      file_list_info
+      new_file_list_info
         .filtered_item_info
         .iter()
-        .position(|item| file_list_info.full_item_list[item.org_idx].file_name == name)
+        .position(|item| new_file_list_info.full_item_list[item.org_idx].file_name == name)
     })
     .unwrap_or(0);
 
-  pane_info.file_list_info = Some(file_list_info);
+  pane_info.file_list_info = Some(new_file_list_info);
   pane_info
     .file_list_info
     .as_ref()
