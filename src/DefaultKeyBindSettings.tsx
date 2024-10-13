@@ -102,7 +102,7 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
         type: 'power_shell',
         command_name: 'Copy file path',
       },
-      valid_on_addressbar: true,
+      valid_on_addressbar: false,
     },
     {
       display_name: 'New File',
