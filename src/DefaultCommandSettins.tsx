@@ -51,6 +51,11 @@ export function GenerateDefaultCommandSeting(): ShellCommand[] {
       script_path: 'Copy file path.ps1',
     },
     {
+      command_name: 'Copy file name',
+      dialog_type: 'none',
+      script_path: 'Copy file name.ps1',
+    },
+    {
       command_name: 'New File',
       dialog_type: 'multi_line',
       script_path: 'New File.ps1',
@@ -83,6 +88,16 @@ Set-Clipboard $selecting_item_path_ary;
 `;
     await invoke<void>("write_setting_file", {
       fileName: "general/script/Copy file path.ps1",
+      content: script
+    })
+  })();
+  
+  (async () => {
+    const script = `\
+Set-Clipboard $selecting_item_name_ary;
+`;
+    await invoke<void>("write_setting_file", {
+      fileName: "general/script/Copy file name.ps1",
       content: script
     })
   })();
