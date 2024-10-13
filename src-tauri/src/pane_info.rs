@@ -1,5 +1,5 @@
 use std::{
-  collections::HashSet,
+  collections::{HashMap, HashSet},
   path::PathBuf,
   sync::{Mutex, MutexGuard},
 };
@@ -372,7 +372,7 @@ pub struct FileUpdateInfo {
 }
 
 pub fn update_file_name_list(pane_info: &mut PaneInfo) {
-  let Some(file_list_info) = &pane_info.file_list_info else {
+  let Some(mut file_list_info) = std::mem::take(&mut pane_info.file_list_info) else {
     let file_list_info = FileListFullInfo::new(&pane_info.dirctry_path);
     pane_info.file_list_info = file_list_info;
     return;
@@ -385,28 +385,34 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
 
   let org_focus_file_name = file_list_info.focus_file_name();
 
-  let new_file_name_list = new_file_list
+  let new_file_list_map = new_file_list
     .iter()
-    .map(|item| item.file_name.to_string())
-    .collect::<HashSet<_>>();
+    .map(|file| (&file.file_name, file))
+    .collect::<HashMap<_, _>>();
 
   // 既にある物の位置は変えない。
   // 新規の物を下に追加しする。
   // 新規がある場合は、新規の物のみを選択状態にする。
   let mut remain = file_list_info
     .full_item_list
-    .iter()
-    .filter(|item| new_file_name_list.contains(&item.file_name))
-    .cloned()
+    .iter_mut()
+    .filter_map(|item| {
+      new_file_list_map.get(&item.file_name).map(|file| {
+        let mut new_item = FileListItem::new(&file, item.is_selected);
+        new_item.file_icon = item.file_icon.take();
+        new_item
+      })
+    })
     .collect::<Vec<_>>();
+
+  let remain_file_name_list = remain
+    .iter()
+    .map(|item| &item.file_name)
+    .collect::<HashSet<_>>();
 
   let added = new_file_list
     .iter()
-    .filter(|file| {
-      remain
-        .iter()
-        .all(|remain| remain.file_name != file.file_name)
-    })
+    .filter(|file| !remain_file_name_list.contains(&file.file_name))
     .map(|file| FileListItem::new(&file, true))
     .collect::<Vec<_>>();
 
@@ -435,7 +441,7 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
         .full_item_list
         .iter()
         .take_while(|item| item.file_name == org_focus_file_name)
-        .filter(|item| new_file_name_list.contains(&item.file_name))
+        .filter(|item| new_file_list_map.contains_key(&item.file_name))
         .count()
     }
   };
