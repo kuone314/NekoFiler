@@ -4,6 +4,8 @@ use std::process::Command;
 use tauri::{AppHandle, Manager};
 use uuid::Uuid;
 
+use crate::pane_info::update_file_list;
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LogInfo {
   title: String,
@@ -69,6 +71,8 @@ impl Executer {
       .current_dir(&self.dir)
       .output()
       .ok()?;
+
+    update_file_list(&app_handle);
 
     let (std_out, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stdout);
     let (std_err, _, _) = encoding_rs::SHIFT_JIS.decode(&output.stderr);

@@ -60,7 +60,7 @@ fn main() {
     .setup(|app| {
       let app_handle = app.app_handle();
       std::thread::spawn(move || loop {
-        std::thread::sleep(Duration::from_secs(1));
+        std::thread::sleep(Duration::from_secs(30));
         update_file_list(&app_handle);
       });
 
