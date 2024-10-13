@@ -1,5 +1,5 @@
 use std::{
-  collections::HashSet,
+  collections::{HashMap, HashSet},
   path::PathBuf,
   sync::{Mutex, MutexGuard},
 };
@@ -385,10 +385,10 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
 
   let org_focus_file_name = file_list_info.focus_file_name();
 
-  let new_file_name_list = new_file_list
+  let new_file_list_map = new_file_list
     .iter()
-    .map(|item| item.file_name.to_string())
-    .collect::<HashSet<_>>();
+    .map(|file| (&file.file_name, file))
+    .collect::<HashMap<_, _>>();
 
   // 既にある物の位置は変えない。
   // 新規の物を下に追加しする。
@@ -396,7 +396,7 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
   let mut remain = file_list_info
     .full_item_list
     .iter()
-    .filter(|item| new_file_name_list.contains(&item.file_name))
+    .filter(|item| new_file_list_map.contains_key(&item.file_name))
     .cloned()
     .collect::<Vec<_>>();
 
@@ -436,7 +436,7 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
         .full_item_list
         .iter()
         .take_while(|item| item.file_name == org_focus_file_name)
-        .filter(|item| new_file_name_list.contains(&item.file_name))
+        .filter(|item| new_file_list_map.contains_key(&item.file_name))
         .count()
     }
   };
