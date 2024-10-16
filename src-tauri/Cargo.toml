@@ -11,21 +11,22 @@ version = "0.0.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = {version = "1.1", features = [] }
+tauri-build = {version = "1.1", features = []}
 
 [dependencies]
+base64 = "0.13.0"
 chrono = "0.4.24"
 curl = "0.4.43"
 dunce = "1.0.3"
 encoding_rs = "0.8.31"
 once_cell = {version = "1.17.0"}
-serde = {version = "1.0", features = ["derive"] }
+regex = "0.1"
+serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
-tauri = {version = "1.1", features = ["api-all"] }
+tauri = {version = "1.1", features = ["api-all"]}
 tempdir = "0.3.7"
 uuid = "1.6.1"
-winapi = {version = "0.3.9", features = ["timezoneapi","winbase","shellapi","commctrl"] }
-base64 = "0.13.0"
+winapi = {version = "0.3.9", features = ["timezoneapi", "winbase", "shellapi", "commctrl"]}
 
 [features]
 # by default Tauri runs in production mode
