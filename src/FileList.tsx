@@ -177,12 +177,10 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       return;
     }
   }
+
   useEffect(() => {
     adjustScroll();
-  }, []);
-  useEffect(() => {
-    adjustScroll();
-  }, [props.fileListInfo]);
+  }, [props.fileListInfo.focus_idx]);
 
   interface MouseSelectInfo {
     startIndex: number,
