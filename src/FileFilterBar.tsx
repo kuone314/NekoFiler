@@ -43,6 +43,7 @@ type FileFilterBarProps = {
 };
 
 export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
   const [matcherString, setMatcherString] = useState<string>('');
   const [filterType, setFilterType] = useState<FileFilterType>('StrMatch');
   useEffect(() => {
@@ -66,7 +67,6 @@ export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((
     setType: (filterType: FileFilterType) => setFilterType(filterType),
     isFocus: () => isFocus,
   }
-  useImperativeHandle(ref, () => functions);
 
   const inputBoxRef = React.createRef<HTMLInputElement>();
   return <div

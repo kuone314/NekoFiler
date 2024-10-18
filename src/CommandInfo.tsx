@@ -131,6 +131,15 @@ export function commandExecuter(
   const [refString, setRefString] = useState<string>('');
   const dlgOnOk = useRef<(dlgInput: string) => void>(() => { });
 
+  useEffect(() => {
+    (async () => {
+      await sleep(300);// この処理が無いと、何故か、ダイアログの文字列に、空行が入る…。
+      textarea.current?.focus()
+    })()
+  }, [dlg.current?.open]);
+
+  const theme = useTheme();
+
   const execShellCommandImpl = async (
     command_name: string,
     script_file_name: string,
@@ -216,13 +225,6 @@ export function commandExecuter(
     }
   }
 
-  useEffect(() => {
-    (async () => {
-      await sleep(300);// この処理が無いと、何故か、ダイアログの文字列に、空行が入る…。
-      textarea.current?.focus()
-    })()
-  }, [dlg.current?.open]);
-
   const countTextRows = (str: string) => {
     return str.split('\n').length;
   }
@@ -305,8 +307,6 @@ export function commandExecuter(
       </button>
     </div>
   }
-
-  const theme = useTheme();
 
   const element = <dialog
     css={css({

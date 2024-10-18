@@ -44,6 +44,8 @@ function ViewImpl(): JSX.Element {
     })()
   }, []);
 
+  const theme = useTheme();
+
   const Impl = () => {
     switch (mode) {
       case Mode.main:
@@ -84,9 +86,6 @@ function ViewImpl(): JSX.Element {
         />
     }
   };
-
-  const theme = useTheme();
-
 
   return <div
     css={css({

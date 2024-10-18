@@ -68,6 +68,7 @@ export function BookMarkPane(
   useEffect(() => {
     (async () => { setBookMarkItemAry(await readBookMarkItem()); })()
   }, []);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const AddBookMark = (path: string) => {
     const dirName = (() => {
@@ -80,8 +81,6 @@ export function BookMarkPane(
     setBookMarkItemAry(newBookMarkItemAry)
     writeBookMarkItem(newBookMarkItemAry)
   }
-
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   function RemoveBookMark(trgIdx: number) {
     if (!IsValidIndex(bookMarkItemAry, trgIdx)) { return; }
@@ -175,7 +174,7 @@ export function BookMarkEditor(
 ): [JSX.Element, (srcBookMarkItem: BookMarkItem) => void,] {
   const [name, setName] = useState('');
   const [path, setPath] = useState('');
-
+  const theme = useTheme();
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
@@ -199,8 +198,6 @@ export function BookMarkEditor(
       </button>
     </div>
   }
-
-  const theme = useTheme();
 
   const dialogElement = <dialog
     css={css({

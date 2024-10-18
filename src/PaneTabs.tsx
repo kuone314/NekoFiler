@@ -49,6 +49,11 @@ export const PaneTabs = (
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
   },
 ) => {
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [contextMenuTabIdx, setContextMenuTabIdx] = useState(0);
+  const [contextMenuPosX, setContextMenuPosX] = useState(0);
+  const [contextMenuPosY, setContextMenuPosY] = useState(0);
+
   const tabAry = props.pathAry.pathAry;
   const activeTabIdx = props.pathAry.activeTabIndex;
 
@@ -116,10 +121,6 @@ export const PaneTabs = (
     return pinedPrefix + dirName;
   }
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const [contextMenuTabIdx, setContextMenuTabIdx] = useState(0);
-  const [contextMenuPosX, setContextMenuPosX] = useState(0);
-  const [contextMenuPosY, setContextMenuPosY] = useState(0);
   const contextMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}

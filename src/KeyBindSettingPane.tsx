@@ -35,6 +35,9 @@ export function KeyBindSettingPane(
   function writSettings() {
     writeKeyBindSetting(keyBindSettings);
   }
+  const [editingIndex, setEditingIndex] = useState(0);
+
+  const theme = useTheme();
 
   const RemoveSetting = (trgIdx: number) => {
     let newSettings = Array.from(keyBindSettings);
@@ -42,7 +45,6 @@ export function KeyBindSettingPane(
     setKeyBindSettings(newSettings);
   }
 
-  const [editingIndex, setEditingIndex] = useState(0);
   const [editDlg, Editor] = KeyBindEditor(
     (props.height - dlgHeightMagin),
     (editedKeyBindItem: KeyBindSetting) => {
@@ -90,8 +92,6 @@ export function KeyBindSettingPane(
     [newKeyBindSettings[trg_idx_1], newKeyBindSettings[trg_idx_2]] = [newKeyBindSettings[trg_idx_2], newKeyBindSettings[trg_idx_1]]
     setKeyBindSettings(newKeyBindSettings);
   }
-
-  const theme = useTheme();
 
   const table_border = css({
     border: '1pt solid ' + theme.stringDefaultColor,
@@ -258,6 +258,10 @@ export function KeyBindEditor(
   const [shellCommandName, setShellCommandName] = useState<string>('');
   useEffect(() => { updateShellCommandList(); }, []);
 
+  const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
+
+  const theme = useTheme();
+
   const updateShellCommandList = async () => {
     const shellCommandList = await readShellCommandSetting();
     setShellCommandNameList(shellCommandList.map(command => command.command_name));
@@ -275,7 +279,6 @@ export function KeyBindEditor(
   const isOkEnable = () => (keyBindName !== "");
 
 
-  const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
     return <div
       css={css({
@@ -316,8 +319,6 @@ export function KeyBindEditor(
     height,
     onOK: () => updateShellCommandList(),
   });
-
-  const theme = useTheme();
 
   const dialogElement = <dialog
     css={css({

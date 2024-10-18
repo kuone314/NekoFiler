@@ -91,6 +91,50 @@ export const MainPanel = (
     return () => { if (unlisten) { unlisten(); } }
   }, [])
 
+  const [keyBindInfo, setKeyBindInfo] = useState<KeyBindSetting[]>([]);
+  useEffect(() => {
+    (async () => {
+      const seting = await readKeyBindSetting();
+      setKeyBindInfo(seting);
+    })()
+  }, []);
+
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [srcKey, setSrcKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
+  useEffect(() => {
+    if (!isMenuOpen) {
+      if (focusToListOnContextMenuClosed) {
+        myGrid?.current?.focus();
+      }
+    }
+  }, [isMenuOpen])
+  const menuItemAry = useRef<KeyBindSetting[]>([]);
+  const [focusToListOnContextMenuClosed, setFocusToListOnContextMenuClosed] = useState(false);
+
+  const [contextMenuInfoAry, setContextMenuInfoAry] = useState<ContextMenuInfo[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const seting = await readContextMenuSetting();
+      setContextMenuInfoAry(seting);
+    })()
+  }, []);
+
+  const [isContextMenuOpen, setContextMenuOpen] = useState(false);
+  const [contextMenuPosX, setContextMenuPosX] = useState(0);
+  const [contextMenuPosY, setContextMenuPosY] = useState(0);
+
+  useEffect(() => {
+    if (!isContextMenuOpen) {
+      if (focusToListOnContextMenuClosed) {
+        myGrid?.current?.focus();
+      }
+    }
+  }, [isContextMenuOpen])
+
+  const FileListFunctions = useRef<FileListFunc>(null);
+  const addressBarFunc = useRef<AddressBarFunc>(null);
+
   const onAddressInputed = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
       .catch(error => { return null; });
@@ -205,14 +249,6 @@ export const MainPanel = (
     }
   }
 
-  const [keyBindInfo, setKeyBindInfo] = useState<KeyBindSetting[]>([]);
-  useEffect(() => {
-    (async () => {
-      const seting = await readKeyBindSetting();
-      setKeyBindInfo(seting);
-    })()
-  }, []);
-
   const handlekeyboardnavigation = (keyboard_event: React.KeyboardEvent<HTMLDivElement>) => {
     if (isMenuOpen || isContextMenuOpen) { return; }
     const isFocusAddressBar = addressBarFunc.current?.isFocus() || filterBarFunc.current?.isFocus();
@@ -282,18 +318,6 @@ export const MainPanel = (
     () => { myGrid.current?.focus() },
   );
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const [srcKey, setSrcKey] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
-  useEffect(() => {
-    if (!isMenuOpen) {
-      if (focusToListOnContextMenuClosed) {
-        myGrid?.current?.focus();
-      }
-    }
-  }, [isMenuOpen])
-
-  const [focusToListOnContextMenuClosed, setFocusToListOnContextMenuClosed] = useState(false);
-  const menuItemAry = useRef<KeyBindSetting[]>([]);
   const commandSelectMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}
@@ -313,20 +337,8 @@ export const MainPanel = (
     </ControlledMenu>
   }
 
-
-  const [contextMenuInfoAry, setContextMenuInfoAry] = useState<ContextMenuInfo[]>([]);
-  useEffect(() => {
-    (async () => {
-      const seting = await readContextMenuSetting();
-      setContextMenuInfoAry(seting);
-    })()
-  }, []);
-
   const menuItemStyle = MenuitemStyle();
 
-  const [isContextMenuOpen, setContextMenuOpen] = useState(false);
-  const [contextMenuPosX, setContextMenuPosX] = useState(0);
-  const [contextMenuPosY, setContextMenuPosY] = useState(0);
   const contextMenu = () => {
     if (!FileListFunctions) { return <></>; }
     return <ControlledMenu
@@ -353,16 +365,6 @@ export const MainPanel = (
       }
     </ControlledMenu >
   }
-  useEffect(() => {
-    if (!isContextMenuOpen) {
-      if (focusToListOnContextMenuClosed) {
-        myGrid?.current?.focus();
-      }
-    }
-  }, [isContextMenuOpen])
-
-  const FileListFunctions = useRef<FileListFunc>(null);
-  const addressBarFunc = useRef<AddressBarFunc>(null);
 
   const nameToPath = (name: string) => (props.dirPath.length === 0)
     ? name
