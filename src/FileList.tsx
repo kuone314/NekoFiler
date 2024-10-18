@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import React from 'react';
 
 
@@ -6,11 +6,10 @@ import React from 'react';
 import { css } from '@emotion/react'
 
 import { FileListRowColorSettings, RowColorSetting, readFileListRowColorSetting } from './FileNameColorSetting';
-import { IsValidIndex, LastIndex } from './Utility';
+import { IsValidIndex } from './Utility';
 import { MatchImpl } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
-import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

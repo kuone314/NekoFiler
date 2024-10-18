@@ -5,7 +5,7 @@ import React from 'react';
 
 import { separator } from './FilePathSeparator';
 import { AddressBar, AddressBarFunc, } from './AddressBar';
-import { FileList, FileListFunc, FileListUiInfo as FileListInfo, FileListUiInfo, IFileListItemFilter, } from './FileList';
+import { FileList, FileListFunc, FileListUiInfo, } from './FileList';
 
 import { BUILDIN_COMMAND_TYPE, commandExecuter } from './CommandInfo';
 import { KeyBindSetting, COMMAND_TYPE, readKeyBindSetting, match } from './KeyBindInfo';
@@ -15,7 +15,6 @@ import { css } from '@emotion/react'
 
 import { MenuItem, ControlledMenu } from '@szhsin/react-menu';
 
-import useInterval from 'use-interval';
 
 import { basename, normalize } from '@tauri-apps/api/path';
 
@@ -26,7 +25,6 @@ import { LogInfo } from './LogMessagePane';
 import { FileFilterBar, FileFilterBarFunc, FileFilterType } from './FileFilterBar';
 import { MenuitemStyle } from './ThemeStyle';
 import { UnlistenFn, listen } from '@tauri-apps/api/event';
-import { Exist } from './Utility';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

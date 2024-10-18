@@ -8,7 +8,7 @@ import { separator } from './FilePathSeparator';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { TabColor, TabColorMatcher, TabColorSettings } from './TabColorSetting';
+import { TabColor, TabColorSettings } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';

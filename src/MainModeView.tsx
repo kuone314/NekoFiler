@@ -9,7 +9,7 @@ import { PaneTabs } from './PaneTabs';
 import { css } from '@emotion/react'
 
 import { LogInfo, LogMessagePein } from './LogMessagePane';
-import { TabColorMatcher, TabColorSettings } from './TabColorSetting';
+import { TabColorSettings } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
