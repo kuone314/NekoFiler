@@ -6,8 +6,6 @@ use std::{
 
 use once_cell::sync::Lazy;
 
-use tauri::Manager;
-
 mod get_file_icon;
 use get_file_icon::get_file_icon;
 
@@ -16,6 +14,7 @@ use get_file_list::{get_file_list, FileBaseInfo};
 
 mod filter_info;
 use filter_info::FilterInfo;
+use tauri::Emitter;
 
 pub mod selections;
 pub mod sort;
@@ -328,7 +327,7 @@ fn update_pane_info(
   if pane_handler.update_cancel_required() {
     return;
   }
-  let _ = app_handle.emit_all(
+  let _ = app_handle.emit(
     "update_path_list",
     UpdateFileListUiInfo {
       pane_idx: pane_handler.pane_idx,
@@ -353,7 +352,7 @@ fn update_pane_info(
       return;
     }
   }
-  let _ = app_handle.emit_all(
+  let _ = app_handle.emit(
     "update_path_list",
     UpdateFileListUiInfo {
       pane_idx: pane_handler.pane_idx,
