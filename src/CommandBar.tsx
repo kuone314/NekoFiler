@@ -7,11 +7,6 @@ import { css } from '@emotion/react';
 import { LogInfo } from './LogMessagePane';
 import { TextInputStyle } from './ThemeStyle';
 
-type Entry = {
-  type: 'dir' | 'file';
-  name: string;
-  path: string;
-};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface CommandBarFuncs {
