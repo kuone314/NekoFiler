@@ -10,7 +10,7 @@ import { IsValidIndex } from './Utility';
 import { MatchImpl } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type FileListItem = {

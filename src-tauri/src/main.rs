@@ -58,14 +58,14 @@ fn main() {
       update_filer,
     ])
     .setup(|app| {
-      let app_handle = app.app_handle();
+      let app_handle = app.app_handle().clone();
       std::thread::spawn(move || loop {
         std::thread::sleep(Duration::from_secs(30));
         update_file_list(&app_handle);
       });
 
       #[cfg(debug_assertions)]
-      app.get_window("main").unwrap().open_devtools();
+      app.get_webview_window("main").unwrap().open_devtools();
 
       Ok(())
     })

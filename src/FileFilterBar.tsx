@@ -100,21 +100,3 @@ export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((
     />
   </div>
 });
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-export function MatchIndexAry(
-  fileName: string,
-  matcherStr: string
-): number[] {
-  let result: number[] = [];
-  for (let idx = 0; idx < matcherStr.length; idx++) {
-    const str = matcherStr[idx];
-    const prevMatchIdx = result.at(-1);
-    const searchStartIdx = (prevMatchIdx === undefined) ? 0 : prevMatchIdx + 1;
-    const searchStr = fileName.slice(searchStartIdx);
-    const foundIdx = searchStr.indexOf(str);
-    if (foundIdx === -1) { return []; }
-    result.push(searchStartIdx + foundIdx);
-  }
-  return result;
-}

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 
 import Select from 'react-select'
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import { Exist, IsValidIndex } from './Utility';
 import { Button } from '@mui/material';
 import { scriptDirPath, DIALOG_TYPE, DialogType, ShellCommand, writeShellCommandSetting, readShellCommandSetting, shellCommandTemplate } from './CommandInfo';

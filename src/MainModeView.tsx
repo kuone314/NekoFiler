@@ -14,7 +14,7 @@ import { TabColorSettings } from './TabColorSetting';
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
 import { Updater } from './Updater';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
@@ -246,8 +246,6 @@ export function MainModeView(
               SettingButtons(
                 setSeparator,
                 separator,
-                props.height,
-                props.tabColorSetting,
                 props.setTabColor,
                 props.setFileListRowColor,
                 props.setKeyBind,
@@ -276,8 +274,6 @@ export function MainModeView(
 function SettingButtons(
   setSeparator: React.Dispatch<React.SetStateAction<separator>>,
   separator: string,
-  height: number,
-  tabColorSetting: TabColorSettings | undefined,
   setTabColor: (tabColorSettingTrgDir: string) => void,
   setFileListRowColor: () => void,
   setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,

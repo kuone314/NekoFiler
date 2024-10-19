@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 
 import { executeShellCommand } from './RustFuncs';
 import { separator, ApplySeparator } from './FilePathSeparator';

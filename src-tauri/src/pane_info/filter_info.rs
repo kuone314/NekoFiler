@@ -1,8 +1,8 @@
 
 use std::borrow::Cow;
 
-use tauri::regex::Regex;
-
+extern crate regex;
+use regex::Regex;
 
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub enum FilterType {
@@ -88,5 +88,5 @@ fn reg_expr_match(
   let Some(res) = reg_exp.find(target.as_str()) else {
     return None;
   };
-  Some((res.start()..res.end()).collect::<Vec<usize>>())
+  Some((res.0..res.1).collect::<Vec<usize>>())
 }

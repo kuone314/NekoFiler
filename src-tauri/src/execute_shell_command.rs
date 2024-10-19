@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 use std::process::Command;
 
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter};
 use uuid::Uuid;
 
 use crate::pane_info::update_file_list;
@@ -56,7 +56,7 @@ impl Executer {
       command: self.command.to_string(),
       rc: self.return_code,
     };
-    let _ = app_handle.emit_all("LogMessageEvent", log_info);
+    let _ = app_handle.emit("LogMessageEvent", log_info);
   }
 
   fn execute(

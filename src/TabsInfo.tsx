@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 
 import JSON5 from 'json5'
 
@@ -17,8 +17,6 @@ export interface TabsInfo {
 const last_opend_setting_file_name = "last_opend.json5";
 const last_opend_setting_current_version = 1;
 
-const defaultDir = await invoke<string>("get_exe_dir", {});
-
 function IsValid(tabInfo: TabInfo) {
   if (!tabInfo) { return false; }
   if (!tabInfo.path) { return false; }
@@ -27,6 +25,7 @@ function IsValid(tabInfo: TabInfo) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export async function ReadLastOpenedTabs() {
+  const defaultDir = await invoke<string>("get_exe_dir", {});
   const defaultTabInfo = () => ({
     pathAry: [{ path: defaultDir, pined: false }],
     activeTabIndex: 0,
