@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MainModeView } from './MainModeView';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { TabColorMatcher, TabColorSettings, readTabColorSetting, writeTabColorSetting } from './TabColorSetting';
+import { TabColorSettings, readTabColorSetting, writeTabColorSetting } from './TabColorSetting';
 
 import { TabColorSettingPane } from './TabColorSettingPane';
 
-import { ReadLastOpenedTabs, TabsInfo } from './TabsInfo';
 import { KeyBindSettingPane } from './KeyBindSettingPane';
 import { ContextMenuSettingPane } from './ContextMenuSettingPane';
 import { FileListRowColorSettingPane } from './FileListRowColorSettingPane';
@@ -43,6 +42,8 @@ function ViewImpl(): JSX.Element {
       setTabColorSetting(color_seting);
     })()
   }, []);
+
+  const theme = useTheme();
 
   const Impl = () => {
     switch (mode) {
@@ -84,9 +85,6 @@ function ViewImpl(): JSX.Element {
         />
     }
   };
-
-  const theme = useTheme();
-
 
   return <div
     css={css({

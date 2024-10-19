@@ -34,6 +34,8 @@ function LopPane(
   onClick: () => void,
   onCommandClick: () => void,
 ) {
+  const theme = useTheme();
+
   const logInfo = logPaneInfo.logInfo;
 
   const isError = () => {
@@ -88,7 +90,6 @@ function LopPane(
     </>
   }
 
-  const theme = useTheme();
   return <>
     <Box
       css={css({

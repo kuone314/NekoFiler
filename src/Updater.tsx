@@ -16,6 +16,9 @@ export function Updater(
 ): [JSX.Element, () => void,] {
   const [latestVersion, setLatestVersion] = useState('');
   const [targetVersion, setTargetVersion] = useState('');
+  const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
+  const theme = useTheme();
+
   const updateImpl = () => {
     invoke<void>("update_filer", { version: targetVersion }).catch(
       message => {
@@ -31,7 +34,6 @@ export function Updater(
       })
   }
 
-  const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
     return <div
       css={css({
@@ -53,8 +55,6 @@ export function Updater(
       </button>
     </div>
   }
-
-  const theme = useTheme();
 
   const dialogElement = <dialog
     ref={dlg}

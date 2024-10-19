@@ -1,7 +1,6 @@
-import { color } from '@mui/system';
-import React, { ChangeEvent, ChangeEventHandler, ClipboardEventHandler, FocusEventHandler, KeyboardEventHandler, ReactNode, createContext, useContext, useState } from 'react';
+import React, { ReactNode, createContext, useContext, useState } from 'react';
 
-import Select, { CSSObjectWithLabel, GroupBase, OptionProps, SingleValue, StylesConfig } from 'react-select'
+import { CSSObjectWithLabel } from 'react-select'
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';

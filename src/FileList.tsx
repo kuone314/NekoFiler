@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import React from 'react';
 
 
@@ -6,11 +6,10 @@ import React from 'react';
 import { css } from '@emotion/react'
 
 import { FileListRowColorSettings, RowColorSetting, readFileListRowColorSetting } from './FileNameColorSetting';
-import { IsValidIndex, LastIndex } from './Utility';
+import { IsValidIndex } from './Utility';
 import { MatchImpl } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
-import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +50,9 @@ const SORT_KEY = {
 type SortKey = typeof SORT_KEY[keyof typeof SORT_KEY];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+const defaultAdjustMargin = 2;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileListFunc {
   selectingItemName: () => string[],
   accessCurrentItem: () => void,
@@ -83,6 +85,30 @@ type FileListProps = {
 };
 
 export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
+  const [colorSetting, setColorSetting] = useState<FileListRowColorSettings | null>(null);
+  useEffect(() => {
+    (async () => {
+      const color_seting = await readFileListRowColorSetting();
+      setColorSetting(color_seting);
+    })()
+  }, []);
+
+  const [adjustMargin, setAdjustMargin] = useState(defaultAdjustMargin);
+
+  useEffect(() => {
+    adjustScroll();
+  }, [props.fileListInfo.focus_idx]);
+
+  const [mouseSelectInfo, setMouseSelectInfo] = useState<MouseSelectInfo | null>(null);
+
+  const theme = useTheme();
+
+  useEffect(() => {
+    myGrid.current?.focus();
+  }, []);
+
   const filteredEntries = props.fileListInfo.filtered_item_list;
   const currentIndex = props.fileListInfo.focus_idx;
 
@@ -110,21 +136,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     props.updateFileListInfo(paneInfo);
   }
 
-  const [colorSetting, setColorSetting] = useState<FileListRowColorSettings | null>(null);
-  useEffect(() => {
-    (async () => {
-      const color_seting = await readFileListRowColorSetting();
-      setColorSetting(color_seting);
-    })()
-  }, []);
-
-
-
-  useEffect(() => {
-    myGrid.current?.focus();
-  }, []);
-
-
   const setCurrentIndex = async (newIndex: number) => {
     if (!IsValidIndex(filteredEntries, newIndex)) { return; }
     const paneInfo = await invoke<FileListUiInfo>("set_focus_idx", {
@@ -143,8 +154,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     setAdjustMargin(defaultAdjustMargin);
   }
 
-  const defaultAdjustMargin = 2;
-  const [adjustMargin, setAdjustMargin] = useState(defaultAdjustMargin);
   const adjustScroll = () => {
     const scroll_pos = myGrid.current?.scrollTop;
     const scroll_area_height = myGrid.current?.clientHeight;
@@ -178,16 +187,11 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     }
   }
 
-  useEffect(() => {
-    adjustScroll();
-  }, [props.fileListInfo.focus_idx]);
-
   interface MouseSelectInfo {
     startIndex: number,
     shiftKey: boolean,
     ctrlKey: boolean,
   }
-  const [mouseSelectInfo, setMouseSelectInfo] = useState<MouseSelectInfo | null>(null);
   const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
     if (event.buttons !== 1) { return; }
     const info = {
@@ -224,7 +228,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       setCurrentIndex(row_idx);
     }
   }
-
 
   const onRowdoubleclick = (row_idx: number, event: React.MouseEvent<Element>) => {
     accessCurrentItem()
@@ -350,8 +353,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     border: '1pt solid #000000',
   });
 
-  const theme = useTheme();
-
   const table_resizable = css({
     resize: 'horizontal',
     overflow: 'hidden',
@@ -417,7 +418,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     toggleSelection: toggleSelection,
     selectCurrentOnly,
   }
-  useImperativeHandle(ref, () => functions);
 
   return <div>
     <table

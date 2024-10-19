@@ -4,8 +4,6 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import Select from 'react-select'
-import { FileListItem, IFileListItemFilter } from './FileList';
-import { Sequence } from './Utility';
 import { ComboBoxStyle, TextInputStyle } from './ThemeStyle';
 
 
@@ -43,6 +41,7 @@ type FileFilterBarProps = {
 };
 
 export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
   const [matcherString, setMatcherString] = useState<string>('');
   const [filterType, setFilterType] = useState<FileFilterType>('StrMatch');
   useEffect(() => {
@@ -66,7 +65,6 @@ export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((
     setType: (filterType: FileFilterType) => setFilterType(filterType),
     isFocus: () => isFocus,
   }
-  useImperativeHandle(ref, () => functions);
 
   const inputBoxRef = React.createRef<HTMLInputElement>();
   return <div

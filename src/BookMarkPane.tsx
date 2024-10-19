@@ -3,14 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { TabColor, TabColorMatcher, TabColorSettings } from './TabColorSetting';
-import { MatchingType } from "./Matcher";
-import { Button } from '@mui/material';
-import Select from 'react-select'
+import { TabColor, TabColorSettings } from './TabColorSetting';
 
-import JSON5 from 'json5'
-import { invoke } from '@tauri-apps/api/tauri';
-import { path } from '@tauri-apps/api';
 import { ApplySeparator } from './FilePathSeparator';
 import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
 import { ButtonStyle, TextInputStyle, useTheme } from './ThemeStyle';
@@ -68,6 +62,7 @@ export function BookMarkPane(
   useEffect(() => {
     (async () => { setBookMarkItemAry(await readBookMarkItem()); })()
   }, []);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const AddBookMark = (path: string) => {
     const dirName = (() => {
@@ -80,8 +75,6 @@ export function BookMarkPane(
     setBookMarkItemAry(newBookMarkItemAry)
     writeBookMarkItem(newBookMarkItemAry)
   }
-
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   function RemoveBookMark(trgIdx: number) {
     if (!IsValidIndex(bookMarkItemAry, trgIdx)) { return; }
@@ -175,7 +168,7 @@ export function BookMarkEditor(
 ): [JSX.Element, (srcBookMarkItem: BookMarkItem) => void,] {
   const [name, setName] = useState('');
   const [path, setPath] = useState('');
-
+  const theme = useTheme();
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
@@ -199,8 +192,6 @@ export function BookMarkEditor(
       </button>
     </div>
   }
-
-  const theme = useTheme();
 
   const dialogElement = <dialog
     css={css({

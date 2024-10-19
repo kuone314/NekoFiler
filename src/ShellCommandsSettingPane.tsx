@@ -36,12 +36,6 @@ export function ShellCommandsSettingPane(
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
 
-  const RemoveSetting = (trgIdx: number) => {
-    let newSettings = Array.from(shellCommandsSettings);
-    newSettings.splice(trgIdx, 1);
-    setShellCommandsSettings(newSettings);
-  }
-
   const [keybindCommandList, setKeybindCommandList] = useState<KeyBindSetting[] | null>(null);
   const [contextMenuCommandList, setContextMenuCommandList] = useState<ContextMenuInfo[] | null>(null);
   useEffect(() => {
@@ -53,6 +47,16 @@ export function ShellCommandsSettingPane(
       setContextMenuCommandList(contextMenuCommandList);
     })()
   }, []);
+  const [editingIndex, setEditingIndex] = useState(0);
+
+  const theme = useTheme();
+
+  const RemoveSetting = (trgIdx: number) => {
+    let newSettings = Array.from(shellCommandsSettings);
+    newSettings.splice(trgIdx, 1);
+    setShellCommandsSettings(newSettings);
+  }
+
   function BindingCommandList(command_name: string): string[] | null {
     if (keybindCommandList === null || contextMenuCommandList == null) { return null; }
     const keybindCommandNameList = keybindCommandList
@@ -90,7 +94,6 @@ export function ShellCommandsSettingPane(
   }
 
 
-  const [editingIndex, setEditingIndex] = useState(0);
   const [editDlg, Editor] = KeyBindEditor(
     (props.height - dlgHeightMagin),
     (editedSetting: ShellCommand,) => {
@@ -165,8 +168,6 @@ export function ShellCommandsSettingPane(
       },
       newSetting)
   }
-
-  const theme = useTheme();
 
   const dialogElement = <dialog
     css={css({
@@ -294,6 +295,29 @@ export function KeyBindEditor(
   const [nameCondition, setNameCondition] = useState<NameCondition | null>(null);
 
   const [dialogType, setDialogType] = useState<DialogType>('none');
+
+  const [spriptFileDir, setScriptFileDir] = useState('');
+  useEffect(() => {
+    (async () => {
+      const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
+      setScriptFileDir(settingDir + '\\' + scriptDirPath + spriptFileName);
+    })();
+  }, []);
+
+  const [spriptFileName, setScriptFileName] = useState('');
+  const [disableCreateFile, setDisableCreateFile] = useState(false);
+  useEffect(() => { updateDisableCreateFile(); }, [spriptFileDir, spriptFileName]);
+  useInterval(updateDisableCreateFile, 1500);
+
+  const [syncNames, setSyncNames] = useState(true);
+  useEffect(() => {
+    if (syncNames) { setScriptFileName(toScriptFileName(commandName)); }
+  }, [commandName, syncNames]);
+
+  const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
+
+  const theme = useTheme();
+
   const dialogTypeComboLabel = (type: DialogType) => {
     switch (type) {
       case "none": return "none";
@@ -305,18 +329,9 @@ export function KeyBindEditor(
     return { value: type, label: dialogTypeComboLabel(type) };
   }
 
-  const [spriptFileDir, setScriptFileDir] = useState('');
-  useEffect(() => {
-    (async () => {
-      const settingDir = await invoke<string>("setting_dir", {}).catch(_ => null);
-      setScriptFileDir(settingDir + '\\' + scriptDirPath + spriptFileName);
-    })();
-  }, []);
   const getScriptFilePath = () => (spriptFileDir + spriptFileName);
 
-  const [spriptFileName, setScriptFileName] = useState('');
-  const [disableCreateFile, setDisableCreateFile] = useState(false);
-  const updateDisableCreateFile = async () => {
+  async function updateDisableCreateFile() {
     const IsEnableCreateFileButton = async () => {
       if (!IsValidFileName(spriptFileName)) { return false; }
       if (await ExistFile(getScriptFilePath())) { return false; }
@@ -325,18 +340,11 @@ export function KeyBindEditor(
     const isEnable = await IsEnableCreateFileButton();
     setDisableCreateFile(!isEnable);
   }
-  useEffect(() => { updateDisableCreateFile(); }, [spriptFileDir, spriptFileName]);
-  useInterval(updateDisableCreateFile, 1500);
 
-  const [syncNames, setSyncNames] = useState(true);
   const toScriptFileName = (command_name: string) => {
     if (command_name === "") { return "" }
     return command_name + ".ps1";
   }
-  useEffect(() => {
-    if (syncNames) { setScriptFileName(toScriptFileName(commandName)); }
-  }, [commandName, syncNames]);
-
 
   const isOkEnable = () => {
     if (commandName === "") { return false; }
@@ -344,7 +352,6 @@ export function KeyBindEditor(
     return true;
   };
 
-  const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
     return <div
       css={css({
@@ -376,7 +383,6 @@ export function KeyBindEditor(
     </div >
   }
 
-  const theme = useTheme();
   const dialogElement = <dialog
     css={css({
       background: theme.backgroundColor,

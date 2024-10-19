@@ -9,7 +9,7 @@ import { PaneTabs } from './PaneTabs';
 import { css } from '@emotion/react'
 
 import { LogInfo, LogMessagePein } from './LogMessagePane';
-import { TabColorMatcher, TabColorSettings } from './TabColorSetting';
+import { TabColorSettings } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
@@ -45,13 +45,23 @@ export function MainModeView(
     (async () => { setTabsPathAry(await ReadLastOpenedTabs()) })()
   }, []);
 
+  const [currentPaneIndex, setCurrentPaneIndex] = useState(0);
+  const [openSettings, setOpenSettings] = useState(false);
+  const [itemNums, setItemNums] = useState<number[]>([0, 0]);
+  const [selectItemNums, setSelectItemNums] = useState<number[]>([0, 0]);
+
+  const [statasBarStr, setStatasBarStr] = useState("");
+  useEffect(() => {
+    setStatasBarStr(`Item:${itemNums[currentPaneIndex]}  Select:${selectItemNums[currentPaneIndex]}`);
+  }, [itemNums, selectItemNums, currentPaneIndex]);
+  const [separator, setSeparator] = useState<separator>('\\');
+
 
   const getPath = () => {
     if (tabsPathAry.length === 0) { return ''; }
     return GetActive(tabsPathAry[currentPaneIndex]).path;
   }
 
-  const [currentPaneIndex, setCurrentPaneIndex] = useState(0);
 
   const onTabsChanged = (newTabs: TabInfo[], newTabIdx: number, paneIndex: number) => {
     setCurrentPaneIndex(paneIndex);
@@ -87,9 +97,6 @@ export function MainModeView(
     return GetActive(tabsPathAry[oppositeIndex]).path;
   }
 
-  const [openSettings, setOpenSettings] = useState(false);
-
-  const [itemNums, setItemNums] = useState<number[]>([0, 0]);
   const setItemNum = (value: number, idx: number) => {
     setItemNums(cur => {
       let newVals = [...cur];
@@ -97,7 +104,6 @@ export function MainModeView(
       return newVals;
     });
   }
-  const [selectItemNums, setSelectItemNums] = useState<number[]>([0, 0]);
   const setSelectItemNum = (value: number, idx: number) => {
     setSelectItemNums(cur => {
       let newVals = [...cur];
@@ -105,15 +111,9 @@ export function MainModeView(
       return newVals;
     });
   }
-  const [statasBarStr, setStatasBarStr] = useState("");
-  useEffect(() => {
-    setStatasBarStr(`Item:${itemNums[currentPaneIndex]}  Select:${selectItemNums[currentPaneIndex]}`);
-  }, [itemNums, selectItemNums, currentPaneIndex]);
-
 
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
 
-  const [separator, setSeparator] = useState<separator>('\\');
 
   const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
   });
