@@ -39,7 +39,7 @@ class SettingInfo implements ISettingInfo<FileListRowColorSettings> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: FileListRowColorSettings) => readSetting;
+  UpgradeSetting = async (_readVersion: number, readSetting: FileListRowColorSettings) => readSetting;
 }
 
 export async function writeFileListRowColorSetting(setting: FileListRowColorSettings) {

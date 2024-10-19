@@ -358,7 +358,7 @@ export function KeyBindEditor(
           <input
             type='checkbox'
             checked={validOnAddressbar}
-            onChange={(e) => setValidOnAddressbar(!validOnAddressbar)}
+            onChange={(_) => setValidOnAddressbar(!validOnAddressbar)}
           />
           Valid on addressbar
         </label>

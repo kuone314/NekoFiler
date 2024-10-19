@@ -228,7 +228,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     }
   }
 
-  const onRowdoubleclick = (row_idx: number, event: React.MouseEvent<Element>) => {
+  const onRowdoubleclick = (_row_idx: number, event: React.MouseEvent<Element>) => {
     accessCurrentItem()
     event.stopPropagation();
   };
@@ -465,7 +465,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
               ref={(idx === currentIndex) ? current_row : null}
               onMouseDown={(event) => { onMouseDown(idx, event) }}
               onMouseMove={(event) => { onMouseMove(idx, event) }}
-              onMouseUp={(event) => { onMouseUp(idx) }}
+              onMouseUp={(_) => { onMouseUp(idx) }}
               onDoubleClick={(event) => onRowdoubleclick(idx, event)}
               css={table_color(idx)}
             >
@@ -484,7 +484,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     <div
       style={{ height: 50, }}
       onMouseDown={(event) => { onMouseDown(filteredEntries.length, event) }}
-      onMouseUp={(event) => { onMouseUp(filteredEntries.length) }}
+      onMouseUp={(_) => { onMouseUp(filteredEntries.length) }}
       onMouseMove={(event) => { onMouseMove(filteredEntries.length, event) }}
     >{filteredItemNumInfo()} </div>
   </div >

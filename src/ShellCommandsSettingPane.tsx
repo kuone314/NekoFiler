@@ -417,7 +417,7 @@ export function KeyBindEditor(
           <input
             type='checkbox'
             checked={syncNames}
-            onChange={(e) => setSyncNames(!syncNames)}
+            onChange={(_) => setSyncNames(!syncNames)}
           />
           Sync command name
         </label>
