@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function executeShellCommand(title: string, command: string, dir: string): void {

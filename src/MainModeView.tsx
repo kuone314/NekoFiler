@@ -14,7 +14,7 @@ import { TabColorSettings } from './TabColorSetting';
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
 import { Updater } from './Updater';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
