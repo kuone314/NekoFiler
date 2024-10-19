@@ -1,6 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
 
-import JSON5 from 'json5'
 import { ApplySeparator, SEPARATOR } from "./FilePathSeparator";
 import { css } from "@emotion/react";
 import { ISettingInfo, writeSettings, readSettings } from "./ReadWriteSettings";

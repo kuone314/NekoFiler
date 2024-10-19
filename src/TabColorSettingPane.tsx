@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 
-import { Match, TabColorMatcher, TabColorSettings, } from './TabColorSetting';
+import { Match, TabColorSettings, } from './TabColorSetting';
 import { MatchingType } from "./Matcher";
 import { Button } from '@mui/material';
 import Select from 'react-select'
