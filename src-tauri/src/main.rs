@@ -65,7 +65,7 @@ fn main() {
       });
 
       #[cfg(debug_assertions)]
-      app.get_window("main").unwrap().open_devtools();
+      app.get_webview_window("main").unwrap().open_devtools();
 
       Ok(())
     })
