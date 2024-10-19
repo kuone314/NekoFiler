@@ -47,7 +47,6 @@ const SORT_KEY = {
   size: "size",
   date: "date",
 } as const;
-type SortKey = typeof SORT_KEY[keyof typeof SORT_KEY];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const defaultAdjustMargin = 2;
