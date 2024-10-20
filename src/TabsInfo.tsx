@@ -24,7 +24,7 @@ function IsValid(tabInfo: TabInfo) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export async function ReadLastOpenedTabs() {
+export async function ReadLastOpenedTabs(): Promise<TabsInfo[]> {
   const defaultDir = await invoke<string>("get_exe_dir", {});
   const defaultTabInfo = () => ({
     pathAry: [{ path: defaultDir, pined: false }],
