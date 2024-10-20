@@ -139,7 +139,7 @@ export const MainPanel = (
       .catch(_ => { return null; });
     AccessDirectory(
       adjusted?.dir ?? path,
-      adjusted?.fileName ?? "");
+      adjusted?.file_name ?? "");
     if (adjusted) {
       myGrid.current?.focus();
     }
@@ -289,7 +289,7 @@ export const MainPanel = (
 
   type AdjustedAddressbarStr = {
     dir: string,
-    fileName: string,
+    file_name: string,
   };
 
   const accessParentDir = async () => {

@@ -76,7 +76,10 @@ pub struct FileListFullInfo {
 }
 
 impl FileListFullInfo {
-  fn new(dirctry_path: &String) -> Option<FileListFullInfo> {
+  fn new(
+    dirctry_path: &String,
+    initial_focus: Option<String>,
+  ) -> Option<FileListFullInfo> {
     let file_list = get_file_list(&dirctry_path);
     let file_list = file_list.map(|file_list| {
       file_list
@@ -84,6 +87,16 @@ impl FileListFullInfo {
         .map(|file_data| FileListItem::new(file_data, false))
         .collect::<Vec<_>>()
     });
+
+    let focus_idx = initial_focus
+      .and_then(|initial_focus| {
+        file_list
+          .as_ref()?
+          .iter()
+          .position(|file| file.file_name == initial_focus)
+      })
+      .unwrap_or(0);
+
     file_list.map(|file_list| FileListFullInfo {
       filtered_item_info: (0..file_list.len())
         .map(|org_idx| FilterdFileInfo {
@@ -91,7 +104,7 @@ impl FileListFullInfo {
           matched_file_name_idx: Vec::new(),
         })
         .collect(),
-      focus_idx: 0,
+      focus_idx,
       full_item_list: file_list,
     })
   }
@@ -241,7 +254,7 @@ pub fn set_dirctry_path(
   }
 
   let path = path.to_string();
-  let file_list_info = FileListFullInfo::new(&path);
+  let file_list_info = FileListFullInfo::new(&path, initial_focus);
 
   *pane_info = PaneInfo {
     dirctry_path: path,
@@ -372,7 +385,7 @@ pub struct FileUpdateInfo {
 
 pub fn update_file_name_list(pane_info: &mut PaneInfo) {
   let Some(mut file_list_info) = std::mem::take(&mut pane_info.file_list_info) else {
-    let file_list_info = FileListFullInfo::new(&pane_info.dirctry_path);
+    let file_list_info = FileListFullInfo::new(&pane_info.dirctry_path, None);
     pane_info.file_list_info = file_list_info;
     return;
   };
