@@ -128,7 +128,7 @@ function LopPane(
 }
 
 
-export function LogMessagePein(props: {
+export function LogMessagePein(_props: {
 })
   : [JSX.Element, LogMessagePeinFunc,] {
   const [logAry, setLogAry] = useState<LogPaneInfo[]>([]);

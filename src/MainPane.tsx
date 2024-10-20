@@ -136,7 +136,7 @@ export const MainPanel = (
 
   const onAddressInputed = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
-      .catch(error => { return null; });
+      .catch(_ => { return null; });
     AccessDirectory(
       adjusted?.dir ?? path,
       adjusted?.fileName ?? "");
@@ -326,7 +326,7 @@ export const MainPanel = (
       {
         menuItemAry.current.map((command, idx) => {
           return <MenuItem
-            onClick={e => execCommand(command, srcKey)}
+            onClick={_ => execCommand(command, srcKey)}
             key={idx}
           >
             {command.display_name}
@@ -349,7 +349,7 @@ export const MainPanel = (
         contextMenuInfoAry.map((command, idx) => {
           return <MenuItem
             css={menuItemStyle}
-            onClick={e => execShellCommand(
+            onClick={_ => execShellCommand(
               command.command_name,
               props.dirPath,
               FileListFunctions.current?.selectingItemName() ?? [],

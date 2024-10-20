@@ -75,14 +75,6 @@ export function ShellCommandsSettingPane(
     return (bindingCommandList.length != 0);
   }
 
-  function ShellCommandNameList(): string[] | null {
-    if (keybindCommandList === null || contextMenuCommandList == null) { return null; }
-
-    const keybindCommandNameList = keybindCommandList.map(keybind => keybind.action.command_name);
-    const contextMenuCommandNameList = contextMenuCommandList.map(contextMenu => contextMenu.command_name);
-    return keybindCommandNameList.concat(contextMenuCommandNameList);
-  }
-
   function BindingCommandsDiscriptionStr(binding_command_list: string[] | null): string {
     if (binding_command_list === null) { return "" }
     if (binding_command_list.length <= 3) {
@@ -425,7 +417,7 @@ export function KeyBindEditor(
           <input
             type='checkbox'
             checked={syncNames}
-            onChange={(e) => setSyncNames(!syncNames)}
+            onChange={(_) => setSyncNames(!syncNames)}
           />
           Sync command name
         </label>

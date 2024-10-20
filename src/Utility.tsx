@@ -23,7 +23,6 @@ export function Sequence(stt: number, size: number): number[] {
   if (size <= 0) { return []; }
 
   let result = [];
-  let new_ary = new Set<number>();
   for (let idx = 0; idx < size; idx++) {
     result.push(stt + idx);
   }

@@ -30,7 +30,7 @@ function ViewImpl(): JSX.Element {
   const [keySetTrg, setKeySetTrg] = useState<React.KeyboardEvent<HTMLDivElement> | null>(null);
 
   const [aplHeight, setAplHeight] = useState(document.documentElement.clientHeight);
-  window.addEventListener('resize', (event) => {
+  window.addEventListener('resize', (_) => {
     setAplHeight(document.documentElement.clientHeight);
   })
 

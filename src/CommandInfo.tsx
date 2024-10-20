@@ -84,7 +84,7 @@ class SettingInfo implements ISettingInfo<ShellCommand[]> {
     if (version > Version.latest) { return false; }
     return true;
   };
-  UpgradeSetting = async (readVersion: number, readSetting: ShellCommand[]) => readSetting;
+  UpgradeSetting = async (_readVersion: number, readSetting: ShellCommand[]) => readSetting;
 }
 
 export async function writeShellCommandSetting(setting: ShellCommand[]) {

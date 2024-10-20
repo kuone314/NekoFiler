@@ -53,7 +53,7 @@ export const AddressBar = forwardRef<AddressBarFunc, AddressBarProps>((props, re
     value={addressbarStr}
     onChange={e => setAddressbarStr(e.target.value)}
     onKeyDown={onKeyDown}
-    onFocus={e => { setIsFocused(true), inputBoxRef.current?.select() }}
+    onFocus={_ => { setIsFocused(true), inputBoxRef.current?.select() }}
     onPaste={e => {
       const pastedText = e.clipboardData.getData('text');
 
@@ -69,7 +69,7 @@ export const AddressBar = forwardRef<AddressBarFunc, AddressBarProps>((props, re
       setAddressbarStr(str);
       props.confirmInput(str);
     }}
-    onBlur={e => { setIsFocused(false), setAddressbarStr(props.dirPath) }}
+    onBlur={_ => { setIsFocused(false), setAddressbarStr(props.dirPath) }}
     ref={inputBoxRef}
   />
 });
