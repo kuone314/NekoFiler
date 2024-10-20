@@ -65,7 +65,8 @@ export const MainPanel = (
 
   const filterBarFunc = useRef<FileFilterBarFunc>(null);
   async function setFilter(filterType: FileFilterType, matcherString: String) {
-    const fileListInfo = await invoke<FileListUiInfo | null>(
+    if (!fileListInfo) { return; }
+    const newFileListInfo = await invoke<FileListUiInfo | null>(
       "set_filter",
       {
         paneIdx: props.panel_idx,
@@ -74,7 +75,7 @@ export const MainPanel = (
           matcher_str: matcherString,
         }
       });
-    setFileListInfo(fileListInfo);
+    setFileListInfo(newFileListInfo);
   }
 
   useEffect(() => {
