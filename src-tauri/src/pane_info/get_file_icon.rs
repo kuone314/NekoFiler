@@ -34,11 +34,12 @@ pub fn get_file_icon(filepath: &PathBuf) -> Option<String> {
   Some(base64::encode(&bites))
 }
 
-struct AutoRelease<T> {
+struct AutoRelease<'a, T> {
   data: T,
-  release_func: fn(&mut T),
+  release_func: Box<dyn FnMut(&mut T) + 'a>,
 }
-impl<T> Drop for AutoRelease<T> {
+
+impl<'a, T> Drop for AutoRelease<'a, T> {
   fn drop(&mut self) {
     (self.release_func)(&mut self.data);
   }
@@ -78,14 +79,14 @@ fn extract_icon_from_file(file_name: &PathBuf) -> Option<AutoRelease<HICON>> {
 
     Some(AutoRelease {
       data: hicon,
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DestroyIcon(*data);
-      },
+      }),
     })
   }
 }
 
-fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
+fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<'static, HBITMAP>> {
   let icon_info = unsafe {
     let mut icon_info: ICONINFO = mem::zeroed();
     if GetIconInfo(h_icon, &mut icon_info as *mut ICONINFO) == 0 {
@@ -93,10 +94,10 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
     }
     AutoRelease {
       data: icon_info,
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DeleteObject(data.hbmMask as *mut _);
         DeleteObject(data.hbmColor as *mut _);
-      },
+      }),
     }
   };
 
@@ -116,16 +117,16 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
   unsafe {
     let hdc_screen = AutoRelease {
       data: GetDC(ptr::null_mut()),
-      release_func: |data| {
+      release_func: Box::new(|data| {
         ReleaseDC(ptr::null_mut(), *data);
-      },
+      }),
     };
 
     let hdc_mem = AutoRelease {
       data: CreateCompatibleDC(hdc_screen.data),
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DeleteDC(*data);
-      },
+      }),
     };
 
     let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
@@ -150,9 +151,9 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
     }
     Some(AutoRelease {
       data: h_bitmap,
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DeleteObject(*data as *mut _);
-      },
+      }),
     })
   }
 }
