@@ -36,9 +36,12 @@ pub struct Color {
   pub(crate) b: u8,
 }
 
-pub fn get_file_icon(filepath: &PathBuf) -> Option<String> {
+pub fn get_file_icon(
+  filepath: &PathBuf,
+  background: &Color,
+) -> Option<String> {
   let icon = extract_icon_from_file(&filepath)?;
-  let bitmap = icon_to_bitmap(icon.data)?;
+  let bitmap = icon_to_bitmap(icon.data, &background)?;
   let bites = bitmap_to_bites(bitmap.data)?;
   Some(base64::encode(&bites))
 }
@@ -96,7 +99,10 @@ fn extract_icon_from_file(file_name: &PathBuf) -> Option<AutoRelease<HICON>> {
   }
 }
 
-fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<'static, HBITMAP>> {
+fn icon_to_bitmap(
+  h_icon: HICON,
+  background: &Color,
+) -> Option<AutoRelease<'static, HBITMAP>> {
   let icon_info = unsafe {
     let mut icon_info: ICONINFO = mem::zeroed();
     if GetIconInfo(h_icon, &mut icon_info as *mut ICONINFO) == 0 {
@@ -141,12 +147,6 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<'static, HBITMAP>> {
 
     let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
     SelectObject(hdc_mem.data, h_bitmap as *mut _);
-
-    let background = Color {
-      r: 225,
-      g: 225,
-      b: 225,
-    };
 
     let hbrush = AutoRelease {
       data: CreateSolidBrush(RGB(background.r, background.g, background.b)),
