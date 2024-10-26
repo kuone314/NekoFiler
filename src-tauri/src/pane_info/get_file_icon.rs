@@ -1,8 +1,9 @@
 use base64;
 
 use winapi::um::shellapi::{SHGetFileInfoW, SHGFI_ICON, SHGFI_SMALLICON};
-use winapi::um::wingdi::DeleteObject;
+use winapi::um::wingdi::{CreateSolidBrush, DeleteObject, PATCOPY, RGB};
 
+use std::ffi::c_void;
 use std::mem;
 use std::os::windows::ffi::OsStrExt;
 use std::path::PathBuf;
@@ -20,12 +21,20 @@ use winapi::um::winuser::{DrawIconEx, GetIconInfo, ICONINFO};
 
 use winapi::um::shellapi::SHFILEINFOW;
 use winapi::um::wingdi::PatBlt;
-use winapi::um::wingdi::WHITENESS;
 use winapi::um::wingdi::{BITMAPFILEHEADER, BI_RGB};
 use winapi::um::winuser::DestroyIcon;
 
 use winapi::um::commctrl::{ImageList_GetIcon, HIMAGELIST, ILD_NORMAL, INDEXTOOVERLAYMASK};
 use winapi::um::shellapi::{SHGFI_OVERLAYINDEX, SHGFI_SYSICONINDEX};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Clone, Deserialize)]
+
+pub struct Color {
+  pub(crate) r: u8,
+  pub(crate) g: u8,
+  pub(crate) b: u8,
+}
 
 pub fn get_file_icon(filepath: &PathBuf) -> Option<String> {
   let icon = extract_icon_from_file(&filepath)?;
@@ -34,6 +43,7 @@ pub fn get_file_icon(filepath: &PathBuf) -> Option<String> {
   Some(base64::encode(&bites))
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 struct AutoRelease<'a, T> {
   data: T,
   release_func: Box<dyn FnMut(&mut T) + 'a>,
@@ -131,7 +141,27 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<'static, HBITMAP>> {
 
     let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
     SelectObject(hdc_mem.data, h_bitmap as *mut _);
-    PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, WHITENESS);
+
+    let background = Color {
+      r: 225,
+      g: 225,
+      b: 225,
+    };
+
+    let hbrush = AutoRelease {
+      data: CreateSolidBrush(RGB(background.r, background.g, background.b)),
+      release_func: Box::new(|data| {
+        DeleteObject(*data as *mut c_void);
+      }),
+    };
+    let _old_brush = AutoRelease {
+      data: SelectObject(hdc_mem.data, hbrush.data as *mut c_void),
+      release_func: Box::new(|data| {
+        SelectObject(hdc_mem.data, *data);
+      }),
+    };
+
+    PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, PATCOPY);
 
     let _h_old_obj = AutoRelease {
       data: SelectObject(hdc_mem.data, h_bitmap as *mut _),
