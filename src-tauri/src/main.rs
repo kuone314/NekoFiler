@@ -62,7 +62,7 @@ fn main() {
     .setup(|app| {
       let app_handle = app.app_handle().clone();
       std::thread::spawn(move || loop {
-        std::thread::sleep(Duration::from_secs(30));
+        std::thread::sleep(Duration::from_secs(1));
         update_file_list(&app_handle);
       });
 
