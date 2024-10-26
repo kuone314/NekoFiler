@@ -133,7 +133,13 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<'static, HBITMAP>> {
     SelectObject(hdc_mem.data, h_bitmap as *mut _);
     PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, WHITENESS);
 
-    let h_old_obj = SelectObject(hdc_mem.data, h_bitmap as *mut _);
+    let _h_old_obj = AutoRelease {
+      data: SelectObject(hdc_mem.data, h_bitmap as *mut _),
+      release_func: Box::new(|data| {
+        SelectObject(hdc_mem.data, *data as *mut _);
+      }),
+    };
+
     let ret = DrawIconEx(
       hdc_mem.data,
       0,
@@ -145,7 +151,6 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<'static, HBITMAP>> {
       ptr::null_mut(),
       3,
     );
-    SelectObject(hdc_mem.data, h_old_obj as *mut _);
     if ret == 0 {
       return None;
     }
