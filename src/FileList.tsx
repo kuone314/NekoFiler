@@ -469,7 +469,9 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
               onDoubleClick={(event) => onRowdoubleclick(idx, event)}
               css={table_color(idx)}
             >
-              <td>
+              <td
+                css={{ background: theme.backgroundColor }}
+              >
                 <img src={`data:image/bmp;base64,${entry.file_icon ?? ""}`} />
               </td>
               <td css={table_border}>{FileNameWithEmphasis(item)}</td>

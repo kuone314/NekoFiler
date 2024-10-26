@@ -19,7 +19,8 @@ import { invoke } from '@tauri-apps/api/core';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 import { v4 as uuidv4 } from 'uuid';
-import { ButtonStyle } from './ThemeStyle';
+import { ButtonStyle, useTheme } from './ThemeStyle';
+import { ColorCodeString } from './ColorCodeString';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const statusBarHeight = 25;
@@ -56,6 +57,10 @@ export function MainModeView(
   }, [itemNums, selectItemNums, currentPaneIndex]);
   const [separator, setSeparator] = useState<separator>('\\');
 
+  const backgroundColor = ColorCodeString.new(useTheme().backgroundColor);
+  if (backgroundColor) {
+    invoke("set_background_color", { color: backgroundColor });
+  }
 
   const getPath = () => {
     if (tabsPathAry.length === 0) { return ''; }
