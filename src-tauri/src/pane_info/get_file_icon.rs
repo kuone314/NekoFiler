@@ -1,8 +1,9 @@
 use base64;
 
 use winapi::um::shellapi::{SHGetFileInfoW, SHGFI_ICON, SHGFI_SMALLICON};
-use winapi::um::wingdi::DeleteObject;
+use winapi::um::wingdi::{CreateSolidBrush, DeleteObject, PATCOPY, RGB};
 
+use std::ffi::c_void;
 use std::mem;
 use std::os::windows::ffi::OsStrExt;
 use std::path::PathBuf;
@@ -20,25 +21,38 @@ use winapi::um::winuser::{DrawIconEx, GetIconInfo, ICONINFO};
 
 use winapi::um::shellapi::SHFILEINFOW;
 use winapi::um::wingdi::PatBlt;
-use winapi::um::wingdi::WHITENESS;
 use winapi::um::wingdi::{BITMAPFILEHEADER, BI_RGB};
 use winapi::um::winuser::DestroyIcon;
 
 use winapi::um::commctrl::{ImageList_GetIcon, HIMAGELIST, ILD_NORMAL, INDEXTOOVERLAYMASK};
 use winapi::um::shellapi::{SHGFI_OVERLAYINDEX, SHGFI_SYSICONINDEX};
 
-pub fn get_file_icon(filepath: &PathBuf) -> Option<String> {
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Clone, Deserialize)]
+
+pub struct Color {
+  pub(crate) r: u8,
+  pub(crate) g: u8,
+  pub(crate) b: u8,
+}
+
+pub fn get_file_icon(
+  filepath: &PathBuf,
+  background: &Color,
+) -> Option<String> {
   let icon = extract_icon_from_file(&filepath)?;
-  let bitmap = icon_to_bitmap(icon.data)?;
+  let bitmap = icon_to_bitmap(icon.data, &background)?;
   let bites = bitmap_to_bites(bitmap.data)?;
   Some(base64::encode(&bites))
 }
 
-struct AutoRelease<T> {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct AutoRelease<'a, T> {
   data: T,
-  release_func: fn(&mut T),
+  release_func: Box<dyn FnMut(&mut T) + 'a>,
 }
-impl<T> Drop for AutoRelease<T> {
+
+impl<'a, T> Drop for AutoRelease<'a, T> {
   fn drop(&mut self) {
     (self.release_func)(&mut self.data);
   }
@@ -78,14 +92,17 @@ fn extract_icon_from_file(file_name: &PathBuf) -> Option<AutoRelease<HICON>> {
 
     Some(AutoRelease {
       data: hicon,
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DestroyIcon(*data);
-      },
+      }),
     })
   }
 }
 
-fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
+fn icon_to_bitmap(
+  h_icon: HICON,
+  background: &Color,
+) -> Option<AutoRelease<'static, HBITMAP>> {
   let icon_info = unsafe {
     let mut icon_info: ICONINFO = mem::zeroed();
     if GetIconInfo(h_icon, &mut icon_info as *mut ICONINFO) == 0 {
@@ -93,10 +110,10 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
     }
     AutoRelease {
       data: icon_info,
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DeleteObject(data.hbmMask as *mut _);
         DeleteObject(data.hbmColor as *mut _);
-      },
+      }),
     }
   };
 
@@ -116,23 +133,43 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
   unsafe {
     let hdc_screen = AutoRelease {
       data: GetDC(ptr::null_mut()),
-      release_func: |data| {
+      release_func: Box::new(|data| {
         ReleaseDC(ptr::null_mut(), *data);
-      },
+      }),
     };
 
     let hdc_mem = AutoRelease {
       data: CreateCompatibleDC(hdc_screen.data),
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DeleteDC(*data);
-      },
+      }),
     };
 
     let h_bitmap = CreateCompatibleBitmap(hdc_screen.data, bmp.bmWidth, bmp.bmHeight);
     SelectObject(hdc_mem.data, h_bitmap as *mut _);
-    PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, WHITENESS);
 
-    let h_old_obj = SelectObject(hdc_mem.data, h_bitmap as *mut _);
+    let hbrush = AutoRelease {
+      data: CreateSolidBrush(RGB(background.r, background.g, background.b)),
+      release_func: Box::new(|data| {
+        DeleteObject(*data as *mut c_void);
+      }),
+    };
+    let _old_brush = AutoRelease {
+      data: SelectObject(hdc_mem.data, hbrush.data as *mut c_void),
+      release_func: Box::new(|data| {
+        SelectObject(hdc_mem.data, *data);
+      }),
+    };
+
+    PatBlt(hdc_mem.data, 0, 0, bmp.bmWidth, bmp.bmHeight, PATCOPY);
+
+    let _h_old_obj = AutoRelease {
+      data: SelectObject(hdc_mem.data, h_bitmap as *mut _),
+      release_func: Box::new(|data| {
+        SelectObject(hdc_mem.data, *data as *mut _);
+      }),
+    };
+
     let ret = DrawIconEx(
       hdc_mem.data,
       0,
@@ -144,15 +181,14 @@ fn icon_to_bitmap(h_icon: HICON) -> Option<AutoRelease<HBITMAP>> {
       ptr::null_mut(),
       3,
     );
-    SelectObject(hdc_mem.data, h_old_obj as *mut _);
     if ret == 0 {
       return None;
     }
     Some(AutoRelease {
       data: h_bitmap,
-      release_func: |data| {
+      release_func: Box::new(|data| {
         DeleteObject(*data as *mut _);
-      },
+      }),
     })
   }
 }

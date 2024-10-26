@@ -11,6 +11,18 @@ export class ColorCodeString {
   private constructor(val: string) {
     this.val = val;
   }
+
+  toRGB(): { r: number, g: number, b: number } {
+    const hexValue = this.val.replace('#', '');
+    const isOmit = hexValue.length === 3; // #fffなどの省略記法か
+
+    const splited = hexValue.match(isOmit ? /./g : /.{2}/g);
+    if (!splited) { return { r: 0, g: 0, b: 0, }; }
+    const [r, g, b] = splited
+      .map((s) => parseInt(isOmit ? s.repeat(2) : s, 16));
+
+    return { r, g, b };
+  }
 }
 
 function isValidColorCode(color: string): boolean {

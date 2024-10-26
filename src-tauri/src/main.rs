@@ -13,6 +13,7 @@ mod get_exe_dir;
 use get_exe_dir::get_exe_dir;
 
 mod pane_info;
+use pane_info::set_background_color;
 use pane_info::set_dirctry_path;
 use pane_info::set_filter;
 use pane_info::set_focus_idx;
@@ -41,6 +42,7 @@ use update_filer::update_filer;
 fn main() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
+      set_background_color,
       set_dirctry_path,
       set_filter,
       add_selecting_idx,

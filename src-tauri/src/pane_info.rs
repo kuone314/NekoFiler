@@ -7,7 +7,7 @@ use std::{
 use once_cell::sync::Lazy;
 
 mod get_file_icon;
-use get_file_icon::get_file_icon;
+use get_file_icon::{get_file_icon, Color};
 
 mod get_file_list;
 use get_file_list::{get_file_list, FileBaseInfo};
@@ -214,12 +214,14 @@ impl PaneInfo {
 
 #[derive(Debug)]
 pub struct FilerData {
+  background: Lazy<Mutex<Color>>,
   pane_info_list: [PaneHandler; 2],
 }
 
 impl FilerData {
   fn new() -> Self {
     Self {
+      background: Lazy::new(|| Mutex::new(Color{ r: 0, g: 0, b: 0 })),
       pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
   }
@@ -227,6 +229,13 @@ impl FilerData {
 
 static PANE_DATA: Lazy<FilerData> = Lazy::new(|| FilerData::new());
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#[tauri::command]
+pub fn set_background_color(color: Color) {
+  *PANE_DATA.background.lock().unwrap() = color;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
 pub fn set_dirctry_path(
   pane_idx: usize,
@@ -322,14 +331,19 @@ pub struct UpdateFileListUiInfo {
 }
 
 pub fn update_file_list(app_handle: &tauri::AppHandle) {
+  let Ok(background) = PANE_DATA.background.try_lock() else {
+    return;
+  };
+
   for pane_idx in 0..=1 {
-    update_pane_info(&PANE_DATA.pane_info_list[pane_idx], app_handle);
+    update_pane_info(&PANE_DATA.pane_info_list[pane_idx], app_handle, &background);
   }
 }
 
 fn update_pane_info(
   pane_handler: &PaneHandler,
   app_handle: &tauri::AppHandle,
+  background: &Color,
 ) {
   let Ok(mut pane_info) = pane_handler.data.try_lock() else {
     return;
@@ -359,7 +373,7 @@ fn update_pane_info(
   // フィルタ後の物だけで良いかも。
   for file_list_item in file_list_info.full_item_list.iter_mut() {
     let file_path = &PathBuf::from(&dirctry_path).join(&file_list_item.file_name);
-    file_list_item.file_icon = get_file_icon(file_path);
+    file_list_item.file_icon = get_file_icon(file_path, &background);
 
     if pane_handler.update_cancel_required() {
       return;
