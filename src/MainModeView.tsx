@@ -59,7 +59,7 @@ export function MainModeView(
 
   const backgroundColor = ColorCodeString.new(useTheme().backgroundColor);
   if (backgroundColor) {
-    invoke("set_background_color", { color: backgroundColor });
+    invoke("set_background_color", { color: backgroundColor.toRGB() });
   }
 
   const getPath = () => {
