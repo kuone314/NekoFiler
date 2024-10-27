@@ -24,7 +24,7 @@ import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
 import { FileFilterBar, FileFilterBarFunc, FileFilterType } from './FileFilterBar';
-import { MenuitemStyle, TextInputStyle, useTheme } from './ThemeStyle';
+import { MenuitemStyle, ReadonlyTextInputStyle } from './ThemeStyle';
 import { UnlistenFn, listen } from '@tauri-apps/api/event';
 import { PiLinkLight } from 'react-icons/pi';
 
@@ -382,15 +382,11 @@ export const MainPanel = (
     ? name
     : (props.dirPath + props.separator + name);
 
-  const theme = useTheme();
   function LinkDestination() {
     return <div>
       <PiLinkLight />
       <input
-        style={{
-          backgroundColor: theme.backgroundColor,
-          color: theme.stringDefaultColor,
-        }}
+        style={ReadonlyTextInputStyle()}
         type="text"
         value={linkDestination ?? ""}
         readOnly
