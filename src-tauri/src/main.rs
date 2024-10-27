@@ -31,6 +31,9 @@ use setting_file::write_setting_file;
 mod adjust_addressbar_str;
 use adjust_addressbar_str::adjust_addressbar_str;
 
+mod resolve_symbolic_link;
+use resolve_symbolic_link::resolve_symbolic_link;
+
 mod execute_shell_command;
 use execute_shell_command::execute_shell_command;
 
@@ -51,6 +54,7 @@ fn main() {
       set_focus_idx,
       sort_file_list,
       adjust_addressbar_str,
+      resolve_symbolic_link,
       execute_shell_command,
       read_setting_file,
       write_setting_file,

@@ -106,6 +106,18 @@ export function TextInputStyle() {
   return style;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+export function ReadonlyTextInputStyle() {
+  const theme = useTheme();
+
+  const style = {
+    backgroundColor: theme.backgroundColor,
+    color: theme.stringDefaultColor,
+  };
+
+  return style;
+};
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function ComboBoxStyle() {
