@@ -24,8 +24,9 @@ import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
 import { FileFilterBar, FileFilterBarFunc, FileFilterType } from './FileFilterBar';
-import { MenuitemStyle } from './ThemeStyle';
+import { MenuitemStyle, TextInputStyle, useTheme } from './ThemeStyle';
 import { UnlistenFn, listen } from '@tauri-apps/api/event';
+import { PiLinkLight } from 'react-icons/pi';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +61,17 @@ export const MainPanel = (
   }, [props.dirPath]);
 
   const [fileListInfo, setFileListInfo] = useState<FileListUiInfo | null>(null);
+
+  const [linkDestination, setLinkDestination] = useState<string | null>(null);
+  useEffect(
+    () => {
+      (async () => {
+        const resolved = await invoke<string>("resolve_symbolic_link", { path: props.dirPath });
+        setLinkDestination(resolved);
+      })()
+    },
+    [props.dirPath]
+  );
 
   useEffect(() => props.onItemNumChanged(fileListInfo?.filtered_item_list.length ?? 0), [fileListInfo]);
 
@@ -370,6 +382,21 @@ export const MainPanel = (
     ? name
     : (props.dirPath + props.separator + name);
 
+  const theme = useTheme();
+  function LinkDestination() {
+    return <div>
+      <PiLinkLight />
+      <input
+        style={{
+          backgroundColor: theme.backgroundColor,
+          color: theme.stringDefaultColor,
+        }}
+        type="text"
+        value={linkDestination ?? ""}
+        readOnly
+      />
+    </div>
+  }
 
   return (
     <>
@@ -391,6 +418,7 @@ export const MainPanel = (
           onEndEdit={() => myGrid.current?.focus()}
           ref={addressBarFunc}
         />
+        {linkDestination ? LinkDestination() : null}
         <FileFilterBar
           onFilterChanged={setFilter}
           onEndEdit={() => myGrid.current?.focus()}
