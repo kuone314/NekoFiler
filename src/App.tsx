@@ -13,7 +13,6 @@ import { ContextMenuSettingPane } from './ContextMenuSettingPane';
 import { FileListRowColorSettingPane } from './FileListRowColorSettingPane';
 import { ThemeProvider, useTheme } from './ThemeStyle';
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const Mode = {
   main: "main",
