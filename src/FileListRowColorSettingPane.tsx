@@ -94,8 +94,6 @@ export function FileListRowColorSettingPane(
     }
   }
 
-  const textInputStyle = TextInputStyle();
-
   const Impl = () => {
     if (settingTarget === 'DefaultColor') {
       return DefaultColorSettingImpl();
