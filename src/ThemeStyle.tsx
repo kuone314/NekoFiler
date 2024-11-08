@@ -4,18 +4,7 @@ import { CSSObjectWithLabel } from 'react-select'
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-export type BaseColorSetting = {
-  backgroundColor: string;
-  elementDefaultColor: string;
-  elementHilightColor: string;
-  elementSelectionColor: string;
-  stringDefaultColor: string;
-  stringDisabledColor: string;
-  stringErrorColor: string;
-};
+import { BaseColorSetting, DefaultBaseColorSetting } from './BaseColorSetting';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 interface ThemeContextType {
@@ -36,18 +25,6 @@ export const useTheme = (): ThemeContextType => {
 
 interface ThemeProviderProps {
   children: ReactNode;
-}
-
-export function DefaultBaseColorSetting(): BaseColorSetting {
-  return {
-    backgroundColor: '#000000',
-    elementDefaultColor: '#303030',
-    elementHilightColor: '#555555',
-    elementSelectionColor: '#336ee6',
-    stringDefaultColor: '#ffffff',
-    stringDisabledColor: '#c0c0c0',
-    stringErrorColor: '#ff0000',
-  };
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
