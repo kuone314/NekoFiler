@@ -10,6 +10,7 @@ import Select from 'react-select'
 import { DirName } from './Utility';
 import { ButtonStyle, ComboBoxStyle, TextInputStyle } from './ThemeStyle';
 import { ColorCodeString } from './ColorCodeString';
+import { ColorSelector } from './ColorSelector';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 type SettingsIndex = number;
@@ -123,78 +124,30 @@ export function TabColorSettingPane(
         height: mainHeight,
       })}
     >
-      <label>
-        BackGroundColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.backGround}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.default.backGround = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.backGround}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.default.backGround = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        StringColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.string}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.default.string = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.string}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.default.string = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        FrameHighlightColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.default.activeHightlight = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.default.activeHightlight = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-      </label>
+      <ColorSelector
+        title={"BackGroundColor"}
+        value={setting.backGround}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(tabColorSetting);
+          newSetting.default.backGround = value;
+          setTabColorSetting(newSetting)
+        }} />
+      <ColorSelector
+        title={"StringColor"}
+        value={setting.string}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(tabColorSetting);
+          newSetting.default.string = value;
+          setTabColorSetting(newSetting)
+        }} />
+      <ColorSelector
+        title={"FrameHighlightColor"}
+        value={setting.activeHightlight}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(tabColorSetting);
+          newSetting.default.activeHightlight = value;
+          setTabColorSetting(newSetting)
+        }} />
       <div
         css={css({
           display: 'flex',
@@ -233,78 +186,30 @@ export function TabColorSettingPane(
           }}
         />
       </label>
-      <label>
-        BackGroundColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.color.backGround}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.settings[trgIdx].color.backGround = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.color.backGround}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.settings[trgIdx].color.backGround = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        StringColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.color.string}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.settings[trgIdx].color.string = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.color.string}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.settings[trgIdx].color.string = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        FrameHighlightColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.color.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.settings[trgIdx].color.activeHightlight = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.color.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(tabColorSetting);
-            newSetting.settings[trgIdx].color.activeHightlight = e.target.value;
-            setTabColorSetting(newSetting)
-          }}
-        />
-      </label>
+      <ColorSelector
+        title={"BackGroundColor"}
+        value={setting.color.backGround}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(tabColorSetting);
+          newSetting.settings[trgIdx].color.backGround = value;
+          setTabColorSetting(newSetting)
+        }} />
+      <ColorSelector
+        title={"StringColor"}
+        value={setting.color.string}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(tabColorSetting);
+          newSetting.settings[trgIdx].color.string = value;
+          setTabColorSetting(newSetting)
+        }} />
+      <ColorSelector
+        title={"FrameHighlightColor"}
+        value={setting.color.activeHightlight}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(tabColorSetting);
+          newSetting.settings[trgIdx].color.activeHightlight = value;
+          setTabColorSetting(newSetting)
+        }} />
       <div
         css={css({
           display: 'flex',
