@@ -96,9 +96,6 @@ export function TextInputStyle() {
   const theme = useTheme();
 
   const style = {
-    '::placeholder': {
-      color: theme.stringDisabledColor,
-    },
     backgroundColor: theme.elementDefaultColor,
     color: theme.stringDefaultColor,
   };
