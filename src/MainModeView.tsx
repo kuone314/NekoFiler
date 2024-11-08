@@ -57,7 +57,7 @@ export function MainModeView(
   }, [itemNums, selectItemNums, currentPaneIndex]);
   const [separator, setSeparator] = useState<separator>('\\');
 
-  const backgroundColor = ColorCodeString.new(useTheme().backgroundColor);
+  const backgroundColor = ColorCodeString.new(useTheme().baseColor.backgroundColor);
   if (backgroundColor) {
     invoke("set_background_color", { color: backgroundColor.toRGB() });
   }

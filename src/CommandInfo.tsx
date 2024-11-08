@@ -310,8 +310,8 @@ export function commandExecuter(
 
   const element = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       width: '80%',
       height: '80%',
     })}

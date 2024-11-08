@@ -92,15 +92,15 @@ function ViewImpl(): JSX.Element {
       height: 'aplHeight',
       overflow: 'hidden',
       userSelect: 'none',
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
-      scrollbarColor: theme.stringDefaultColor + ' ' + theme.elementDefaultColor
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
+      scrollbarColor: theme.baseColor.stringDefaultColor + ' ' + theme.baseColor.elementDefaultColor
     })}
   >
     <style>
       {`
           input::selection {
-            background-color: ${theme.elementSelectionColor}
+            background-color: ${theme.baseColor.elementSelectionColor}
           }
         `}
     </style>

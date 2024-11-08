@@ -362,7 +362,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     left: '0',
   });
   const table_header_color = css({
-    border: '1pt solid ' + theme.stringDefaultColor,
+    border: '1pt solid ' + theme.baseColor.stringDefaultColor,
   });
 
   const filteredItemNumInfo = () => {
@@ -470,7 +470,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
               css={table_color(idx)}
             >
               <td
-                css={{ background: theme.backgroundColor }}
+                css={{ background: theme.baseColor.backgroundColor }}
               >
                 <img src={`data:image/bmp;base64,${entry.file_icon ?? ""}`} />
               </td>

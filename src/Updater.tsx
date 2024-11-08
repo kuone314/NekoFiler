@@ -59,8 +59,8 @@ export function Updater(
   const dialogElement = <dialog
     ref={dlg}
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
     })}
   >
     <div

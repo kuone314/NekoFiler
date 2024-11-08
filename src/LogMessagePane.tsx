@@ -111,7 +111,7 @@ function LopPane(
       >
         <div
           css={css({
-            color: isError() ? theme.stringErrorColor : '',
+            color: isError() ? theme.baseColor.stringErrorColor : '',
           })}
         >
           {logInfo.title}

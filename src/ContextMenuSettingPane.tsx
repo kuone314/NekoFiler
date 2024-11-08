@@ -73,7 +73,7 @@ export function ContextMenuSettingPane(
   const theme = useTheme();
 
   const table_border = css({
-    border: '1pt solid ' + theme.stringDefaultColor,
+    border: '1pt solid ' + theme.baseColor.stringDefaultColor,
   });
 
   function AddSetting(): void {
@@ -263,8 +263,8 @@ export function ContextMenuInfoEditor(
 
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       height: height,
       width: '60%', // 適当…。
     })}

@@ -195,8 +195,8 @@ export function BookMarkEditor(
 
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
     })}
     ref={dlg}>
     <div

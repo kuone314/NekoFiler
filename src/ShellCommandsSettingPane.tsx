@@ -163,8 +163,8 @@ export function ShellCommandsSettingPane(
 
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       height: props.height,
       width: '95%',
     })}
@@ -377,8 +377,8 @@ export function KeyBindEditor(
 
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       height: height,
       width: '60%', // 適当…。
     })}
