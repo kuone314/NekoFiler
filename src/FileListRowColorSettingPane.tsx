@@ -29,6 +29,10 @@ export function FileListRowColorSettingPane(
 
   const [settingTarget, setSettingTarget] = useState<SettingTarget>('DefaultColor');
 
+  const buttonStyle = ButtonStyle();
+  const textInputStyle = TextInputStyle();
+  const comboBoxStyle = ComboBoxStyle();
+
   const buttonHeight = 70;
   const heightMergin = 20; // これがないと、スクロールバーが出てしまう…
   const mainHeight = (props.height - buttonHeight - heightMergin);
@@ -202,7 +206,7 @@ export function FileListRowColorSettingPane(
       <label>
         Name
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           css={css({
             width: '100%',
           })}
@@ -262,7 +266,7 @@ export function FileListRowColorSettingPane(
         </label>
 
         <Select
-          styles={ComboBoxStyle()}
+          styles={comboBoxStyle}
           options={Object.values(MatchingType).map(toComboItem)}
           value={toComboItem(setting.matcher.nameMatcher.type)}
           onChange={(val) => {
@@ -273,7 +277,7 @@ export function FileListRowColorSettingPane(
           }}
         />
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           css={css({
             width: '100%',
           })}
@@ -288,19 +292,19 @@ export function FileListRowColorSettingPane(
       </div>
       <div>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => MoveUp(trgIdx)}
         >
           ↑
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => MoveDown(trgIdx)}
         >
           ↓
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => DeleteSetting(trgIdx)}
         >
           Delete
@@ -333,13 +337,13 @@ export function FileListRowColorSettingPane(
           })}
         >
           <button
-            css={ButtonStyle()}
+            css={buttonStyle}
             onClick={() => AddSetting()}
           >
             +
           </button>
           <Button
-            css={ButtonStyle()}
+            css={buttonStyle}
             style={{
               textTransform: 'none',
               border: (settingTarget === 'DefaultColor') ? '5px solid ' + settings?.defaultColor.activeHightlight : '',
@@ -350,7 +354,7 @@ export function FileListRowColorSettingPane(
           >
             Default</Button>
           <Button
-            css={ButtonStyle()}
+            css={buttonStyle}
             style={{
               textTransform: 'none',
               border: (settingTarget === 'SelectingColor') ? '5px solid ' + settings?.selectionColor.activeHightlight : '',
@@ -401,7 +405,7 @@ export function FileListRowColorSettingPane(
         })}
       >
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => {
             writeFileListRowColorSetting(settings!);
             props.finishSetting()
@@ -410,7 +414,7 @@ export function FileListRowColorSettingPane(
           OK
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => props.finishSetting()}
         >
           Cancel

@@ -34,6 +34,10 @@ export function TabColorSettingPane(
   }
   const [settingTarget, setSettingTarget] = useState<SettingTarget>(initTab());
 
+  const buttonstyle = ButtonStyle();
+  const textInputStyle = TextInputStyle();
+  const comboBoxStyle = ComboBoxStyle();
+
   const buttonHeight = 70;
   const heightMergin = 20; // これがないと、スクロールバーが出てしまう…
   const mainHeight = (props.height - buttonHeight - heightMergin);
@@ -173,7 +177,7 @@ export function TabColorSettingPane(
       <label>
         Name
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           css={css({
             width: '100%',
           })}
@@ -220,7 +224,7 @@ export function TabColorSettingPane(
           Match
         </label>
         <Select
-          styles={ComboBoxStyle()}
+          styles={comboBoxStyle}
           options={Object.values(MatchingType).map(toComboItem)}
           value={toComboItem(setting.match.type)}
           onChange={(val) => {
@@ -232,7 +236,7 @@ export function TabColorSettingPane(
         />
         <input
           css={css(
-            TextInputStyle(),
+            textInputStyle,
             { width: '100%', })}
           type="text"
           value={tabColorSetting.settings[trgIdx].match.string}
@@ -245,19 +249,19 @@ export function TabColorSettingPane(
       </div>
       <div>
         <button
-          css={ButtonStyle()}
+          css={buttonstyle}
           onClick={() => MoveUp(trgIdx)}
         >
           ↑
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonstyle}
           onClick={() => MoveDown(trgIdx)}
         >
           ↓
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonstyle}
           onClick={() => DeleteSetting(trgIdx)}
         >
           Delete
@@ -290,13 +294,13 @@ export function TabColorSettingPane(
           })}
         >
           <button
-            css={ButtonStyle()}
+            css={buttonstyle}
             onClick={() => AddSetting()}
           >
             +
           </button>
           <Button
-            css={ButtonStyle()}
+            css={buttonstyle}
             style={{
               textTransform: 'none',
               border: (settingTarget === 'DefaultColor') ? '5px solid ' + tabColorSetting?.default.activeHightlight : '',
@@ -343,7 +347,7 @@ export function TabColorSettingPane(
         })}
       >
         <button
-          css={ButtonStyle()}
+          css={buttonstyle}
           onClick={() => {
             if (!tabColorSetting) { return; }
             props.setTabColorSetting(tabColorSetting)
@@ -353,7 +357,7 @@ export function TabColorSettingPane(
           OK
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonstyle}
           onClick={() => props.finishSetting()}
         >
           Cancel

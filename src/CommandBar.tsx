@@ -23,6 +23,8 @@ export function CommandBar(
 ): [JSX.Element, CommandBarFuncs,] {
   const [str, setStr] = useState<string>("");
 
+  const textInputStyle = TextInputStyle();
+
   const onEnterDown = async () => {
     executeShellCommand('Command Bar', str, props.path());
     setStr("");
@@ -43,7 +45,7 @@ export function CommandBar(
       }
     }>
       <input
-        style={TextInputStyle()}
+        style={textInputStyle}
         ref={ref}
         type="text"
         placeholder='Input PowerSehll command.(e.g. echo Foo)'

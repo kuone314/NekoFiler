@@ -309,6 +309,9 @@ export function KeyBindEditor(
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
 
   const theme = useTheme();
+  const buttonStyle = ButtonStyle();
+  const textInputStyle = TextInputStyle();
+  const comboBoxStyle = ComboBoxStyle();
 
   const dialogTypeComboLabel = (type: DialogType) => {
     switch (type) {
@@ -352,7 +355,7 @@ export function KeyBindEditor(
       })}
     >
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         disabled={!isOkEnable()}
         onClick={() => {
           const shell_command = {
@@ -367,7 +370,7 @@ export function KeyBindEditor(
         Ok
       </Button>
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -392,7 +395,7 @@ export function KeyBindEditor(
       <div>
         <div>Name</div>
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           type="text"
           value={commandName}
           onChange={e => { setCommandName(e.target.value) }}
@@ -402,7 +405,7 @@ export function KeyBindEditor(
       <div>
         <label>Dialog</label>
         <Select
-          styles={ComboBoxStyle()}
+          styles={comboBoxStyle}
           options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
           value={dialogTypeToComboItem(dialogType)}
           onChange={(val) => {
@@ -426,20 +429,20 @@ export function KeyBindEditor(
           marginBottom: '20px',
         })}>
           <input
-            style={TextInputStyle()}
+            style={textInputStyle}
             type="text"
             value={spriptFileName}
             onChange={e => { setScriptFileName(e.target.value) }}
             readOnly={syncNames}
           />
           <Button
-            css={css(ButtonStyle(), { textTransform: 'none', })}
+            css={css(buttonStyle, { textTransform: 'none', })}
             onClick={() => CreateFile(getScriptFilePath())}
             disabled={disableCreateFile}
           >
             Create file</Button>
           <Button
-            css={css(ButtonStyle(), { textTransform: 'none', })}
+            css={css(buttonStyle, { textTransform: 'none', })}
             disabled={spriptFileDir === ''}
             onClick={() => navigator.clipboard.writeText(getScriptFilePath())}
           >

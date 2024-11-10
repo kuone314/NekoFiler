@@ -8,10 +8,11 @@ export function ColorSelector(
     value: string;
     setValue: (value: string) => void;
   }) {
+  const textInputStyle = TextInputStyle();
   return <label>
     {props.title}
     <input
-      style={TextInputStyle()}
+      style={textInputStyle}
       type="text"
       css={css({ width: '5em', })}
       value={props.value}

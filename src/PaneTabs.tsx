@@ -54,6 +54,8 @@ export const PaneTabs = (
   const [contextMenuPosX, setContextMenuPosX] = useState(0);
   const [contextMenuPosY, setContextMenuPosY] = useState(0);
 
+  const menuItemStyle = MenuitemStyle();
+
   const tabAry = props.pathAry.pathAry;
   const activeTabIdx = props.pathAry.activeTabIndex;
 
@@ -128,37 +130,37 @@ export const PaneTabs = (
       anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
     >
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
       >
         Close Right Tabs
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
       >
         Close Left Tabs
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeOtherTabs(contextMenuTabIdx)}
       >
         Close Other Tabs
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeTab(contextMenuTabIdx)}
       >
         Close Tab
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => props.setTabColor(tabAry[contextMenuTabIdx].path)}
       >
         Set Tab Color
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => togglePined(contextMenuTabIdx)}
       >
         Toggle Pin

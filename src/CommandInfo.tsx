@@ -139,6 +139,7 @@ export function commandExecuter(
   }, [dlg.current?.open]);
 
   const theme = useTheme();
+  const buttonStyle = ButtonStyle();
 
   const execShellCommandImpl = async (
     command_name: string,
@@ -294,13 +295,13 @@ export function commandExecuter(
       })}
     >
       <button
-        css={ButtonStyle()}
+        css={buttonStyle}
         onClick={() => { dlgOnOk.current(dlgString); dlg.current?.close() }}
       >
         Ok
       </button>
       <button
-        css={ButtonStyle()}
+        css={buttonStyle}
         onClick={() => { setDlgString(''); dlg.current?.close() }}
       >
         Cancle

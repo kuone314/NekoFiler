@@ -27,6 +27,8 @@ export const AddressBar = forwardRef<AddressBarFunc, AddressBarProps>((props, re
 
   const [isFocused, setIsFocused] = useState(false);
 
+  const textInputStyle = TextInputStyle();
+
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       props.confirmInput(addressbarStr);
@@ -48,7 +50,7 @@ export const AddressBar = forwardRef<AddressBarFunc, AddressBarProps>((props, re
   useImperativeHandle(ref, () => functions);
 
   return <input
-    style={TextInputStyle()}
+    style={textInputStyle}
     type="text"
     value={addressbarStr}
     onChange={e => setAddressbarStr(e.target.value)}

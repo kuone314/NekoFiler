@@ -147,6 +147,8 @@ export const MainPanel = (
   const FileListFunctions = useRef<FileListFunc>(null);
   const addressBarFunc = useRef<AddressBarFunc>(null);
 
+  const readonlyTextInputStyle = ReadonlyTextInputStyle();
+
   const onAddressInputed = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
       .catch(_ => { return null; });
@@ -386,7 +388,7 @@ export const MainPanel = (
     return <div>
       <PiLinkLight />
       <input
-        style={ReadonlyTextInputStyle()}
+        style={readonlyTextInputStyle}
         type="text"
         value={linkDestination ?? ""}
         readOnly

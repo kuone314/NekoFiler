@@ -64,6 +64,8 @@ export function BookMarkPane(
   }, []);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const buttonStyle = ButtonStyle();
+
   const AddBookMark = (path: string) => {
     const dirName = (() => {
       const splited = ApplySeparator(path, '/').split('/').reverse();
@@ -119,26 +121,26 @@ export function BookMarkPane(
     {editDlg}
     <div>BookMark</div>
     <button
-      css={ButtonStyle()}
+      css={buttonStyle}
       onClick={() => { AddBookMark(props.currendDir) }}
     >Add Current Dir</button>
     <button
-      css={ButtonStyle()}
+      css={buttonStyle}
       onClick={() => {
         if (!IsValidIndex(bookMarkItemAry, currentIndex)) { return; }
         EditStart(bookMarkItemAry[currentIndex])
       }}
     >Edit</button>
     <button
-      css={ButtonStyle()}
+      css={buttonStyle}
       onClick={() => { RemoveBookMark(currentIndex) }}
     >-</button>
     <button
-      css={ButtonStyle()}
+      css={buttonStyle}
       onClick={() => { MoveUpBookMark(currentIndex) }}
     >↑</button>
     <button
-      css={ButtonStyle()}
+      css={buttonStyle}
       onClick={() => { MoveDownBookMark(currentIndex) }}
     >↓</button>
     {
@@ -169,6 +171,8 @@ export function BookMarkEditor(
   const [name, setName] = useState('');
   const [path, setPath] = useState('');
   const theme = useTheme();
+  const buttonStyle = ButtonStyle();
+  const textInputStyle = TextInputStyle();
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
@@ -179,13 +183,13 @@ export function BookMarkEditor(
       })}
     >
       <button
-        css={ButtonStyle()}
+        css={buttonStyle}
         onClick={() => { onOk({ name, path }); dlg.current?.close() }}
       >
         Ok
       </button>
       <button
-        css={ButtonStyle()}
+        css={buttonStyle}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -206,13 +210,13 @@ export function BookMarkEditor(
       })}
     >
       <input
-        style={TextInputStyle()}
+        style={textInputStyle}
         type="text"
         value={name}
         onChange={e => { setName(e.target.value) }}
       />
       <input
-        style={TextInputStyle()}
+        style={textInputStyle}
         type="text"
         value={path}
         onChange={e => { setPath(e.target.value) }}

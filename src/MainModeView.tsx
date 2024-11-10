@@ -58,6 +58,7 @@ export function MainModeView(
   const [separator, setSeparator] = useState<separator>('\\');
 
   const theme = useTheme();
+  const buttonStyle = ButtonStyle();
 
   const backgroundColor = ColorCodeString.new(theme.baseColor.backgroundColor);
   if (backgroundColor) {
@@ -245,7 +246,7 @@ export function MainModeView(
           })}
         >
           <button
-            css={css(ButtonStyle())}
+            css={css(buttonStyle)}
             onClick={() => { setOpenSettings(!openSettings) }}
           >settings</button>
           {
@@ -290,8 +291,10 @@ function SettingButtons(
   Update: () => void
 ) {
   const buttonHeight = 50;
+  const buttonStyle = ButtonStyle();
+
   const settingButtonStyle = css(
-    ButtonStyle(),
+    buttonStyle,
     {
       width: '85pt',
       height: buttonHeight,

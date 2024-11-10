@@ -50,6 +50,9 @@ export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((
 
   const [isFocus, setIsFocus] = useState(false);
 
+  const textInputStyle = TextInputStyle();
+  const comboBoxStyle = ComboBoxStyle();
+
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' || event.key === 'Escape') {
       props.onEndEdit();
@@ -76,7 +79,7 @@ export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((
   >
     <div>Filter:</div>
     <Select
-      styles={ComboBoxStyle()}
+      styles={comboBoxStyle}
       css={css({
         width: '100pt',
       })}
@@ -89,7 +92,7 @@ export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((
       }}
     />
     <input
-      style={TextInputStyle()}
+      style={textInputStyle}
       type="text"
       value={matcherString}
       onChange={e => setMatcherString(e.target.value)}

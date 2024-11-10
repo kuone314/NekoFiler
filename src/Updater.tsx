@@ -18,6 +18,8 @@ export function Updater(
   const [targetVersion, setTargetVersion] = useState('');
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const theme = useTheme();
+  const buttonstyle = ButtonStyle();
+  const textInputStyle = TextInputStyle();
 
   const updateImpl = () => {
     invoke<void>("update_filer", { version: targetVersion }).catch(
@@ -42,13 +44,13 @@ export function Updater(
       })}
     >
       <button
-        css={ButtonStyle()}
+        css={buttonstyle}
         onClick={() => { updateImpl(); dlg.current?.close() }}
       >
         Ok
       </button>
       <button
-        css={ButtonStyle()}
+        css={buttonstyle}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -88,7 +90,7 @@ export function Updater(
           Update to:
         </div>
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           type="text"
           value={targetVersion}
           onChange={e => { setTargetVersion(e.target.value) }}
