@@ -8,7 +8,7 @@ import { MatchingType } from "./Matcher";
 import { Button } from '@mui/material';
 import Select from 'react-select'
 import { DirName } from './Utility';
-import { ButtonStyle, ComboBoxStyle, TextInputStyle } from './ThemeStyle';
+import { ButtonStyle, ComboBoxStyle, TextInputStyle, useTheme } from './ThemeStyle';
 import { ColorCodeString } from './ColorCodeString';
 import { ColorSelector } from './ColorSelector';
 
@@ -34,9 +34,10 @@ export function TabColorSettingPane(
   }
   const [settingTarget, setSettingTarget] = useState<SettingTarget>(initTab());
 
-  const buttonstyle = ButtonStyle();
-  const textInputStyle = TextInputStyle();
-  const comboBoxStyle = ComboBoxStyle();
+  const theme = useTheme();
+  const buttonstyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const buttonHeight = 70;
   const heightMergin = 20; // これがないと、スクロールバーが出てしまう…

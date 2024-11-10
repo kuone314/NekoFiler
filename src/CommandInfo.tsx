@@ -139,7 +139,8 @@ export function commandExecuter(
   }, [dlg.current?.open]);
 
   const theme = useTheme();
-  const buttonStyle = ButtonStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const execShellCommandImpl = async (
     command_name: string,
@@ -231,8 +232,6 @@ export function commandExecuter(
   }
 
   const textarea = React.createRef<HTMLTextAreaElement>();
-
-  const textInputStyle = TextInputStyle();
 
   const sizeHalf =
     css({

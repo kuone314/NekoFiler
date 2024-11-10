@@ -38,8 +38,8 @@ export function KeyBindSettingPane(
   const [editingIndex, setEditingIndex] = useState(0);
 
   const theme = useTheme();
-  const buttonStyle = ButtonStyle();
-  const textInputStyle = TextInputStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const RemoveSetting = (trgIdx: number) => {
     let newSettings = Array.from(keyBindSettings);
@@ -261,9 +261,9 @@ export function KeyBindEditor(
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
 
   const theme = useTheme();
-  const buttonStyle = ButtonStyle();
-  const textInputStyle = TextInputStyle();
-  const comboBoxStyle = ComboBoxStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const updateShellCommandList = async () => {
     const shellCommandList = await readShellCommandSetting();

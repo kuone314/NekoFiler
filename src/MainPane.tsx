@@ -24,7 +24,7 @@ import { TabFuncs } from './PaneTabs';
 import { ContextMenuInfo, readContextMenuSetting } from './ContextMenu';
 import { LogInfo } from './LogMessagePane';
 import { FileFilterBar, FileFilterBarFunc, FileFilterType } from './FileFilterBar';
-import { MenuitemStyle, ReadonlyTextInputStyle } from './ThemeStyle';
+import { MenuitemStyle, ReadonlyTextInputStyle, useTheme } from './ThemeStyle';
 import { UnlistenFn, listen } from '@tauri-apps/api/event';
 import { PiLinkLight } from 'react-icons/pi';
 
@@ -147,7 +147,8 @@ export const MainPanel = (
   const FileListFunctions = useRef<FileListFunc>(null);
   const addressBarFunc = useRef<AddressBarFunc>(null);
 
-  const readonlyTextInputStyle = ReadonlyTextInputStyle();
+  const theme = useTheme();
+  const readonlyTextInputStyle = ReadonlyTextInputStyle(theme.baseColor);
 
   const onAddressInputed = async (path: string) => {
     const adjusted = await invoke<AdjustedAddressbarStr>("adjust_addressbar_str", { str: path })
@@ -351,7 +352,7 @@ export const MainPanel = (
     </ControlledMenu>
   }
 
-  const menuItemStyle = MenuitemStyle();
+  const menuItemStyle = MenuitemStyle(theme.baseColor);
 
   const contextMenu = () => {
     if (!FileListFunctions) { return <></>; }

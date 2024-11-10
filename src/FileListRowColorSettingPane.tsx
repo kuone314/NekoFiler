@@ -9,7 +9,7 @@ import { IsValidIndex, LastIndex } from './Utility';
 import { FileListRowColorSettings, RowColorSetting, readFileListRowColorSetting, writeFileListRowColorSetting } from './FileNameColorSetting';
 import { MatchingType } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
-import { ButtonStyle, ComboBoxStyle, TextInputStyle } from './ThemeStyle';
+import { ButtonStyle, ComboBoxStyle, TextInputStyle, useTheme } from './ThemeStyle';
 import { ColorSelector } from './ColorSelector';
 
 
@@ -29,9 +29,10 @@ export function FileListRowColorSettingPane(
 
   const [settingTarget, setSettingTarget] = useState<SettingTarget>('DefaultColor');
 
-  const buttonStyle = ButtonStyle();
-  const textInputStyle = TextInputStyle();
-  const comboBoxStyle = ComboBoxStyle();
+  const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const buttonHeight = 70;
   const heightMergin = 20; // これがないと、スクロールバーが出てしまう…

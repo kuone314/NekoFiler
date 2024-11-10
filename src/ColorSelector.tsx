@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { TextInputStyle } from "./ThemeStyle";
+import { TextInputStyle, useTheme } from "./ThemeStyle";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function ColorSelector(
@@ -8,7 +8,8 @@ export function ColorSelector(
     value: string;
     setValue: (value: string) => void;
   }) {
-  const textInputStyle = TextInputStyle();
+  const theme = useTheme();
+  const textInputStyle = TextInputStyle(theme.baseColor);
   return <label>
     {props.title}
     <input

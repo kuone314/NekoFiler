@@ -27,7 +27,7 @@ export function ContextMenuSettingPane(
   useEffect(() => { (async () => { setContextMenuSettings(await readContextMenuSetting()); })() }, []);
 
   const theme = useTheme();
-  const buttonStyle = ButtonStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
 
   function writSettings() {
     writeContextMenuSetting(contextMenuSettings);
@@ -210,7 +210,10 @@ export function ContextMenuInfoEditor(
   const [commandName, setCommandName] = useState<string>('');
   useEffect(() => { updateShellCommandList(); }, []);
 
-  const buttonStyle = ButtonStyle();
+  const theme = useTheme();
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
+  const buttonStyle = ButtonStyle(theme.baseColor);
 
   const updateShellCommandList = async () => {
     const shellCommandList = await readShellCommandSetting();
@@ -260,10 +263,6 @@ export function ContextMenuInfoEditor(
     height,
     onOK: () => updateShellCommandList(),
   });
-
-  const theme = useTheme();
-  const textInputStyle = TextInputStyle();
-  const comboBoxStyle = ComboBoxStyle();
 
   const dialogElement = <dialog
     css={css({

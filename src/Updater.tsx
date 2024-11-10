@@ -18,8 +18,8 @@ export function Updater(
   const [targetVersion, setTargetVersion] = useState('');
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const theme = useTheme();
-  const buttonstyle = ButtonStyle();
-  const textInputStyle = TextInputStyle();
+  const buttonstyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const updateImpl = () => {
     invoke<void>("update_filer", { version: targetVersion }).catch(

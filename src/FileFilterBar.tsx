@@ -4,7 +4,7 @@ import React from 'react';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import Select from 'react-select'
-import { ComboBoxStyle, TextInputStyle } from './ThemeStyle';
+import { ComboBoxStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
 
 
@@ -50,8 +50,9 @@ export const FileFilterBar = forwardRef<FileFilterBarFunc, FileFilterBarProps>((
 
   const [isFocus, setIsFocus] = useState(false);
 
-  const textInputStyle = TextInputStyle();
-  const comboBoxStyle = ComboBoxStyle();
+  const theme = useTheme();
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' || event.key === 'Escape') {

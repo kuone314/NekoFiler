@@ -5,7 +5,7 @@ import { separator, ApplySeparator } from './FilePathSeparator';
 
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
-import { TextInputStyle } from './ThemeStyle';
+import { TextInputStyle, useTheme } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface AddressBarFunc {
@@ -27,7 +27,8 @@ export const AddressBar = forwardRef<AddressBarFunc, AddressBarProps>((props, re
 
   const [isFocused, setIsFocused] = useState(false);
 
-  const textInputStyle = TextInputStyle();
+  const theme = useTheme();
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {

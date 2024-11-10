@@ -35,6 +35,7 @@ function LopPane(
   onCommandClick: () => void,
 ) {
   const theme = useTheme();
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const logInfo = logPaneInfo.logInfo;
 
@@ -48,8 +49,6 @@ function LopPane(
       ? <IoIosArrowDropdown />
       : <IoIosArrowDropright />
   }
-
-  const textInputStyle = TextInputStyle();
 
   const deteal = () => {
     return <>

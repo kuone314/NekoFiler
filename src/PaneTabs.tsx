@@ -15,7 +15,7 @@ import { TabInfo, TabsInfo } from './TabsInfo';
 import { ControlledMenu } from '@szhsin/react-menu';
 import { DirName, Sequence } from './Utility';
 import { LogInfo } from './LogMessagePane';
-import { ButtonStyle, MenuitemStyle } from './ThemeStyle';
+import { ButtonStyle, MenuitemStyle, useTheme } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,8 @@ export const PaneTabs = (
   const [contextMenuPosX, setContextMenuPosX] = useState(0);
   const [contextMenuPosY, setContextMenuPosY] = useState(0);
 
-  const menuItemStyle = MenuitemStyle();
+  const theme = useTheme();
+  const menuItemStyle = MenuitemStyle(theme.baseColor);
 
   const tabAry = props.pathAry.pathAry;
   const activeTabIdx = props.pathAry.activeTabIndex;
@@ -168,7 +169,7 @@ export const PaneTabs = (
     </ControlledMenu>
   }
 
-  const buttonStyle = ButtonStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
 
   return (
     <>

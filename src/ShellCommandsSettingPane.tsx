@@ -110,7 +110,7 @@ export function ShellCommandsSettingPane(
     );
   }
 
-  const buttonStyle = ButtonStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
 
   const button = () => {
     return <div
@@ -309,9 +309,9 @@ export function KeyBindEditor(
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
 
   const theme = useTheme();
-  const buttonStyle = ButtonStyle();
-  const textInputStyle = TextInputStyle();
-  const comboBoxStyle = ComboBoxStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const dialogTypeComboLabel = (type: DialogType) => {
     switch (type) {

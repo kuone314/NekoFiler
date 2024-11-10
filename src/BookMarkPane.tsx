@@ -64,7 +64,8 @@ export function BookMarkPane(
   }, []);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const buttonStyle = ButtonStyle();
+  const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
 
   const AddBookMark = (path: string) => {
     const dirName = (() => {
@@ -171,8 +172,8 @@ export function BookMarkEditor(
   const [name, setName] = useState('');
   const [path, setPath] = useState('');
   const theme = useTheme();
-  const buttonStyle = ButtonStyle();
-  const textInputStyle = TextInputStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const button = () => {
