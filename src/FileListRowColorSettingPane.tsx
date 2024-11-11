@@ -9,7 +9,8 @@ import { IsValidIndex, LastIndex } from './Utility';
 import { FileListRowColorSettings, RowColorSetting, readFileListRowColorSetting, writeFileListRowColorSetting } from './FileNameColorSetting';
 import { MatchingType } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
-import { ButtonStyle, ComboBoxStyle, TextInputStyle } from './ThemeStyle';
+import { ButtonStyle, ComboBoxStyle, TextInputStyle, useTheme } from './ThemeStyle';
+import { ColorSelector } from './ColorSelector';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +28,11 @@ export function FileListRowColorSettingPane(
   useEffect(() => { (async () => { setSettings(await readFileListRowColorSetting()); })() }, []);
 
   const [settingTarget, setSettingTarget] = useState<SettingTarget>('DefaultColor');
+
+  const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const buttonHeight = 70;
   const heightMergin = 20; // これがないと、スクロールバーが出てしまう…
@@ -93,8 +99,6 @@ export function FileListRowColorSettingPane(
     }
   }
 
-  const textInputStyle = TextInputStyle();
-
   const Impl = () => {
     if (settingTarget === 'DefaultColor') {
       return DefaultColorSettingImpl();
@@ -141,102 +145,39 @@ export function FileListRowColorSettingPane(
         height: mainHeight,
       })}
     >
-      <label>
-        BackGroundColor1
-        <input
-          style={textInputStyle}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.oddRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.oddRowBackGroune = e.target.value;
-            onEdit(newSetting);
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.oddRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.oddRowBackGroune = e.target.value;
-            onEdit(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        BackGroundColor2
-        <input
-          style={textInputStyle}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.evenRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.evenRowBackGroune = e.target.value;
-            onEdit(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.evenRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.evenRowBackGroune = e.target.value;
-            onEdit(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        StringColor
-        <input
-          style={textInputStyle}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.forGround}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.forGround = e.target.value;
-            onEdit(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.forGround}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.forGround = e.target.value;
-            onEdit(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        FrameHighlightColor
-        <input
-          style={textInputStyle}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.activeHightlight = e.target.value;
-            onEdit(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(setting);
-            newSetting.activeHightlight = e.target.value;
-            onEdit(newSetting)
-          }}
-        />
-      </label>
+
+      <ColorSelector
+        title={"BackGroundColor1"}
+        value={setting.oddRowBackGroune}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(setting);
+          newSetting.oddRowBackGroune = value;
+          onEdit(newSetting);
+        }} />
+      <ColorSelector
+        title={"BackGroundColor2"}
+        value={setting.evenRowBackGroune}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(setting);
+          newSetting.evenRowBackGroune = value;
+          onEdit(newSetting)
+        }} />
+      <ColorSelector
+        title={"StringColor"}
+        value={setting.forGround}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(setting);
+          newSetting.forGround = value;
+          onEdit(newSetting)
+        }} />
+      <ColorSelector
+        title={"FrameHighlightColor"}
+        value={setting.activeHightlight}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(setting);
+          newSetting.activeHightlight = value;
+          onEdit(newSetting)
+        }} />
     </div>
 
   }
@@ -266,7 +207,7 @@ export function FileListRowColorSettingPane(
       <label>
         Name
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           css={css({
             width: '100%',
           })}
@@ -279,102 +220,38 @@ export function FileListRowColorSettingPane(
           }}
         />
       </label>
-      <label>
-        BackGroundColor1
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.color.oddRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.oddRowBackGroune = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.color.oddRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.oddRowBackGroune = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        BackGroundColor2
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.color.evenRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.evenRowBackGroune = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.color.evenRowBackGroune}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.evenRowBackGroune = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        StringColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.color.forGround}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.forGround = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.color.forGround}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.forGround = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-      </label>
-      <label>
-        FrameHighlightColor
-        <input
-          style={TextInputStyle()}
-          type="text"
-          css={css({ width: '5em', })}
-          value={setting.color.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.activeHightlight = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-        <input
-          type="color"
-          list="color-list"
-          value={setting.color.activeHightlight}
-          onChange={e => {
-            const newSetting = structuredClone(settings);
-            newSetting.settings[trgIdx].color.activeHightlight = e.target.value;
-            setSettings(newSetting)
-          }}
-        />
-      </label>
+      <ColorSelector
+        title={"BackGroundColor1"}
+        value={setting.color.oddRowBackGroune}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(settings);
+          newSetting.settings[trgIdx].color.oddRowBackGroune = value;
+          setSettings(newSetting)
+        }} />
+      <ColorSelector
+        title={"BackGroundColor2"}
+        value={setting.color.evenRowBackGroune}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(settings);
+          newSetting.settings[trgIdx].color.evenRowBackGroune = value;
+          setSettings(newSetting)
+        }} />
+      <ColorSelector
+        title={"StringColor"}
+        value={setting.color.forGround}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(settings);
+          newSetting.settings[trgIdx].color.forGround = value;
+          setSettings(newSetting)
+        }} />
+      <ColorSelector
+        title={"FrameHighlightColor"}
+        value={setting.color.activeHightlight}
+        setValue={function (value: string): void {
+          const newSetting = structuredClone(settings);
+          newSetting.settings[trgIdx].color.activeHightlight = value;
+          setSettings(newSetting)
+        }} />
       <div
         css={css({
           display: 'flex',
@@ -390,7 +267,7 @@ export function FileListRowColorSettingPane(
         </label>
 
         <Select
-          styles={ComboBoxStyle()}
+          styles={comboBoxStyle}
           options={Object.values(MatchingType).map(toComboItem)}
           value={toComboItem(setting.matcher.nameMatcher.type)}
           onChange={(val) => {
@@ -401,7 +278,7 @@ export function FileListRowColorSettingPane(
           }}
         />
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           css={css({
             width: '100%',
           })}
@@ -416,19 +293,19 @@ export function FileListRowColorSettingPane(
       </div>
       <div>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => MoveUp(trgIdx)}
         >
           ↑
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => MoveDown(trgIdx)}
         >
           ↓
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => DeleteSetting(trgIdx)}
         >
           Delete
@@ -461,13 +338,13 @@ export function FileListRowColorSettingPane(
           })}
         >
           <button
-            css={ButtonStyle()}
+            css={buttonStyle}
             onClick={() => AddSetting()}
           >
             +
           </button>
           <Button
-            css={ButtonStyle()}
+            css={buttonStyle}
             style={{
               textTransform: 'none',
               border: (settingTarget === 'DefaultColor') ? '5px solid ' + settings?.defaultColor.activeHightlight : '',
@@ -478,7 +355,7 @@ export function FileListRowColorSettingPane(
           >
             Default</Button>
           <Button
-            css={ButtonStyle()}
+            css={buttonStyle}
             style={{
               textTransform: 'none',
               border: (settingTarget === 'SelectingColor') ? '5px solid ' + settings?.selectionColor.activeHightlight : '',
@@ -529,7 +406,7 @@ export function FileListRowColorSettingPane(
         })}
       >
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => {
             writeFileListRowColorSetting(settings!);
             props.finishSetting()
@@ -538,7 +415,7 @@ export function FileListRowColorSettingPane(
           OK
         </button>
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={() => props.finishSetting()}
         >
           Cancel

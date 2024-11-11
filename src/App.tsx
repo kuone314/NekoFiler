@@ -12,12 +12,15 @@ import { KeyBindSettingPane } from './KeyBindSettingPane';
 import { ContextMenuSettingPane } from './ContextMenuSettingPane';
 import { FileListRowColorSettingPane } from './FileListRowColorSettingPane';
 import { ThemeProvider, useTheme } from './ThemeStyle';
+import { readBaseColor } from './BaseColorSetting';
+import { BaseColorSettingPane } from './BaseColorSettingPane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const Mode = {
   main: "main",
   setTabColor: "setTabColor",
+  setBaseColors: "setBaseColors",
   setFileListRowColor: "setFileListRowColor",
   setKeyBindSettings: "setKeyBindSettings",
   setContextMenu: "setContextMenu",
@@ -36,14 +39,16 @@ function ViewImpl(): JSX.Element {
 
   const [tabColorSettingTrgDir, setTabColorSettingTrgDir] = useState<string>('');
   const [tabColorSetting, setTabColorSetting] = useState<TabColorSettings>();
+
+  const theme = useTheme();
   useEffect(() => {
     (async () => {
       const color_seting = await readTabColorSetting();
       setTabColorSetting(color_seting);
+      const colorSetting = await readBaseColor();
+      theme.setBaseColor(colorSetting);
     })()
   }, []);
-
-  const theme = useTheme();
 
   const Impl = () => {
     switch (mode) {
@@ -51,10 +56,16 @@ function ViewImpl(): JSX.Element {
         return <MainModeView
           height={aplHeight}
           tabColorSetting={tabColorSetting}
+          setBaseColor={() => { setMode(Mode.setBaseColors); }}
           setFileListRowColor={() => { setMode(Mode.setFileListRowColor); }}
           setTabColor={(trgDir) => { setTabColorSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
           setKeyBind={(trgKey: React.KeyboardEvent<HTMLDivElement> | null) => { setKeySetTrg(trgKey); setMode(Mode.setKeyBindSettings) }}
           setContextMenu={() => { setMode(Mode.setContextMenu); }}
+        />
+      case Mode.setBaseColors:
+        return <BaseColorSettingPane
+          height={aplHeight - 20}
+          finishSetting={() => setMode(Mode.main)}
         />
       case Mode.setTabColor:
         return <TabColorSettingPane
@@ -92,15 +103,15 @@ function ViewImpl(): JSX.Element {
       height: 'aplHeight',
       overflow: 'hidden',
       userSelect: 'none',
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
-      scrollbarColor: theme.stringDefaultColor + ' ' + theme.elementDefaultColor
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
+      scrollbarColor: theme.baseColor.stringDefaultColor + ' ' + theme.baseColor.elementDefaultColor
     })}
   >
     <style>
       {`
           input::selection {
-            background-color: ${theme.elementSelectionColor}
+            background-color: ${theme.baseColor.elementSelectionColor}
           }
         `}
     </style>

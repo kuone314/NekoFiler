@@ -35,6 +35,7 @@ export function MainModeView(
   props: {
     height: number,
     tabColorSetting?: TabColorSettings,
+    setBaseColor: () => void,
     setTabColor: (tabColorSettingTrgDir: string) => void,
     setFileListRowColor: () => void,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
@@ -57,7 +58,10 @@ export function MainModeView(
   }, [itemNums, selectItemNums, currentPaneIndex]);
   const [separator, setSeparator] = useState<separator>('\\');
 
-  const backgroundColor = ColorCodeString.new(useTheme().backgroundColor);
+  const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+
+  const backgroundColor = ColorCodeString.new(theme.baseColor.backgroundColor);
   if (backgroundColor) {
     invoke("set_background_color", { color: backgroundColor.toRGB() });
   }
@@ -243,7 +247,7 @@ export function MainModeView(
           })}
         >
           <button
-            css={css(ButtonStyle())}
+            css={css(buttonStyle)}
             onClick={() => { setOpenSettings(!openSettings) }}
           >settings</button>
           {
@@ -251,6 +255,7 @@ export function MainModeView(
               SettingButtons(
                 setSeparator,
                 separator,
+                props.setBaseColor,
                 props.setTabColor,
                 props.setFileListRowColor,
                 props.setKeyBind,
@@ -279,6 +284,7 @@ export function MainModeView(
 function SettingButtons(
   setSeparator: React.Dispatch<React.SetStateAction<separator>>,
   separator: string,
+  setBaseColor: () => void,
   setTabColor: (tabColorSettingTrgDir: string) => void,
   setFileListRowColor: () => void,
   setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
@@ -288,8 +294,12 @@ function SettingButtons(
   Update: () => void
 ) {
   const buttonHeight = 50;
+
+  const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+
   const settingButtonStyle = css(
-    ButtonStyle(),
+    buttonStyle,
     {
       width: '85pt',
       height: buttonHeight,
@@ -304,6 +314,11 @@ function SettingButtons(
       css={settingButtonStyle}
       onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
       separator:{separator}
+    </button>
+    <button
+      css={settingButtonStyle}
+      onClick={() => setBaseColor()}>
+      Set Base Color
     </button>
     <button
       css={settingButtonStyle}

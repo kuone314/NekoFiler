@@ -15,7 +15,7 @@ import { TabInfo, TabsInfo } from './TabsInfo';
 import { ControlledMenu } from '@szhsin/react-menu';
 import { DirName, Sequence } from './Utility';
 import { LogInfo } from './LogMessagePane';
-import { ButtonStyle, MenuitemStyle } from './ThemeStyle';
+import { ButtonStyle, MenuitemStyle, useTheme } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +53,9 @@ export const PaneTabs = (
   const [contextMenuTabIdx, setContextMenuTabIdx] = useState(0);
   const [contextMenuPosX, setContextMenuPosX] = useState(0);
   const [contextMenuPosY, setContextMenuPosY] = useState(0);
+
+  const theme = useTheme();
+  const menuItemStyle = MenuitemStyle(theme.baseColor);
 
   const tabAry = props.pathAry.pathAry;
   const activeTabIdx = props.pathAry.activeTabIndex;
@@ -128,37 +131,37 @@ export const PaneTabs = (
       anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
     >
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
       >
         Close Right Tabs
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
       >
         Close Left Tabs
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeOtherTabs(contextMenuTabIdx)}
       >
         Close Other Tabs
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => removeTab(contextMenuTabIdx)}
       >
         Close Tab
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => props.setTabColor(tabAry[contextMenuTabIdx].path)}
       >
         Set Tab Color
       </MenuItem>
       <MenuItem
-        css={MenuitemStyle()}
+        css={menuItemStyle}
         onClick={_ => togglePined(contextMenuTabIdx)}
       >
         Toggle Pin
@@ -166,7 +169,7 @@ export const PaneTabs = (
     </ControlledMenu>
   }
 
-  const buttonStyle = ButtonStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
 
   return (
     <>

@@ -110,7 +110,7 @@ export function ShellCommandsSettingPane(
     );
   }
 
-  const buttonStyle = ButtonStyle();
+  const buttonStyle = ButtonStyle(theme.baseColor);
 
   const button = () => {
     return <div
@@ -163,8 +163,8 @@ export function ShellCommandsSettingPane(
 
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       height: props.height,
       width: '95%',
     })}
@@ -309,6 +309,9 @@ export function KeyBindEditor(
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
 
   const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const dialogTypeComboLabel = (type: DialogType) => {
     switch (type) {
@@ -352,7 +355,7 @@ export function KeyBindEditor(
       })}
     >
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         disabled={!isOkEnable()}
         onClick={() => {
           const shell_command = {
@@ -367,7 +370,7 @@ export function KeyBindEditor(
         Ok
       </Button>
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -377,8 +380,8 @@ export function KeyBindEditor(
 
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       height: height,
       width: '60%', // 適当…。
     })}
@@ -392,7 +395,7 @@ export function KeyBindEditor(
       <div>
         <div>Name</div>
         <input
-          style={TextInputStyle()}
+          style={textInputStyle}
           type="text"
           value={commandName}
           onChange={e => { setCommandName(e.target.value) }}
@@ -402,7 +405,7 @@ export function KeyBindEditor(
       <div>
         <label>Dialog</label>
         <Select
-          styles={ComboBoxStyle()}
+          styles={comboBoxStyle}
           options={Object.values(DIALOG_TYPE).map(dialogTypeToComboItem)}
           value={dialogTypeToComboItem(dialogType)}
           onChange={(val) => {
@@ -426,20 +429,20 @@ export function KeyBindEditor(
           marginBottom: '20px',
         })}>
           <input
-            style={TextInputStyle()}
+            style={textInputStyle}
             type="text"
             value={spriptFileName}
             onChange={e => { setScriptFileName(e.target.value) }}
             readOnly={syncNames}
           />
           <Button
-            css={css(ButtonStyle(), { textTransform: 'none', })}
+            css={css(buttonStyle, { textTransform: 'none', })}
             onClick={() => CreateFile(getScriptFilePath())}
             disabled={disableCreateFile}
           >
             Create file</Button>
           <Button
-            css={css(ButtonStyle(), { textTransform: 'none', })}
+            css={css(buttonStyle, { textTransform: 'none', })}
             disabled={spriptFileDir === ''}
             onClick={() => navigator.clipboard.writeText(getScriptFilePath())}
           >

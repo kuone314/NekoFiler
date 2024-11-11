@@ -5,7 +5,7 @@ import { executeShellCommand } from './RustFuncs';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { LogInfo } from './LogMessagePane';
-import { TextInputStyle } from './ThemeStyle';
+import { TextInputStyle, useTheme } from './ThemeStyle';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@ export function CommandBar(
   }
 ): [JSX.Element, CommandBarFuncs,] {
   const [str, setStr] = useState<string>("");
+
+  const theme = useTheme();
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const onEnterDown = async () => {
     executeShellCommand('Command Bar', str, props.path());
@@ -43,7 +46,7 @@ export function CommandBar(
       }
     }>
       <input
-        style={TextInputStyle()}
+        style={textInputStyle}
         ref={ref}
         type="text"
         placeholder='Input PowerSehll command.(e.g. echo Foo)'

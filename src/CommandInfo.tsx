@@ -139,6 +139,8 @@ export function commandExecuter(
   }, [dlg.current?.open]);
 
   const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const execShellCommandImpl = async (
     command_name: string,
@@ -231,8 +233,6 @@ export function commandExecuter(
 
   const textarea = React.createRef<HTMLTextAreaElement>();
 
-  const textInputStyle = TextInputStyle();
-
   const sizeHalf =
     css({
       height: '100%',
@@ -294,13 +294,13 @@ export function commandExecuter(
       })}
     >
       <button
-        css={ButtonStyle()}
+        css={buttonStyle}
         onClick={() => { dlgOnOk.current(dlgString); dlg.current?.close() }}
       >
         Ok
       </button>
       <button
-        css={ButtonStyle()}
+        css={buttonStyle}
         onClick={() => { setDlgString(''); dlg.current?.close() }}
       >
         Cancle
@@ -310,8 +310,8 @@ export function commandExecuter(
 
   const element = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       width: '80%',
       height: '80%',
     })}

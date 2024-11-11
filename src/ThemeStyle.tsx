@@ -4,25 +4,12 @@ import { CSSObjectWithLabel } from 'react-select'
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
+import { BaseColorSetting, DefaultBaseColorSetting } from './BaseColorSetting';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 interface ThemeContextType {
-  backgroundColor: string;
-  setBackgroundColor: (newColor: string) => void;
-
-  elementDefaultColor: string;
-  setElementDefaultColor: (newColor: string) => void;
-  elementHilightColor: string;
-  setElementHilightColor: (newColor: string) => void;
-  elementSelectionColor: string;
-  setElementSelectionColor: (newColor: string) => void;
-
-  stringDefaultColor: string;
-  setStringDefaultColor: (newColor: string) => void;
-  stringDisabledColor: string;
-  setStringDisabledColor: (newColor: string) => void;
-  stringErrorColor: string;
-  setStringErrorColor: (newColor: string) => void;
+  baseColor: BaseColorSetting;
+  setBaseColor: (result: BaseColorSetting) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -41,30 +28,12 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [backgroundColor, setBackgroundColor] = useState<string>('#000000');
-  const [elementDefaultColor, setElementDefaultColor] = useState<string>('#303030');
-  const [elementHilightColor, setElementHilightColor] = useState<string>('#555555');
-  const [elementSelectionColor, setElementSelectionColor] = useState<string>('#336ee6')
-  const [stringDefaultColor, setStringDefaultColor] = useState<string>('#ffffff');
-  const [stringDisabledColor, setStringDisabledColor] = useState<string>('#c0c0c0')
-  const [stringErrorColor, setStringErrorColor] = useState<string>('#ff0000')
+  const [color, setColor] = useState<BaseColorSetting>(DefaultBaseColorSetting());
 
   return (
     <ThemeContext.Provider value={{
-      backgroundColor: backgroundColor,
-      setBackgroundColor: setBackgroundColor,
-      elementDefaultColor: elementDefaultColor,
-      setElementDefaultColor: setElementDefaultColor,
-      elementHilightColor: elementHilightColor,
-      setElementHilightColor: setElementHilightColor,
-      elementSelectionColor: elementSelectionColor,
-      setElementSelectionColor: setElementSelectionColor,
-      stringDefaultColor: stringDefaultColor,
-      setStringDefaultColor: setStringDefaultColor,
-      stringDisabledColor: stringDisabledColor,
-      setStringDisabledColor: setStringDisabledColor,
-      stringErrorColor: stringErrorColor,
-      setStringErrorColor: setStringErrorColor,
+      baseColor: color,
+      setBaseColor: setColor,
     }}>
       {children}
     </ThemeContext.Provider>
@@ -73,17 +42,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function ButtonStyle() {
-  const theme = useTheme();
-
+export function ButtonStyle(baseColor: BaseColorSetting) {
   const style = {
-    backgroundColor: theme.elementDefaultColor,
-    color: theme.stringDefaultColor,
+    backgroundColor: baseColor.elementDefaultColor,
+    color: baseColor.stringDefaultColor,
     '&:disabled': {
-      color: theme.stringDisabledColor,
+      color: baseColor.stringDisabledColor,
     },
     '&:hover': {
-      backgroundColor: theme.elementHilightColor,
+      backgroundColor: baseColor.elementHilightColor,
     },
   };
 
@@ -92,27 +59,20 @@ export function ButtonStyle() {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function TextInputStyle() {
-  const theme = useTheme();
-
+export function TextInputStyle(baseColor: BaseColorSetting) {
   const style = {
-    '::placeholder': {
-      color: theme.stringDisabledColor,
-    },
-    backgroundColor: theme.elementDefaultColor,
-    color: theme.stringDefaultColor,
+    backgroundColor: baseColor.elementDefaultColor,
+    color: baseColor.stringDefaultColor,
   };
 
   return style;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function ReadonlyTextInputStyle() {
-  const theme = useTheme();
-
+export function ReadonlyTextInputStyle(baseColor: BaseColorSetting) {
   const style = {
-    backgroundColor: theme.backgroundColor,
-    color: theme.stringDefaultColor,
+    backgroundColor: baseColor.backgroundColor,
+    color: baseColor.stringDefaultColor,
   };
 
   return style;
@@ -120,32 +80,30 @@ export function ReadonlyTextInputStyle() {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function ComboBoxStyle() {
-  const theme = useTheme();
-
+export function ComboBoxStyle(baseColor: BaseColorSetting) {
   const customStyles = {
     control: (provided: CSSObjectWithLabel) => ({
       ...provided,
-      backgroundColor: theme.elementDefaultColor,
+      backgroundColor: baseColor.elementDefaultColor,
       '&:hover': {
-        borderColor: theme.elementHilightColor,
+        borderColor: baseColor.elementHilightColor,
       }
     }),
     menu: (provided: CSSObjectWithLabel) => ({
       ...provided,
-      backgroundColor: theme.elementDefaultColor
+      backgroundColor: baseColor.elementDefaultColor
     }),
     option: (
       provided: CSSObjectWithLabel,
       state: any
     ) => ({
       ...provided,
-      backgroundColor: state.isSelected ? theme.elementSelectionColor : state.isFocused ? theme.elementHilightColor : undefined,
-      color: theme.stringDefaultColor
+      backgroundColor: state.isSelected ? baseColor.elementSelectionColor : state.isFocused ? baseColor.elementHilightColor : undefined,
+      color: baseColor.stringDefaultColor
     }),
     singleValue: (provided: CSSObjectWithLabel) => ({
       ...provided,
-      color: theme.stringDefaultColor
+      color: baseColor.stringDefaultColor
     })
   };
 
@@ -153,14 +111,12 @@ export function ComboBoxStyle() {
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function MenuitemStyle() {
-  const theme = useTheme();
-
+export function MenuitemStyle(baseColor: BaseColorSetting) {
   return css({
-    backgroundColor: theme.elementDefaultColor,
-    color: theme.stringDefaultColor,
+    backgroundColor: baseColor.elementDefaultColor,
+    color: baseColor.stringDefaultColor,
     '&:hover': {
-      backgroundColor: theme.elementSelectionColor,
+      backgroundColor: baseColor.elementSelectionColor,
     },
   });
 }

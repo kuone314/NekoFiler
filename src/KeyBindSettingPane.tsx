@@ -38,6 +38,8 @@ export function KeyBindSettingPane(
   const [editingIndex, setEditingIndex] = useState(0);
 
   const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
 
   const RemoveSetting = (trgIdx: number) => {
     let newSettings = Array.from(keyBindSettings);
@@ -94,7 +96,7 @@ export function KeyBindSettingPane(
   }
 
   const table_border = css({
-    border: '1pt solid ' + theme.stringDefaultColor,
+    border: '1pt solid ' + theme.baseColor.stringDefaultColor,
   });
 
   function AddKeyBind(): void {
@@ -112,8 +114,6 @@ export function KeyBindSettingPane(
     Editor(newSetting)
   }
 
-  const buttonStyle = ButtonStyle();
-
   return <>
     {editDlg}
     <div
@@ -126,7 +126,7 @@ export function KeyBindSettingPane(
       <div>
         <div>
           <input
-            style={TextInputStyle()}
+            style={textInputStyle}
             placeholder='Target key'
             defaultValue={trgKeyStr}
             onKeyDown={event => { setTrgKey(event); event.preventDefault(); }}
@@ -261,6 +261,9 @@ export function KeyBindEditor(
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
 
   const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
 
   const updateShellCommandList = async () => {
     const shellCommandList = await readShellCommandSetting();
@@ -287,7 +290,7 @@ export function KeyBindEditor(
       })}
     >
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         disabled={!isOkEnable()}
         onClick={() => {
           const command_name = (commandType == COMMAND_TYPE.power_shell) ? shellCommandName : buildinCommandType;
@@ -307,7 +310,7 @@ export function KeyBindEditor(
         Ok
       </Button>
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -322,8 +325,8 @@ export function KeyBindEditor(
 
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       height: height,
       width: '60%', // 適当…。
     })}
@@ -339,7 +342,7 @@ export function KeyBindEditor(
         <div>
           <div>Name</div>
           <input
-            style={TextInputStyle()}
+            style={textInputStyle}
             type="text"
             value={keyBindName}
             onChange={e => { setKeyBindName(e.target.value) }}
@@ -348,7 +351,7 @@ export function KeyBindEditor(
         <div>
           <div>Key</div>
           <input
-            style={TextInputStyle()}
+            style={textInputStyle}
             type="text"
             defaultValue={keyStr}
             onKeyDown={event => { setKey(event); event.preventDefault(); }}
@@ -380,7 +383,7 @@ export function KeyBindEditor(
           (commandType == COMMAND_TYPE.power_shell) ?
             <>
               <Select
-                styles={ComboBoxStyle()}
+                styles={comboBoxStyle}
                 options={shellCommandNameList.map(toComboItem)}
                 value={toComboItem(shellCommandName)}
                 onChange={(val) => {
@@ -389,7 +392,7 @@ export function KeyBindEditor(
                 }}
               />
               <button
-                css={ButtonStyle()}
+                css={buttonStyle}
                 onClick={startCommandSetting}
               >Edit Commands</button>
             </>

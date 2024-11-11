@@ -25,6 +25,10 @@ export function ContextMenuSettingPane(
 ) {
   const [contextMenuSettings, setContextMenuSettings] = useState<ContextMenuInfo[]>([]);
   useEffect(() => { (async () => { setContextMenuSettings(await readContextMenuSetting()); })() }, []);
+
+  const theme = useTheme();
+  const buttonStyle = ButtonStyle(theme.baseColor);
+
   function writSettings() {
     writeContextMenuSetting(contextMenuSettings);
   }
@@ -70,10 +74,8 @@ export function ContextMenuSettingPane(
     Swap(idx, idx + 1);
   }
 
-  const theme = useTheme();
-
   const table_border = css({
-    border: '1pt solid ' + theme.stringDefaultColor,
+    border: '1pt solid ' + theme.baseColor.stringDefaultColor,
   });
 
   function AddSetting(): void {
@@ -85,8 +87,6 @@ export function ContextMenuSettingPane(
     };
     Editor(newSetting);
   }
-
-  const buttonStyle = ButtonStyle();
 
   return <>
     {editDlg}
@@ -210,6 +210,11 @@ export function ContextMenuInfoEditor(
   const [commandName, setCommandName] = useState<string>('');
   useEffect(() => { updateShellCommandList(); }, []);
 
+  const theme = useTheme();
+  const textInputStyle = TextInputStyle(theme.baseColor);
+  const comboBoxStyle = ComboBoxStyle(theme.baseColor);
+  const buttonStyle = ButtonStyle(theme.baseColor);
+
   const updateShellCommandList = async () => {
     const shellCommandList = await readShellCommandSetting();
     setShellCommandNameList(shellCommandList.map(command => command.command_name));
@@ -232,7 +237,7 @@ export function ContextMenuInfoEditor(
       })}
     >
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         disabled={!isOkEnable()}
         onClick={() => {
           const key_bind_setting = {
@@ -246,7 +251,7 @@ export function ContextMenuInfoEditor(
         Ok
       </Button>
       <Button
-        css={css(ButtonStyle(), { textTransform: 'none', })}
+        css={css(buttonStyle, { textTransform: 'none', })}
         onClick={() => { dlg.current?.close() }}
       >
         Cancle
@@ -259,12 +264,10 @@ export function ContextMenuInfoEditor(
     onOK: () => updateShellCommandList(),
   });
 
-  const theme = useTheme();
-
   const dialogElement = <dialog
     css={css({
-      background: theme.backgroundColor,
-      color: theme.stringDefaultColor,
+      background: theme.baseColor.backgroundColor,
+      color: theme.baseColor.stringDefaultColor,
       height: height,
       width: '60%', // 適当…。
     })}
@@ -280,7 +283,7 @@ export function ContextMenuInfoEditor(
         <div>
           <div>Name</div>
           <input
-            style={TextInputStyle()}
+            style={textInputStyle}
             type="text"
             value={menuName}
             onChange={e => { setMenuName(e.target.value) }}
@@ -289,7 +292,7 @@ export function ContextMenuInfoEditor(
 
         <div>Command</div>
         <Select
-          styles={ComboBoxStyle()}
+          styles={comboBoxStyle}
           options={shellCommandNameList.map(toComboItem)}
           value={toComboItem(commandName)}
           onChange={(val) => {
@@ -298,7 +301,7 @@ export function ContextMenuInfoEditor(
           }}
         />
         <button
-          css={ButtonStyle()}
+          css={buttonStyle}
           onClick={startCommandSetting}
         >Edit Commands</button>
 
