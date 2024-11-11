@@ -35,6 +35,7 @@ export function MainModeView(
   props: {
     height: number,
     tabColorSetting?: TabColorSettings,
+    setBaseColor: () => void,
     setTabColor: (tabColorSettingTrgDir: string) => void,
     setFileListRowColor: () => void,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
@@ -254,6 +255,7 @@ export function MainModeView(
               SettingButtons(
                 setSeparator,
                 separator,
+                props.setBaseColor,
                 props.setTabColor,
                 props.setFileListRowColor,
                 props.setKeyBind,
@@ -282,6 +284,7 @@ export function MainModeView(
 function SettingButtons(
   setSeparator: React.Dispatch<React.SetStateAction<separator>>,
   separator: string,
+  setBaseColor: () => void,
   setTabColor: (tabColorSettingTrgDir: string) => void,
   setFileListRowColor: () => void,
   setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
@@ -311,6 +314,11 @@ function SettingButtons(
       css={settingButtonStyle}
       onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
       separator:{separator}
+    </button>
+    <button
+      css={settingButtonStyle}
+      onClick={() => setBaseColor()}>
+      Set Base Color
     </button>
     <button
       css={settingButtonStyle}
