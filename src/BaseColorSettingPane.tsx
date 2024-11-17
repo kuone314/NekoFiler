@@ -52,9 +52,15 @@ export function BaseColorSettingPane(
           setting={setting}
           setSetting={setSetting}
         />
-        <ResultSample
-          setting={setting}
-        />
+        <div
+          css={{
+            border: '1pt solid ' + theme.baseColor.stringDefaultColor,
+          }}
+        >
+          <ResultSample
+            setting={setting}
+          />
+        </div>
       </div>
       <div
         css={css({
@@ -91,7 +97,6 @@ function ResultSample(props: {
   return <>
     <div
       css={{
-        border: '1pt solid ' + props.setting.stringDefaultColor,
         backgroundColor: props.setting.backgroundColor,
         marginLeft: 'auto',
         marginRight: 'auto',
@@ -104,7 +109,7 @@ function ResultSample(props: {
           }
         `}
       </style>
-      <div>
+      <div css={css({ color: props.setting.stringDefaultColor, })}>
         Sample
       </div>
       <button
