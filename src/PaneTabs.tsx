@@ -16,7 +16,7 @@ import { ControlledMenu } from '@szhsin/react-menu';
 import { DirName, Sequence } from './Utility';
 import { LogInfo } from './LogMessagePane';
 import { ButtonStyle, MenuitemStyle, useTheme } from './ThemeStyle';
-
+import { BsFillPinFill } from "react-icons/bs";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabFuncs {
@@ -119,9 +119,8 @@ export const PaneTabs = (
 
 
   const pathToTabName = (tab: TabInfo) => {
-    const pinedPrefix = tab.pined ? "*:" : "";
     const dirName = DirName(tab.path);
-    return pinedPrefix + dirName;
+    return dirName;
   }
 
   const contextMenu = () => {
@@ -217,6 +216,7 @@ export const PaneTabs = (
                 tabIndex={-1}
                 key={'TabButton' + idx}
               >
+                {tab.pined ? <BsFillPinFill style={{ marginRight: '6px' }} /> : <></>}
                 {pathToTabName(tab)}
               </Button>
             })
