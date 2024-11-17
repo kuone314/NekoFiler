@@ -104,7 +104,7 @@ function ResultSample(props: {
           }
         `}
       </style>
-      <div>
+      <div css={css({ color: props.setting.stringDefaultColor, })}>
         Sample
       </div>
       <button
