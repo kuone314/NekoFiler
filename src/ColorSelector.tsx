@@ -10,22 +10,39 @@ export function ColorSelector(
   }) {
   const theme = useTheme();
   const textInputStyle = TextInputStyle(theme.baseColor);
-  return <label>
-    {props.title}
+  return <div
+    css={css({
+      display: 'flex',
+      flexDirection: 'row',
+    })}
+  >
+    <label>{props.title}
+    </label>
+    <div
+      css={css({
+        border: '1pt solid ' +theme.baseColor.stringDefaultColor,
+        background: props.value,
+        width: 40,
+      })}
+    >
+      <input
+        type="color"
+        list="color-list"
+        value={props.value}
+        onChange={e => {
+          props.setValue(e.target.value);
+        }}
+        css={css({
+          opacity: 0,
+        })}
+      />
+    </div>
     <input
       style={textInputStyle}
       type="text"
-      css={css({ width: '5em', })}
       value={props.value}
       onChange={e => {
         props.setValue(e.target.value);
       }} />
-    <input
-      type="color"
-      list="color-list"
-      value={props.value}
-      onChange={e => {
-        props.setValue(e.target.value);
-      }} />
-  </label>;
+  </div>;
 }
