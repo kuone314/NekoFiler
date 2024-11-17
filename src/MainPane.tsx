@@ -417,12 +417,14 @@ export const MainPanel = (
           onEndEdit={() => myGrid.current?.focus()}
           ref={addressBarFunc}
         />
-        {linkDestination ? LinkDestination() : null}
-        <FileFilterBar
-          onFilterChanged={setFilter}
-          onEndEdit={() => myGrid.current?.focus()}
-          ref={filterBarFunc}
-        />
+        <div>
+          {linkDestination ? LinkDestination() : null}
+          <FileFilterBar
+            onFilterChanged={setFilter}
+            onEndEdit={() => myGrid.current?.focus()}
+            ref={filterBarFunc}
+          />
+        </div>
         <div
           css={css([{ display: 'grid', overflow: 'auto' }])}
           onDoubleClick={onDoubleClick}
