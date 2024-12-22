@@ -4,6 +4,7 @@ on:
 jobs:
   Explore-GitHub-Actions:
     runs-on: windows-latest
+    timeout-minutes: 25
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
