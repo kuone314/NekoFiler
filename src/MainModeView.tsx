@@ -84,17 +84,17 @@ export function MainModeView(
     WriteLastOpenedTabs(newTabsPathAry);
   }
 
-  const addTab = (dir: string) => {
+  const addTab = (paneIndex: number, dir: string) => {
     const newTabsPathAry = [...tabsPathAry];
 
-    const tabsInfo = { ...newTabsPathAry[currentPaneIndex] };
+    const tabsInfo = { ...newTabsPathAry[paneIndex] };
 
     const pathAry = tabsInfo.pathAry;
     const tabIdx = tabsInfo.activeTabIndex;
     pathAry.splice(tabIdx + 1, 0, { path: dir, pined: false });
     tabsInfo.activeTabIndex = tabIdx + 1;
 
-    newTabsPathAry[currentPaneIndex] = tabsInfo
+    newTabsPathAry[paneIndex] = tabsInfo
 
     setTabsPathAry(newTabsPathAry)
     WriteLastOpenedTabs(newTabsPathAry);
@@ -148,7 +148,7 @@ export function MainModeView(
         rc: null
       }); return;
     }
-    addTab(settingDir)
+    addTab(currentPaneIndex, settingDir)
   }
 
   const [commandBar, commandBarFunc] = CommandBar(
@@ -189,7 +189,7 @@ export function MainModeView(
               height={props.height}
               colorSetting={props.tabColorSetting}
               currendDir={getPath()}
-              accessDirectry={addTab}
+              accessDirectry={(dir: string) => addTab(currentPaneIndex, dir)}
             />
           </ErrorBoundary>
         </div>
