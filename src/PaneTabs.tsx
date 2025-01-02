@@ -47,6 +47,7 @@ export const PaneTabs = (
     focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
+    duplicateTabToOppositePane: () => void,
   },
 ) => {
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -244,12 +245,12 @@ export const PaneTabs = (
           onSelectItemNumChanged={props.onSelectItemNumChanged}
           tabFuncs={
             {
-              addNewTab: (path: string) => addNewTab(activeTabIdx, path),
-              removeTab: () => removeTab(activeTabIdx),
-              removeOtherTabs: () => removeOtherTabs(activeTabIdx),
-              removeAllRightTabs: () => removeAllRightTabs(activeTabIdx),
-              removeAllLeftTabs: () => removeAllLeftTabs(activeTabIdx),
-              changeTab,
+            addNewTab: (path: string) => addNewTab(activeTabIdx, path),
+            removeTab: () => removeTab(activeTabIdx),
+            removeOtherTabs: () => removeOtherTabs(activeTabIdx),
+            removeAllRightTabs: () => removeAllRightTabs(activeTabIdx),
+            removeAllLeftTabs: () => removeAllLeftTabs(activeTabIdx),
+            changeTab,
             }
           }
           getOppositePath={props.getOppositePath}
@@ -260,6 +261,7 @@ export const PaneTabs = (
           gridRef={props.gridRef}
           key={activeTabIdx}
           setKeyBind={props.setKeyBind}
+          duplicateTabToOppositePane={props.duplicateTabToOppositePane}
         />
       </div>
     </>

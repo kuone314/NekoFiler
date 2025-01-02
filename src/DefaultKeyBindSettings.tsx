@@ -240,6 +240,15 @@ export function GenerateDefaultKeyBindSeting(): KeyBindSetting[] {
       valid_on_addressbar: false,
     },
     {
+      display_name: 'duplicateTabToOppositePane',
+      key: 'Ctrl+t',
+      action: {
+        type: 'build_in',
+        command_name: 'duplicateTabToOppositePane',
+      },
+      valid_on_addressbar: true,
+    },
+    {
       display_name: 'addNewTab',
       key: 'ctrl+t',
       action: {
