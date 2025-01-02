@@ -53,6 +53,7 @@ export const MainPanel = (
     focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
+    duplicateTabToOppositePane: () => void,
   }
 ) => {
   useEffect(() => {
@@ -240,6 +241,7 @@ export const MainPanel = (
       case BUILDIN_COMMAND_TYPE.focusOppositePane: props.focusOppositePane(); return;
       case BUILDIN_COMMAND_TYPE.focusCommandBar: focusCommandBar(); return;
       case BUILDIN_COMMAND_TYPE.setKeyBind: props.setKeyBind(srcKey); return;
+      case BUILDIN_COMMAND_TYPE.duplicateTabToOppositePane: props.duplicateTabToOppositePane(); return;
     }
   }
 

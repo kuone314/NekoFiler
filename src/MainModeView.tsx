@@ -151,6 +151,14 @@ export function MainModeView(
     addTab(currentPaneIndex, settingDir)
   }
 
+  function duplicateTabToOppositePane() {
+    const oppositeIndex = (currentPaneIndex + 1) % 2;
+    addTab(
+      oppositeIndex,
+      GetActive(tabsPathAry[currentPaneIndex]).path
+    );
+  }
+
   const [commandBar, commandBarFunc] = CommandBar(
     {
       path: getPath,
@@ -232,6 +240,7 @@ export function MainModeView(
                       focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
                       focusCommandBar={() => commandBarFunc.focus()}
                       setKeyBind={props.setKeyBind}
+                      duplicateTabToOppositePane={duplicateTabToOppositePane}
                     />
                   </ErrorBoundary>
                 </div>
