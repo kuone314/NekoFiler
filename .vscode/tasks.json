@@ -1,12 +1,8 @@
 {
-  // https://v2.tauri.app/develop/debug/vscode/ の内容を適用
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [
-    {
-      "label": "build:debug",
-      "type": "cargo",
-      "command": "build"
-    },
     {
       "label": "ui:dev",
       "type": "shell",
@@ -19,23 +15,11 @@
       "args": ["dev"]
     },
     {
-      "label": "dev",
-      "dependsOn": ["build:debug", "ui:dev"],
-      "group": {
-        "kind": "build"
-      }
-    },
-
-    // ビルド実行用の設定
-    {
-      "label": "npm run tauri build",
+      "label": "ui:build",
       "type": "shell",
-      "command": "npm run tauri build",
-      "problemMatcher": [],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
+      // change this to your `beforeBuildCommand`:
+      "command": "yarn",
+      "args": ["build"]
     }
   ]
 }
