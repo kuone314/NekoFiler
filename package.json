@@ -16,6 +16,7 @@
     "@szhsin/react-menu": "^4.2.2",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-shell": "^2",
+    "json5": "^2.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.1.1",
