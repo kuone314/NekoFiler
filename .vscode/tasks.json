@@ -16,6 +16,18 @@
       "label": "ui:build",
       "type": "shell",
       "command": "npm run build",
+    },
+
+    // ビルド実行用の設定
+    {
+      "label": "npm run tauri build",
+      "type": "shell",
+      "command": "npm run tauri build",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }
