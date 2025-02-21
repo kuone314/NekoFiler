@@ -143,12 +143,12 @@ impl FileListFullInfo {
     let before_focus = to_filtered_item_info(before_focus_range, &full_item_list, filter);
     let after_focus = to_filtered_item_info(after_focus_range, &full_item_list, filter);
 
-    let filtered_item_list = [&before_focus[..], &after_focus[..]].concat();
+    let filtered_item_info = [&before_focus[..], &after_focus[..]].concat();
     let focus_idx = before_focus.len();
 
     FileListFullInfo {
       full_item_list,
-      filtered_item_info: filtered_item_list,
+      filtered_item_info,
       focus_idx,
     }
   }
