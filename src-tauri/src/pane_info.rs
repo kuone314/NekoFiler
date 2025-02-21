@@ -137,24 +137,11 @@ impl FileListFullInfo {
     full_focus_idx: usize,
     filter: &FilterInfo,
   ) -> FileListFullInfo {
-    let before_focus = (0..full_focus_idx)
-      .filter_map(|idx| {
-        let match_result = filter.is_match(&full_item_list[idx].file_name);
-        match_result.map(|matched_file_name_idx| FilterdFileInfo {
-          org_idx: idx,
-          matched_file_name_idx,
-        })
-      })
-      .collect::<Vec<_>>();
-    let after_focus = (full_focus_idx..full_item_list.len())
-      .filter_map(|idx| {
-        let match_result = filter.is_match(&full_item_list[idx].file_name);
-        match_result.map(|matched_file_name_idx| FilterdFileInfo {
-          org_idx: idx,
-          matched_file_name_idx,
-        })
-      })
-      .collect::<Vec<_>>();
+    let before_focus_range = 0..full_focus_idx;
+    let after_focus_range = full_focus_idx..full_item_list.len();
+
+    let before_focus = to_filtered_item_info(before_focus_range, &full_item_list, filter);
+    let after_focus = to_filtered_item_info(after_focus_range, &full_item_list, filter);
 
     let filtered_item_list = [&before_focus[..], &after_focus[..]].concat();
     let focus_idx = before_focus.len();
@@ -165,6 +152,22 @@ impl FileListFullInfo {
       focus_idx,
     }
   }
+}
+
+fn to_filtered_item_info(
+  idx_range: std::ops::Range<usize>,
+  full_item_list: &[FileListItem],
+  filter: &FilterInfo,
+) -> Vec<FilterdFileInfo> {
+  idx_range
+    .filter_map(|idx| {
+      let match_result = filter.is_match(&full_item_list[idx].file_name);
+      match_result.map(|matched_file_name_idx| FilterdFileInfo {
+        org_idx: idx,
+        matched_file_name_idx,
+      })
+    })
+    .collect::<Vec<_>>()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,7 +224,7 @@ pub struct FilerData {
 impl FilerData {
   fn new() -> Self {
     Self {
-      background: Lazy::new(|| Mutex::new(Color{ r: 0, g: 0, b: 0 })),
+      background: Lazy::new(|| Mutex::new(Color { r: 0, g: 0, b: 0 })),
       pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
   }
