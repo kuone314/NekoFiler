@@ -90,3 +90,38 @@ fn reg_expr_match(
   };
   Some((res.0..res.1).collect::<Vec<usize>>())
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct MatchingRate{
+  clusters:Vec<usize>,
+}
+
+pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
+  let mut result = Vec::new();
+
+  let Some(matched_idx_list) = matched_idx_list else {
+    return MatchingRate{clusters:result};
+  };
+
+  if matched_idx_list.len() == 0 {
+    return MatchingRate{clusters:result};
+  }
+
+  let mut continuous_count = 1;
+  for list_idx in 0..matched_idx_list.len() - 1 {
+    let match_idx = matched_idx_list[list_idx];
+    let next_match_idx = matched_idx_list[list_idx + 1];
+    let is_continuous = (next_match_idx - match_idx) == 1;
+    if is_continuous {
+      continuous_count = continuous_count + 1;
+    } else {
+      result.push(continuous_count);
+    }
+  }
+  result.push(continuous_count);
+
+    return MatchingRate{clusters:result};
+}
