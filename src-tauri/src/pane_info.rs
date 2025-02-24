@@ -3,6 +3,7 @@ use std::{
   path::PathBuf,
   sync::{Mutex, MutexGuard},
 };
+use itertools::Itertools;
 
 use once_cell::sync::Lazy;
 
@@ -13,7 +14,7 @@ mod get_file_list;
 use get_file_list::{get_file_list, FileBaseInfo};
 
 mod filter_info;
-use filter_info::FilterInfo;
+use filter_info::{matching_rate, FilterInfo};
 use tauri::Emitter;
 
 pub mod selections;
@@ -304,21 +305,39 @@ pub fn set_filter(
 ) -> Option<FileListUiInfo> {
   let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
 
-  pane_info.filter = filter;
-
   let Some(file_list_info) = &mut pane_info.file_list_info else {
+    pane_info.filter = filter;
     return None;
   };
 
-  pane_info.file_list_info = Some(FileListFullInfo::create(
-    file_list_info.full_item_list.clone(),
-    0, // インデックスは別途設定
-    &pane_info.filter,
-  ));
+  let full_item_list = std::mem::take(&mut file_list_info.full_item_list);
 
-  // TODO:インデックスの設定
-  // 元の選択が有るならそれを維持
-  // 無いなら、一致度を定めて、最も一致する物にする。
+  let (full_item_list, matching_results) = full_item_list
+    .into_iter()
+    .map(|item| {
+      let matching_result = filter.is_match(&item.file_name);
+      (item, matching_result)
+    })
+    .sorted_by_key(|a| std::cmp::Reverse(matching_rate(&a.1)))
+    .unzip::<_, _, Vec<_>, Vec<_>>();
+
+  let filtered_item_info = matching_results
+    .into_iter()
+    .enumerate()
+    .filter_map(|(org_idx, match_result)| {
+      match_result.map(|matched_file_name_idx| FilterdFileInfo {
+        org_idx,
+        matched_file_name_idx,
+      })
+    })
+    .collect_vec();
+
+  pane_info.filter = filter;
+  pane_info.file_list_info = Some(FileListFullInfo {
+    full_item_list,
+    filtered_item_info,
+    focus_idx: 0,
+  });
 
   pane_info
     .file_list_info
