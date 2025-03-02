@@ -1,7 +1,7 @@
-
 use std::borrow::Cow;
 
 extern crate regex;
+use itertools::Itertools;
 use regex::Regex;
 
 #[derive(Debug, Deserialize, Clone, PartialEq)]
@@ -56,26 +56,64 @@ impl FilterInfo {
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 fn str_match(
   matcher_str: &String,
   target: &String,
 ) -> MatchResult {
   let mut matched_idx_list: Vec<usize> = Vec::new();
 
-  for str_char in matcher_str.chars() {
-    let prev_match_idx = matched_idx_list.last().copied();
-    let search_start_idx = prev_match_idx.map_or(0, |idx| idx + 1);
-    let search_str = &target[search_start_idx..];
+  let mut matcher_str_part = matcher_str.clone();
+  let mut target_part = target.clone();
 
-    if let Some(found_idx) = search_str.find(str_char) {
-      matched_idx_list.push(search_start_idx + found_idx);
-    } else {
+  while matcher_str_part.len() != 0 {
+    let Some(StrMatchPartResult {
+      match_start_idx,
+      matching_length,
+    }) = str_match_part(&matcher_str_part, &target_part)
+    else {
       return None;
-    }
+    };
+
+    let diff = target.len() - target_part.len();
+    let part_matched_range = match_start_idx..match_start_idx + matching_length;
+    let matched_range = part_matched_range.map(|idx| idx + diff);
+    matched_idx_list.append(&mut matched_range.collect_vec());
+    matcher_str_part = matcher_str_part.chars().skip(matching_length).collect();
+    target_part = target_part
+      .chars()
+      .skip(match_start_idx + matching_length)
+      .collect();
   }
 
   Some(matched_idx_list)
 }
+
+struct StrMatchPartResult {
+  match_start_idx: usize,
+  matching_length: usize,
+}
+fn str_match_part(
+  matcher_str: &String,
+  target: &String,
+) -> Option<StrMatchPartResult> {
+  (1..=matcher_str.len()).rev().find_map(|matching_length| {
+    let part_matcher_str = matcher_str
+      .chars()
+      .take(matching_length)
+      .collect::<String>();
+
+    target
+      .find(&part_matcher_str)
+      .map(|match_start_idx| StrMatchPartResult {
+        match_start_idx,
+        matching_length,
+      })
+  })
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 fn reg_expr_match(
   matcher_str: &String,
@@ -91,23 +129,22 @@ fn reg_expr_match(
   Some((res.0..res.1).collect::<Vec<usize>>())
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) struct MatchingRate{
-  clusters:Vec<usize>,
+pub(crate) struct MatchingRate {
+  clusters: Vec<usize>,
 }
 
 pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
   let mut result = Vec::new();
 
   let Some(matched_idx_list) = matched_idx_list else {
-    return MatchingRate{clusters:result};
+    return MatchingRate { clusters: result };
   };
 
   if matched_idx_list.len() == 0 {
-    return MatchingRate{clusters:result};
+    return MatchingRate { clusters: result };
   }
 
   let mut continuous_count = 1;
@@ -123,5 +160,5 @@ pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
   }
   result.push(continuous_count);
 
-    return MatchingRate{clusters:result};
+  return MatchingRate { clusters: result };
 }
