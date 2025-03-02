@@ -214,6 +214,10 @@ impl PaneInfo {
       file_list_info: None,
     }
   }
+
+  fn to_ui_info(self: &PaneInfo) -> Option<FileListUiInfo> {
+    self.file_list_info.as_ref().map(|item| item.to_ui_info())
+  }
 }
 
 #[derive(Debug)]
@@ -274,10 +278,7 @@ pub fn set_dirctry_path(
     filter: FilterInfo::new(),
     file_list_info,
   };
-  pane_info
-    .file_list_info
-    .as_ref()
-    .map(|item| item.to_ui_info())
+  pane_info.to_ui_info()
 }
 
 #[tauri::command]
@@ -292,10 +293,7 @@ pub fn set_focus_idx(
   };
 
   file_list_info.focus_idx = new_focus_idx;
-  pane_info
-    .file_list_info
-    .as_ref()
-    .map(|item| item.to_ui_info())
+  pane_info.to_ui_info()
 }
 
 #[tauri::command]
@@ -339,10 +337,7 @@ pub fn set_filter(
     focus_idx: 0,
   });
 
-  pane_info
-    .file_list_info
-    .as_ref()
-    .map(|item| item.to_ui_info())
+  pane_info.to_ui_info()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -380,10 +375,7 @@ fn update_pane_info(
     "update_path_list",
     UpdateFileListUiInfo {
       pane_idx: pane_handler.pane_idx,
-      data: pane_info
-        .file_list_info
-        .as_ref()
-        .map(|item| item.to_ui_info()),
+      data: pane_info.to_ui_info(),
     },
   );
 
