@@ -132,15 +132,19 @@ fn reg_expr_match(
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct ClusterInfo {
+  length: usize,
+  start_idx: usize,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct MatchingRate {
-  clusters: Vec<usize>,
+  result: Vec<ClusterInfo>,
 }
 
 impl MatchingRate {
   fn no_match() -> MatchingRate {
-    MatchingRate {
-      clusters: Vec::new(),
-    }
+    MatchingRate { result: Vec::new() }
   }
 }
 
@@ -154,6 +158,7 @@ pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
   }
 
   let mut cluster_length_list = Vec::new();
+  let mut cluster_start_idx_list = vec![matched_idx_list[0]];
 
   let mut continuous_count = 1;
   for list_idx in 0..matched_idx_list.len() - 1 {
@@ -164,9 +169,16 @@ pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
       continuous_count = continuous_count + 1;
     } else {
       cluster_length_list.push(continuous_count);
+      cluster_start_idx_list.push(next_match_idx);
     }
   }
   cluster_length_list.push(continuous_count);
 
-  return MatchingRate { clusters: cluster_length_list };
+  return MatchingRate {
+    result: cluster_length_list
+      .into_iter()
+      .zip(cluster_start_idx_list)
+      .map(|(length, start_idx)| ClusterInfo { length, start_idx })
+      .collect_vec(),
+  };
 }
