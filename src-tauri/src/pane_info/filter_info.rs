@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::cmp::Ordering;
 
 extern crate regex;
 use itertools::Itertools;
@@ -131,13 +132,13 @@ fn reg_expr_match(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq)]
 struct ClusterInfo {
   length: usize,
   start_idx: usize,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct MatchingRate {
   result: Vec<ClusterInfo>,
 }
@@ -145,6 +146,37 @@ pub(crate) struct MatchingRate {
 impl MatchingRate {
   fn no_match() -> MatchingRate {
     MatchingRate { result: Vec::new() }
+  }
+}
+
+impl Ord for MatchingRate {
+  fn cmp(
+    &self,
+    other: &Self,
+  ) -> std::cmp::Ordering {
+    let result = self
+      .result
+      .iter()
+      .map(|item| item.length)
+      .cmp(other.result.iter().map(|item| item.length));
+    if result != Ordering::Equal {
+      return result;
+    }
+
+    other
+      .result
+      .iter()
+      .map(|item| item.start_idx)
+      .cmp(self.result.iter().map(|item| item.start_idx))
+  }
+}
+
+impl PartialOrd for MatchingRate {
+  fn partial_cmp(
+    &self,
+    other: &Self,
+  ) -> Option<Ordering> {
+    Some(self.cmp(other))
   }
 }
 
