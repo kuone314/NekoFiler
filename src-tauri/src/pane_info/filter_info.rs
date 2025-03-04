@@ -136,15 +136,23 @@ pub(crate) struct MatchingRate {
   clusters: Vec<usize>,
 }
 
+impl MatchingRate {
+  fn no_match() -> MatchingRate {
+    MatchingRate {
+      clusters: Vec::new(),
+    }
+  }
+}
+
 pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
   let mut result = Vec::new();
 
   let Some(matched_idx_list) = matched_idx_list else {
-    return MatchingRate { clusters: result };
+    return MatchingRate::no_match();
   };
 
   if matched_idx_list.len() == 0 {
-    return MatchingRate { clusters: result };
+    return MatchingRate::no_match();
   }
 
   let mut continuous_count = 1;
