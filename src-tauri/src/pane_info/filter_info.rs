@@ -153,7 +153,7 @@ pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
     return MatchingRate::no_match();
   }
 
-  let mut result = Vec::new();
+  let mut cluster_length_list = Vec::new();
 
   let mut continuous_count = 1;
   for list_idx in 0..matched_idx_list.len() - 1 {
@@ -163,10 +163,10 @@ pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
     if is_continuous {
       continuous_count = continuous_count + 1;
     } else {
-      result.push(continuous_count);
+      cluster_length_list.push(continuous_count);
     }
   }
-  result.push(continuous_count);
+  cluster_length_list.push(continuous_count);
 
-  return MatchingRate { clusters: result };
+  return MatchingRate { clusters: cluster_length_list };
 }
