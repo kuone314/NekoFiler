@@ -145,8 +145,6 @@ impl MatchingRate {
 }
 
 pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
-  let mut result = Vec::new();
-
   let Some(matched_idx_list) = matched_idx_list else {
     return MatchingRate::no_match();
   };
@@ -154,6 +152,8 @@ pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
   if matched_idx_list.len() == 0 {
     return MatchingRate::no_match();
   }
+
+  let mut result = Vec::new();
 
   let mut continuous_count = 1;
   for list_idx in 0..matched_idx_list.len() - 1 {
