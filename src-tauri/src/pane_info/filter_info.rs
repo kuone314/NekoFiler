@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::cmp::Ordering;
 
 extern crate regex;
 use itertools::Itertools;
@@ -131,21 +132,65 @@ fn reg_expr_match(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq)]
+struct ClusterInfo {
+  length: usize,
+  start_idx: usize,
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct MatchingRate {
-  clusters: Vec<usize>,
+  result: Vec<ClusterInfo>,
+}
+
+impl MatchingRate {
+  fn no_match() -> MatchingRate {
+    MatchingRate { result: Vec::new() }
+  }
+}
+
+impl Ord for MatchingRate {
+  fn cmp(
+    &self,
+    other: &Self,
+  ) -> std::cmp::Ordering {
+    let result = self
+      .result
+      .iter()
+      .map(|item| item.length)
+      .cmp(other.result.iter().map(|item| item.length));
+    if result != Ordering::Equal {
+      return result;
+    }
+
+    other
+      .result
+      .iter()
+      .map(|item| item.start_idx)
+      .cmp(self.result.iter().map(|item| item.start_idx))
+  }
+}
+
+impl PartialOrd for MatchingRate {
+  fn partial_cmp(
+    &self,
+    other: &Self,
+  ) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
 }
 
 pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
-  let mut result = Vec::new();
-
   let Some(matched_idx_list) = matched_idx_list else {
-    return MatchingRate { clusters: result };
+    return MatchingRate::no_match();
   };
 
   if matched_idx_list.len() == 0 {
-    return MatchingRate { clusters: result };
+    return MatchingRate::no_match();
   }
+
+  let mut cluster_length_list = Vec::new();
+  let mut cluster_start_idx_list = vec![matched_idx_list[0]];
 
   let mut continuous_count = 1;
   for list_idx in 0..matched_idx_list.len() - 1 {
@@ -155,10 +200,17 @@ pub(crate) fn matching_rate(matched_idx_list: &MatchResult) -> MatchingRate {
     if is_continuous {
       continuous_count = continuous_count + 1;
     } else {
-      result.push(continuous_count);
+      cluster_length_list.push(continuous_count);
+      cluster_start_idx_list.push(next_match_idx);
     }
   }
-  result.push(continuous_count);
+  cluster_length_list.push(continuous_count);
 
-  return MatchingRate { clusters: result };
+  return MatchingRate {
+    result: cluster_length_list
+      .into_iter()
+      .zip(cluster_start_idx_list)
+      .map(|(length, start_idx)| ClusterInfo { length, start_idx })
+      .collect_vec(),
+  };
 }
