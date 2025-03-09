@@ -119,8 +119,8 @@ export const PaneTabs = (
   }
 
 
-  const pathToTabName = (tab: TabInfo) => {
-    const dirName = DirName(tab.path);
+  const pathToTabName = (path: string) => {
+    const dirName = DirName(path);
     return dirName;
   }
 
@@ -213,12 +213,12 @@ export const PaneTabs = (
                   setMenuOpen(true);
                   e.preventDefault();
                 }}
-                defaultValue={pathToTabName(tab)}
+                defaultValue={pathToTabName(tab.path)}
                 tabIndex={-1}
                 key={'TabButton' + idx}
               >
                 {tab.pined ? <BsFillPinFill style={{ marginRight: '6px' }} /> : <></>}
-                {pathToTabName(tab)}
+                {pathToTabName(tab.path)}
               </Button>
             })
           }
