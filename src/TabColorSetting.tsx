@@ -57,7 +57,7 @@ export async function writeTabColorSetting(setting: TabColorSettings) {
 
 export async function readTabColorSetting(): Promise<TabColorSettings> {
   const read = await readSettings(new SettingInfo);
-  return read ?? GenerateDefaultCommandSeting();
+  return read ?? GenerateDefaultSeting();
 }
 
 export function Match(setting: TabColorMatcher, path: string): boolean {
@@ -107,7 +107,7 @@ const defaultColor = {
   activeHightlight: "#ff0000"
 };
 
-function GenerateDefaultCommandSeting(): TabColorSettings {
+function GenerateDefaultSeting(): TabColorSettings {
   const result: TabColorSettings = {
     default: defaultColor,
     settings: [

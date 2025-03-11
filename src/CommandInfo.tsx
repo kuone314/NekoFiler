@@ -9,7 +9,7 @@ import { css } from '@emotion/react'
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
-import { GenerateDefaultCommandSeting } from './DefaultCommandSettins';
+import { GenerateDefaultSeting } from './DefaultCommandSettins';
 import { sleep } from './Utility';
 import { ISettingInfo, readSettings, writeSettings } from './ReadWriteSettings';
 import { LogInfo } from './LogMessagePane';
@@ -95,7 +95,7 @@ export async function writeShellCommandSetting(setting: ShellCommand[]) {
 
 export async function readShellCommandSetting(): Promise<ShellCommand[]> {
   const read = await readSettings(new SettingInfo);
-  return read ?? GenerateDefaultCommandSeting();
+  return read ?? GenerateDefaultSeting();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

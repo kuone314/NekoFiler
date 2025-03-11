@@ -3,7 +3,7 @@ import { ShellCommand, writeShellCommandSetting, } from './CommandInfo';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function GenerateDefaultCommandSeting(): ShellCommand[] {
+export function GenerateDefaultSeting(): ShellCommand[] {
   const result: ShellCommand[] = [
     {
       command_name: 'Copy to clopboard',
