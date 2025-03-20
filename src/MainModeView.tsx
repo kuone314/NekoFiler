@@ -21,6 +21,7 @@ import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonStyle, useTheme } from './ThemeStyle';
 import { ColorCodeString } from './ColorCodeString';
+import { TabNameSettings } from './TabNameSetting';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const statusBarHeight = 25;
@@ -35,6 +36,7 @@ export function MainModeView(
   props: {
     height: number,
     tabColorSetting?: TabColorSettings,
+    tabNameSettings?: TabNameSettings;
     setBaseColor: () => void,
     setTabColor: (tabSettingTrgDir: string) => void,
     setFileListRowColor: () => void,
@@ -229,6 +231,7 @@ export function MainModeView(
                       height={paneHeight}
                       pathAry={pathAry}
                       tabColorSetting={props.tabColorSetting}
+                      tabNameSettings={props.tabNameSettings}
                       onTabsChanged={(newTabs: TabInfo[], newTabIdx: number,) => onTabsChanged(newTabs, newTabIdx, idx)}
                       onItemNumChanged={(newItemNum: number) => setItemNum(newItemNum, idx)}
                       onSelectItemNumChanged={(newSelectItemNum: number) => setSelectItemNum(newSelectItemNum, idx)}
