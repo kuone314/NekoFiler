@@ -37,7 +37,7 @@ function ViewImpl(): JSX.Element {
     setAplHeight(document.documentElement.clientHeight);
   })
 
-  const [tabColorSettingTrgDir, setTabColorSettingTrgDir] = useState<string>('');
+  const [tabSettingTrgDir, setTabSettingTrgDir] = useState<string>('');
   const [tabColorSetting, setTabColorSetting] = useState<TabColorSettings>();
 
   const theme = useTheme();
@@ -58,7 +58,7 @@ function ViewImpl(): JSX.Element {
           tabColorSetting={tabColorSetting}
           setBaseColor={() => { setMode(Mode.setBaseColors); }}
           setFileListRowColor={() => { setMode(Mode.setFileListRowColor); }}
-          setTabColor={(trgDir) => { setTabColorSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
+          setTabColor={(trgDir) => { setTabSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
           setKeyBind={(trgKey: React.KeyboardEvent<HTMLDivElement> | null) => { setKeySetTrg(trgKey); setMode(Mode.setKeyBindSettings) }}
           setContextMenu={() => { setMode(Mode.setContextMenu); }}
         />
@@ -70,7 +70,7 @@ function ViewImpl(): JSX.Element {
       case Mode.setTabColor:
         return <TabColorSettingPane
           height={aplHeight}
-          trgDir={tabColorSettingTrgDir}
+          trgDir={tabSettingTrgDir}
           tabColorSetting={tabColorSetting}
           setTabColorSetting={(setting) => {
             setTabColorSetting(setting);
