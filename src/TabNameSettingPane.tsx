@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { css } from '@emotion/react';
 
 import { Match, TabNameSettings, } from './TabNameSetting';
-import { DirName } from './Utility';
+import { DirName, IsValidIndex } from './Utility';
 import { ButtonStyle, TextInputStyle, useTheme } from './ThemeStyle';
 import { ApplySeparator } from './FilePathSeparator';
 
@@ -88,6 +88,7 @@ export function TabNameSettingPane(
 
   const SettingsImpl = (trgIdx: number) => {
     if (!tabNameSetting) { return <></>; }
+    if (!IsValidIndex(tabNameSetting, trgIdx)) { return <></>; }
 
     const setting = tabNameSetting[trgIdx];
 
