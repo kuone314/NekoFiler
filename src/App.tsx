@@ -14,13 +14,15 @@ import { FileListRowColorSettingPane } from './FileListRowColorSettingPane';
 import { ThemeProvider, useTheme } from './ThemeStyle';
 import { readBaseColor } from './BaseColorSetting';
 import { BaseColorSettingPane } from './BaseColorSettingPane';
-import { readTabNameSetting, TabNameSettings } from './TabNameSetting';
+import { readTabNameSetting, TabNameSettings, writeTabNameSetting } from './TabNameSetting';
+import { TabNameSettingPane } from './TabNameSettingPane';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 const Mode = {
   main: "main",
   setTabColor: "setTabColor",
+  setTabName: "setTabName",
   setBaseColors: "setBaseColors",
   setFileListRowColor: "setFileListRowColor",
   setKeyBindSettings: "setKeyBindSettings",
@@ -64,6 +66,7 @@ function ViewImpl(): JSX.Element {
           setBaseColor={() => { setMode(Mode.setBaseColors); }}
           setFileListRowColor={() => { setMode(Mode.setFileListRowColor); }}
           setTabColor={(trgDir) => { setTabSettingTrgDir(trgDir); setMode(Mode.setTabColor) }}
+          setTabName={(trgDir) => { setTabSettingTrgDir(trgDir); setMode(Mode.setTabName) }}
           setKeyBind={(trgKey: React.KeyboardEvent<HTMLDivElement> | null) => { setKeySetTrg(trgKey); setMode(Mode.setKeyBindSettings) }}
           setContextMenu={() => { setMode(Mode.setContextMenu); }}
         />
@@ -80,6 +83,18 @@ function ViewImpl(): JSX.Element {
           setTabColorSetting={(setting) => {
             setTabColorSetting(setting);
             writeTabColorSetting(setting);
+          }}
+          finishSetting={() => setMode(Mode.main)}
+        />
+      case Mode.setTabName:
+        return <TabNameSettingPane
+          height={aplHeight}
+          focusColor={tabColorSetting?.default.activeHightlight ?? 'red'}
+          trgDir={tabSettingTrgDir}
+          tabNameSetting={tabNameSettings}
+          setTabNameSetting={(setting) => {
+            setTabNameSettings(setting);
+            writeTabNameSetting(setting);
           }}
           finishSetting={() => setMode(Mode.main)}
         />

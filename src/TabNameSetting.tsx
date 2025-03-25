@@ -39,6 +39,15 @@ export async function readTabNameSetting(): Promise<TabNameSettings> {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+export function Match(
+  setting: TabNameSetting,
+  path: string
+): boolean {
+  return TryReplace(setting, path) != null;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 function TryReplace(
   setting: TabNameSetting,
   path: string,

@@ -44,6 +44,7 @@ export const PaneTabs = (
     getOppositePath: () => string,
     addLogMessage: (message: LogInfo) => void,
     setTabColor: (trgDir: string) => void,
+    setTabName: (trgDir: string) => void,
     separator: separator,
     focusOppositePane: () => void,
     focusCommandBar: () => void,
@@ -155,6 +156,12 @@ export const PaneTabs = (
         onClick={_ => props.setTabColor(tabAry[contextMenuTabIdx].path)}
       >
         Set Tab Color
+      </MenuItem>
+      <MenuItem
+        css={menuItemStyle}
+        onClick={_ => props.setTabName(tabAry[contextMenuTabIdx].path)}
+      >
+        Set Tab Name
       </MenuItem>
       <MenuItem
         css={menuItemStyle}

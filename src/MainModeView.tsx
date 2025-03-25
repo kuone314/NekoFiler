@@ -39,6 +39,7 @@ export function MainModeView(
     tabNameSettings?: TabNameSettings;
     setBaseColor: () => void,
     setTabColor: (tabSettingTrgDir: string) => void,
+    setTabName: (tabSettingTrgDir: string) => void,
     setFileListRowColor: () => void,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
     setContextMenu: () => void,
@@ -238,6 +239,7 @@ export function MainModeView(
                       getOppositePath={getOppositePath}
                       addLogMessage={addLogMessage}
                       setTabColor={props.setTabColor}
+                      setTabName={props.setTabName}
                       separator={separator}
                       gridRef={grid[idx]}
                       focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
@@ -269,6 +271,7 @@ export function MainModeView(
                 separator,
                 props.setBaseColor,
                 props.setTabColor,
+                props.setTabName,
                 props.setFileListRowColor,
                 props.setKeyBind,
                 props.setContextMenu,
@@ -298,6 +301,7 @@ function SettingButtons(
   separator: string,
   setBaseColor: () => void,
   setTabColor: (tabSettingTrgDir: string) => void,
+  setTabName: (tabSettingTrgDir: string) => void,
   setFileListRowColor: () => void,
   setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
   setContextMenu: () => void,
@@ -336,6 +340,11 @@ function SettingButtons(
       css={settingButtonStyle}
       onClick={() => setTabColor(getPath())}>
       Set Tab Color
+    </button>
+    <button
+      css={settingButtonStyle}
+      onClick={() => setTabName(getPath())}>
+      Set Tab Name
     </button>
     <button
       css={settingButtonStyle}
