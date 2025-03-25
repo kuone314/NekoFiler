@@ -13,10 +13,11 @@ import { TabColor, TabColorSettings } from './TabColorSetting';
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
 import { ControlledMenu } from '@szhsin/react-menu';
-import { DirName, Sequence } from './Utility';
+import { Sequence } from './Utility';
 import { LogInfo } from './LogMessagePane';
 import { ButtonStyle, MenuitemStyle, useTheme } from './ThemeStyle';
 import { BsFillPinFill } from "react-icons/bs";
+import { TabName, TabNameSettings } from './TabNameSetting';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface TabFuncs {
@@ -36,12 +37,14 @@ export const PaneTabs = (
     height: number,
     pathAry: TabsInfo,
     tabColorSetting?: TabColorSettings
+    tabNameSettings?: TabNameSettings,
     onTabsChanged: (newTabs: TabInfo[], newTabIdx: number,) => void,
     onItemNumChanged: (newItemNum: number) => void,
     onSelectItemNumChanged: (newSelectItemNum: number) => void,
     getOppositePath: () => string,
     addLogMessage: (message: LogInfo) => void,
     setTabColor: (trgDir: string) => void,
+    setTabName: (trgDir: string) => void,
     separator: separator,
     focusOppositePane: () => void,
     focusCommandBar: () => void,
@@ -118,12 +121,6 @@ export const PaneTabs = (
     props.onTabsChanged(newTabAry, activeTabIdx);
   }
 
-
-  const pathToTabName = (tab: TabInfo) => {
-    const dirName = DirName(tab.path);
-    return dirName;
-  }
-
   const contextMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}
@@ -159,6 +156,12 @@ export const PaneTabs = (
         onClick={_ => props.setTabColor(tabAry[contextMenuTabIdx].path)}
       >
         Set Tab Color
+      </MenuItem>
+      <MenuItem
+        css={menuItemStyle}
+        onClick={_ => props.setTabName(tabAry[contextMenuTabIdx].path)}
+      >
+        Set Tab Name
       </MenuItem>
       <MenuItem
         css={menuItemStyle}
@@ -213,12 +216,12 @@ export const PaneTabs = (
                   setMenuOpen(true);
                   e.preventDefault();
                 }}
-                defaultValue={pathToTabName(tab)}
+                defaultValue={TabName(props.tabNameSettings, tab.path)}
                 tabIndex={-1}
                 key={'TabButton' + idx}
               >
                 {tab.pined ? <BsFillPinFill style={{ marginRight: '6px' }} /> : <></>}
-                {pathToTabName(tab)}
+                {TabName(props.tabNameSettings, tab.path)}
               </Button>
             })
           }
@@ -245,12 +248,12 @@ export const PaneTabs = (
           onSelectItemNumChanged={props.onSelectItemNumChanged}
           tabFuncs={
             {
-            addNewTab: (path: string) => addNewTab(activeTabIdx, path),
-            removeTab: () => removeTab(activeTabIdx),
-            removeOtherTabs: () => removeOtherTabs(activeTabIdx),
-            removeAllRightTabs: () => removeAllRightTabs(activeTabIdx),
-            removeAllLeftTabs: () => removeAllLeftTabs(activeTabIdx),
-            changeTab,
+              addNewTab: (path: string) => addNewTab(activeTabIdx, path),
+              removeTab: () => removeTab(activeTabIdx),
+              removeOtherTabs: () => removeOtherTabs(activeTabIdx),
+              removeAllRightTabs: () => removeAllRightTabs(activeTabIdx),
+              removeAllLeftTabs: () => removeAllLeftTabs(activeTabIdx),
+              changeTab,
             }
           }
           getOppositePath={props.getOppositePath}

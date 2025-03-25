@@ -48,11 +48,11 @@ export async function writeFileListRowColorSetting(setting: FileListRowColorSett
 
 export async function readFileListRowColorSetting(): Promise<FileListRowColorSettings> {
   const read = await readSettings(new SettingInfo);
-  return read ?? GenerateDefaultCommandSeting();
+  return read ?? GenerateDefaultSeting();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function GenerateDefaultCommandSeting(): FileListRowColorSettings {
+function GenerateDefaultSeting(): FileListRowColorSettings {
   const settings: FileListRowColorSetting[] = [
     {
       name: 'Directry',
