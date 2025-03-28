@@ -6,7 +6,7 @@ import { separator } from './FilePathSeparator';
 import { PaneTabs } from './PaneTabs';
 
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react'
+import { css, SerializedStyles } from '@emotion/react'
 
 import { LogInfo, LogMessagePein } from './LogMessagePane';
 import { TabColorSettings } from './TabColorSetting';
@@ -184,6 +184,15 @@ export function MainModeView(
     );
   }
 
+  const buttonHeight = 50;
+  const settingButtonStyle = css(
+    buttonStyle,
+    {
+      width: '85pt',
+      height: buttonHeight,
+      padding: '10px',
+    });
+
   return (
     <>
       {updateDlg}
@@ -267,6 +276,7 @@ export function MainModeView(
           {
             openSettings ?
               SettingButtons(
+                settingButtonStyle,
                 setSeparator,
                 separator,
                 props.setBaseColor,
@@ -297,6 +307,7 @@ export function MainModeView(
 
 
 function SettingButtons(
+  settingButtonStyle: SerializedStyles,
   setSeparator: React.Dispatch<React.SetStateAction<separator>>,
   separator: string,
   setBaseColor: () => void,
@@ -309,18 +320,6 @@ function SettingButtons(
   OpenSettingDir: () => Promise<void>,
   Update: () => void
 ) {
-  const buttonHeight = 50;
-
-  const theme = useTheme();
-  const buttonStyle = ButtonStyle(theme.baseColor);
-
-  const settingButtonStyle = css(
-    buttonStyle,
-    {
-      width: '85pt',
-      height: buttonHeight,
-      padding: '10px',
-    });
   return <div
     css={css({
       display: 'grid',
