@@ -265,10 +265,15 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: 'auto 1fr auto', // Settings logPane statusBar
+            gridTemplateRows: 'auto auto 1fr auto', // Settings separator logPane statusBar
             height: props.height - 20,
           })}
         >
+          <button
+            css={settingButtonStyle}
+            onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
+            separator:{separator}
+          </button>
           <button
             css={css(buttonStyle)}
             onClick={() => { setOpenSettings(!openSettings) }}
@@ -277,8 +282,6 @@ export function MainModeView(
             openSettings ?
               SettingButtons(
                 settingButtonStyle,
-                setSeparator,
-                separator,
                 props.setBaseColor,
                 props.setTabColor,
                 props.setTabName,
@@ -308,8 +311,6 @@ export function MainModeView(
 
 function SettingButtons(
   settingButtonStyle: SerializedStyles,
-  setSeparator: React.Dispatch<React.SetStateAction<separator>>,
-  separator: string,
   setBaseColor: () => void,
   setTabColor: (tabSettingTrgDir: string) => void,
   setTabName: (tabSettingTrgDir: string) => void,
@@ -325,11 +326,6 @@ function SettingButtons(
       display: 'grid',
       gridTemplateRows: 'repeat(7,auto) 1fr ',
     })}>
-    <button
-      css={settingButtonStyle}
-      onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
-      separator:{separator}
-    </button>
     <button
       css={settingButtonStyle}
       onClick={() => setBaseColor()}>
