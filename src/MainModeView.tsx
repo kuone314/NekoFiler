@@ -6,7 +6,7 @@ import { separator } from './FilePathSeparator';
 import { PaneTabs } from './PaneTabs';
 
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react'
+import { css, SerializedStyles } from '@emotion/react'
 
 import { LogInfo, LogMessagePein } from './LogMessagePane';
 import { TabColorSettings } from './TabColorSetting';
@@ -184,6 +184,15 @@ export function MainModeView(
     );
   }
 
+  const buttonHeight = 50;
+  const settingButtonStyle = css(
+    buttonStyle,
+    {
+      width: '85pt',
+      height: buttonHeight,
+      padding: '10px',
+    });
+
   return (
     <>
       {updateDlg}
@@ -256,10 +265,15 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: 'auto 1fr auto', // Settings logPane statusBar
+            gridTemplateRows: 'auto auto 1fr auto', // Settings separator logPane statusBar
             height: props.height - 20,
           })}
         >
+          <button
+            css={settingButtonStyle}
+            onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
+            separator:{separator}
+          </button>
           <button
             css={css(buttonStyle)}
             onClick={() => { setOpenSettings(!openSettings) }}
@@ -267,8 +281,7 @@ export function MainModeView(
           {
             openSettings ?
               SettingButtons(
-                setSeparator,
-                separator,
+                settingButtonStyle,
                 props.setBaseColor,
                 props.setTabColor,
                 props.setTabName,
@@ -297,8 +310,7 @@ export function MainModeView(
 
 
 function SettingButtons(
-  setSeparator: React.Dispatch<React.SetStateAction<separator>>,
-  separator: string,
+  settingButtonStyle: SerializedStyles,
   setBaseColor: () => void,
   setTabColor: (tabSettingTrgDir: string) => void,
   setTabName: (tabSettingTrgDir: string) => void,
@@ -309,28 +321,11 @@ function SettingButtons(
   OpenSettingDir: () => Promise<void>,
   Update: () => void
 ) {
-  const buttonHeight = 50;
-
-  const theme = useTheme();
-  const buttonStyle = ButtonStyle(theme.baseColor);
-
-  const settingButtonStyle = css(
-    buttonStyle,
-    {
-      width: '85pt',
-      height: buttonHeight,
-      padding: '10px',
-    });
   return <div
     css={css({
       display: 'grid',
       gridTemplateRows: 'repeat(7,auto) 1fr ',
     })}>
-    <button
-      css={settingButtonStyle}
-      onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
-      separator:{separator}
-    </button>
     <button
       css={settingButtonStyle}
       onClick={() => setBaseColor()}>
