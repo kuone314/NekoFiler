@@ -233,6 +233,10 @@ impl FilerData {
       pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
   }
+
+  fn get_background(self: &FilerData) -> Color {
+    self.background.lock().unwrap().clone()
+  }
 }
 
 static PANE_DATA: Lazy<FilerData> = Lazy::new(|| FilerData::new());
@@ -348,9 +352,7 @@ pub struct UpdateFileListUiInfo {
 }
 
 pub fn update_file_list(app_handle: &tauri::AppHandle) {
-  let Ok(background) = PANE_DATA.background.try_lock() else {
-    return;
-  };
+  let background = PANE_DATA.get_background();
 
   for pane_idx in 0..=1 {
     update_pane_info(&PANE_DATA.pane_info_list[pane_idx], app_handle, &background);
