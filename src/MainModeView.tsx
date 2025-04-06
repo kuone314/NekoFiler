@@ -20,7 +20,6 @@ import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonStyle, useTheme } from './ThemeStyle';
-import { ColorCodeString } from './ColorCodeString';
 import { TabNameSettings } from './TabNameSetting';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,11 +62,6 @@ export function MainModeView(
 
   const theme = useTheme();
   const buttonStyle = ButtonStyle(theme.baseColor);
-
-  const backgroundColor = ColorCodeString.new(theme.baseColor.backgroundColor);
-  if (backgroundColor) {
-    invoke("set_background_color", { color: backgroundColor.toRGB() });
-  }
 
   const getPath = () => {
     if (tabsPathAry.length === 0) { return ''; }

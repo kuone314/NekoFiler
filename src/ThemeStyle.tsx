@@ -5,6 +5,8 @@ import { CSSObjectWithLabel } from 'react-select'
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
 import { BaseColorSetting, DefaultBaseColorSetting } from './BaseColorSetting';
+import { ColorCodeString } from './ColorCodeString';
+import { invoke } from '@tauri-apps/api/core';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 interface ThemeContextType {
@@ -33,7 +35,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   return (
     <ThemeContext.Provider value={{
       baseColor: color,
-      setBaseColor: setColor,
+      setBaseColor: (baseColor) => {
+        const backgroundColor = ColorCodeString.new(baseColor.backgroundColor);
+        if (backgroundColor) {
+          invoke("set_background_color", { color: backgroundColor.toRGB() });
+        }
+        setColor(baseColor);
+      },
     }}>
       {children}
     </ThemeContext.Provider>
