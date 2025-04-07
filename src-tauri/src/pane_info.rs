@@ -1,9 +1,9 @@
+use itertools::Itertools;
 use std::{
   collections::{HashMap, HashSet},
   path::PathBuf,
   sync::{Mutex, MutexGuard},
 };
-use itertools::Itertools;
 
 use once_cell::sync::Lazy;
 
@@ -175,8 +175,8 @@ fn to_filtered_item_info(
 #[derive(Debug)]
 pub struct PaneHandler {
   pane_idx: usize,
-  data: Lazy<Mutex<PaneInfo>>,
-  update_cancel_flag: Lazy<Mutex<bool>>,
+  data: Mutex<PaneInfo>,
+  update_cancel_flag: Mutex<bool>,
 }
 impl PaneHandler {
   fn get_info<'a>(&'a self) -> MutexGuard<'a, PaneInfo> {
@@ -194,8 +194,8 @@ impl PaneHandler {
   fn new(pane_idx: usize) -> Self {
     Self {
       pane_idx,
-      data: Lazy::new(|| Mutex::new(PaneInfo::new())),
-      update_cancel_flag: Lazy::new(|| Mutex::new(false)),
+      data: Mutex::new(PaneInfo::new()),
+      update_cancel_flag: Mutex::new(false),
     }
   }
 }
@@ -222,14 +222,14 @@ impl PaneInfo {
 
 #[derive(Debug)]
 pub struct FilerData {
-  background: Lazy<Mutex<Color>>,
+  background: Mutex<Color>,
   pane_info_list: [PaneHandler; 2],
 }
 
 impl FilerData {
   fn new() -> Self {
     Self {
-      background: Lazy::new(|| Mutex::new(Color { r: 0, g: 0, b: 0 })),
+      background: Mutex::new(Color { r: 0, g: 0, b: 0 }),
       pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
   }
