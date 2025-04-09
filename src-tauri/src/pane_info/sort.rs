@@ -15,7 +15,7 @@ pub fn sort_file_list(
   pane_idx: usize,
   sort_key: SortKey,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;

@@ -8,7 +8,7 @@ pub fn add_selecting_idx(
   pane_idx: usize,
   additional_select_idx_list: Vec<usize>,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;
@@ -29,7 +29,7 @@ pub fn set_selecting_idx(
   pane_idx: usize,
   new_select_idx_list: Vec<usize>,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;
@@ -54,7 +54,7 @@ pub fn toggle_selection(
   pane_idx: usize,
   trg_idx: usize,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(ref mut file_list_info) = pane_info.file_list_info else {
     return None;

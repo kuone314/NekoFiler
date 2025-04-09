@@ -176,16 +176,16 @@ fn to_filtered_item_info(
 pub struct PaneHandler {
   pane_idx: usize,
   data: Mutex<PaneInfo>,
-  update_cancel_flag: Mutex<bool>,
+  ui_operation_required: Mutex<bool>,
 }
 impl PaneHandler {
-  fn get_info<'a>(&'a self) -> MutexGuard<'a, PaneInfo> {
-    *self.update_cancel_flag.lock().unwrap() = true;
+  fn get_info_for_ui_operation<'a>(&'a self) -> MutexGuard<'a, PaneInfo> {
+    *self.ui_operation_required.lock().unwrap() = true;
     self.data.lock().unwrap()
   }
 
-  fn update_cancel_required(&self) -> bool {
-    let Ok(value) = self.update_cancel_flag.try_lock() else {
+  fn ui_operation_required(&self) -> bool {
+    let Ok(value) = self.ui_operation_required.try_lock() else {
       return false;
     };
     *value
@@ -195,7 +195,7 @@ impl PaneHandler {
     Self {
       pane_idx,
       data: Mutex::new(PaneInfo::new()),
-      update_cancel_flag: Mutex::new(false),
+      ui_operation_required: Mutex::new(false),
     }
   }
 }
@@ -254,7 +254,7 @@ pub fn set_dirctry_path(
   path: &str,
   initial_focus: Option<String>,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   if pane_info.dirctry_path == path {
     // パスの変更が無ければ、選択要素のみを変更する。
@@ -290,7 +290,7 @@ pub fn set_focus_idx(
   pane_idx: usize,
   new_focus_idx: usize,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(file_list_info) = &mut pane_info.file_list_info else {
     return None;
@@ -305,7 +305,7 @@ pub fn set_filter(
   pane_idx: usize,
   filter: FilterInfo,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(file_list_info) = &mut pane_info.file_list_info else {
     pane_info.filter = filter;
@@ -367,10 +367,10 @@ fn update_pane_info(
   let Ok(mut pane_info) = pane_handler.data.try_lock() else {
     return;
   };
-  *pane_handler.update_cancel_flag.lock().unwrap() = false;
+  *pane_handler.ui_operation_required.lock().unwrap() = false;
 
   update_file_name_list(&mut pane_info);
-  if pane_handler.update_cancel_required() {
+  if pane_handler.ui_operation_required() {
     return;
   }
   let _ = app_handle.emit(
@@ -391,7 +391,7 @@ fn update_pane_info(
     let file_path = &PathBuf::from(&dirctry_path).join(&file_list_item.file_name);
     file_list_item.file_icon = get_file_icon(file_path, &background);
 
-    if pane_handler.update_cancel_required() {
+    if pane_handler.ui_operation_required() {
       return;
     }
   }
