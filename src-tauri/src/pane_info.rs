@@ -178,10 +178,39 @@ pub struct PaneHandler {
   data: Mutex<PaneInfo>,
   ui_operation_required: Mutex<bool>,
 }
+pub struct PaneInfoForUiOperation<'a> {
+  guard: MutexGuard<'a, PaneInfo>,
+  ui_operation_required_ref: &'a Mutex<bool>,
+}
+
+impl<'a> Drop for PaneInfoForUiOperation<'a> {
+  fn drop(&mut self) {
+    *self.ui_operation_required_ref.lock().unwrap() = false;
+  }
+}
+
+impl<'a> std::ops::Deref for PaneInfoForUiOperation<'a> {
+  type Target = PaneInfo;
+
+  fn deref(&self) -> &Self::Target {
+    &*self.guard
+  }
+}
+
+impl<'a> std::ops::DerefMut for PaneInfoForUiOperation<'a> {
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut *self.guard
+  }
+}
+
 impl PaneHandler {
-  fn get_info_for_ui_operation<'a>(&'a self) -> MutexGuard<'a, PaneInfo> {
+  pub fn get_info_for_ui_operation<'a>(&'a self) -> PaneInfoForUiOperation<'a> {
     *self.ui_operation_required.lock().unwrap() = true;
-    self.data.lock().unwrap()
+    let guard = self.data.lock().unwrap();
+    PaneInfoForUiOperation {
+      guard,
+      ui_operation_required_ref: &self.ui_operation_required,
+    }
   }
 
   fn ui_operation_required(&self) -> bool {
@@ -367,7 +396,6 @@ fn update_pane_info(
   let Ok(mut pane_info) = pane_handler.data.try_lock() else {
     return;
   };
-  *pane_handler.ui_operation_required.lock().unwrap() = false;
 
   update_file_name_list(&mut pane_info);
   if pane_handler.ui_operation_required() {
