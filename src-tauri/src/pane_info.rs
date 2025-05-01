@@ -1,9 +1,9 @@
+use itertools::Itertools;
 use std::{
   collections::{HashMap, HashSet},
   path::PathBuf,
   sync::{Mutex, MutexGuard},
 };
-use itertools::Itertools;
 
 use once_cell::sync::Lazy;
 
@@ -175,17 +175,46 @@ fn to_filtered_item_info(
 #[derive(Debug)]
 pub struct PaneHandler {
   pane_idx: usize,
-  data: Lazy<Mutex<PaneInfo>>,
-  update_cancel_flag: Lazy<Mutex<bool>>,
+  data: Mutex<PaneInfo>,
+  ui_operation_required: Mutex<bool>,
 }
+pub struct PaneInfoForUiOperation<'a> {
+  guard: MutexGuard<'a, PaneInfo>,
+  ui_operation_required_ref: &'a Mutex<bool>,
+}
+
+impl<'a> Drop for PaneInfoForUiOperation<'a> {
+  fn drop(&mut self) {
+    *self.ui_operation_required_ref.lock().unwrap() = false;
+  }
+}
+
+impl<'a> std::ops::Deref for PaneInfoForUiOperation<'a> {
+  type Target = PaneInfo;
+
+  fn deref(&self) -> &Self::Target {
+    &*self.guard
+  }
+}
+
+impl<'a> std::ops::DerefMut for PaneInfoForUiOperation<'a> {
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut *self.guard
+  }
+}
+
 impl PaneHandler {
-  fn get_info<'a>(&'a self) -> MutexGuard<'a, PaneInfo> {
-    *self.update_cancel_flag.lock().unwrap() = true;
-    self.data.lock().unwrap()
+  pub fn get_info_for_ui_operation<'a>(&'a self) -> PaneInfoForUiOperation<'a> {
+    *self.ui_operation_required.lock().unwrap() = true;
+    let guard = self.data.lock().unwrap();
+    PaneInfoForUiOperation {
+      guard,
+      ui_operation_required_ref: &self.ui_operation_required,
+    }
   }
 
-  fn update_cancel_required(&self) -> bool {
-    let Ok(value) = self.update_cancel_flag.try_lock() else {
+  fn ui_operation_required(&self) -> bool {
+    let Ok(value) = self.ui_operation_required.try_lock() else {
       return false;
     };
     *value
@@ -194,8 +223,8 @@ impl PaneHandler {
   fn new(pane_idx: usize) -> Self {
     Self {
       pane_idx,
-      data: Lazy::new(|| Mutex::new(PaneInfo::new())),
-      update_cancel_flag: Lazy::new(|| Mutex::new(false)),
+      data: Mutex::new(PaneInfo::new()),
+      ui_operation_required: Mutex::new(false),
     }
   }
 }
@@ -222,14 +251,14 @@ impl PaneInfo {
 
 #[derive(Debug)]
 pub struct FilerData {
-  background: Lazy<Mutex<Color>>,
+  background: Mutex<Color>,
   pane_info_list: [PaneHandler; 2],
 }
 
 impl FilerData {
   fn new() -> Self {
     Self {
-      background: Lazy::new(|| Mutex::new(Color { r: 0, g: 0, b: 0 })),
+      background: Mutex::new(Color { r: 0, g: 0, b: 0 }),
       pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
   }
@@ -254,7 +283,7 @@ pub fn set_dirctry_path(
   path: &str,
   initial_focus: Option<String>,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   if pane_info.dirctry_path == path {
     // パスの変更が無ければ、選択要素のみを変更する。
@@ -290,7 +319,7 @@ pub fn set_focus_idx(
   pane_idx: usize,
   new_focus_idx: usize,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(file_list_info) = &mut pane_info.file_list_info else {
     return None;
@@ -305,7 +334,7 @@ pub fn set_filter(
   pane_idx: usize,
   filter: FilterInfo,
 ) -> Option<FileListUiInfo> {
-  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info();
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].get_info_for_ui_operation();
 
   let Some(file_list_info) = &mut pane_info.file_list_info else {
     pane_info.filter = filter;
@@ -367,10 +396,9 @@ fn update_pane_info(
   let Ok(mut pane_info) = pane_handler.data.try_lock() else {
     return;
   };
-  *pane_handler.update_cancel_flag.lock().unwrap() = false;
 
   update_file_name_list(&mut pane_info);
-  if pane_handler.update_cancel_required() {
+  if pane_handler.ui_operation_required() {
     return;
   }
   let _ = app_handle.emit(
@@ -391,7 +419,7 @@ fn update_pane_info(
     let file_path = &PathBuf::from(&dirctry_path).join(&file_list_item.file_name);
     file_list_item.file_icon = get_file_icon(file_path, &background);
 
-    if pane_handler.update_cancel_required() {
+    if pane_handler.ui_operation_required() {
       return;
     }
   }

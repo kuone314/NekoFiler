@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import React from 'react';
 
 
@@ -11,6 +11,36 @@ import { MatchImpl } from './Matcher';
 import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
 import { invoke } from '@tauri-apps/api/core';
+import { FixedSizeList } from 'react-window';
+import AutoSizer from "react-virtualized-auto-sizer";
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+const SortKey = {
+  name: "Name",
+  type: "FileType",
+  size: "Size",
+  date: "Date",
+} as const;
+type SortKey = typeof SortKey[keyof typeof SortKey];
+
+const defaultAdjustMargin = 2;
+
+const outerBorderWidth = '3pt solid ';
+const gridLineWidth = '1pt solid ';
+const separatorWidth = '1px';
+
+const minColWidth = 30;
+const headerHeight = 25;
+const rowHeight = 28;
+
+const columns = [
+  { title: "", sortKey: null, initialWidth: 30 }, // icon
+  { title: "FileName", sortKey: SortKey.name, initialWidth: 280 },
+  { title: "type", sortKey: SortKey.type, initialWidth: 70 },
+  { title: "size", sortKey: SortKey.size, initialWidth: 100 },
+  { title: "date", sortKey: SortKey.date, initialWidth: 170 },
+];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export type FileListItem = {
@@ -41,17 +71,6 @@ export interface IFileListItemFilter {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-const SORT_KEY = {
-  name: "name",
-  type: "type",
-  size: "size",
-  date: "date",
-} as const;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-const defaultAdjustMargin = 2;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 export interface FileListFunc {
   selectingItemName: () => string[],
   accessCurrentItem: () => void,
@@ -72,6 +91,8 @@ export interface FileListFunc {
 type FileListProps = {
   isActive: boolean,
   panel_idx: number,
+  height: number,
+  width: number,
   fileListInfo: FileListUiInfo,
   updateFileListInfo: (info: FileListUiInfo) => void,
   onSelectItemNumChanged: (newSelectItemNum: number) => void,
@@ -86,6 +107,8 @@ type FileListProps = {
 export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => {
   useImperativeHandle(ref, () => functions);
 
+  const [colWidths, setColWidths] = useState(columns.map(item => item.initialWidth));
+
   const [colorSetting, setColorSetting] = useState<FileListRowColorSettings | null>(null);
   useEffect(() => {
     (async () => {
@@ -96,36 +119,24 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
   const [adjustMargin, setAdjustMargin] = useState(defaultAdjustMargin);
 
+  const listRef = useRef<any>(null);
+  const [visibleRange, setVisibleRange] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
+
   useEffect(() => {
-    adjustScroll();
+    const scrollIndex = CalcScrollIndex(visibleRange, props.fileListInfo.focus_idx, adjustMargin)
+    listRef.current?.scrollToItem(scrollIndex);
   }, [props.fileListInfo.focus_idx]);
 
   const [mouseSelectInfo, setMouseSelectInfo] = useState<MouseSelectInfo | null>(null);
 
-  const theme = useTheme();
-
   useEffect(() => {
     myGrid.current?.focus();
-  }, []);
+  }, [mouseSelectInfo]);
+
+  const theme = useTheme();
 
   const filteredEntries = props.fileListInfo.filtered_item_list;
   const currentIndex = props.fileListInfo.focus_idx;
-
-  async function invokeSort(sortKey: string) {
-    const payloadKey = (() => {
-      switch (sortKey) {
-        case 'name': return "Name";
-        case 'type': return "FileType";
-        case 'size': return "Size";
-        case 'date': return "Date";
-      }
-    })();
-    const paneInfo = await invoke<FileListUiInfo>('sort_file_list', {
-      paneIdx: props.panel_idx,
-      sortKey: payloadKey,
-    });
-    props.updateFileListInfo(paneInfo);
-  }
 
   const addSelectingIndexRange = async (rangeTerm1: number, rangeTerm2: number) => {
     const paneInfo = await invoke<FileListUiInfo>("add_selecting_idx", {
@@ -151,39 +162,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     }
     setCurrentIndex(newIndex);
     setAdjustMargin(defaultAdjustMargin);
-  }
-
-  const adjustScroll = () => {
-    const scroll_pos = myGrid.current?.scrollTop;
-    const scroll_area_height = myGrid.current?.clientHeight;
-    const header_height = table_header.current?.clientHeight;
-    const current_row_rect = current_row.current?.getBoundingClientRect();
-    const table_full_size = current_row.current?.parentElement?.parentElement?.getBoundingClientRect();
-
-    if (scroll_pos == undefined) { return; }
-    if (scroll_area_height == undefined) { return; }
-    if (header_height == undefined) { return; }
-    if (current_row_rect == undefined) { return; }
-    if (table_full_size == undefined) { return; }
-
-    const diff = current_row_rect.y - table_full_size.y;
-    const row_height = current_row_rect.height;
-
-    const upside_just_pos = (diff - header_height);
-    const upside_ajust_pos = upside_just_pos - adjustMargin * row_height;
-    const outof_upside = (scroll_pos > upside_ajust_pos);
-    if (outof_upside) {
-      myGrid.current?.scrollTo({ top: upside_ajust_pos });
-      return;
-    }
-
-    const downside_just_pos = (diff - scroll_area_height + row_height);
-    const downside_ajust_pos = downside_just_pos + adjustMargin * row_height;
-    const outof_downside = (downside_ajust_pos > scroll_pos);
-    if (outof_downside) {
-      myGrid.current?.scrollTo({ top: downside_ajust_pos });
-      return;
-    }
   }
 
   interface MouseSelectInfo {
@@ -298,8 +276,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
 
   const myGrid = props.gridRef ?? React.createRef<HTMLDivElement>();
-  const table_header = React.createRef<HTMLTableSectionElement>();
-  const current_row = React.createRef<HTMLTableRowElement>();
 
   const table_color = (row_idx: number) => {
     if (colorSetting === null) { return css(); }
@@ -322,12 +298,21 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
         ? evenRowBackGroune
         : oddRowBackGroune;
 
+      const borderHithlight = props.isActive && row_idx === currentIndex;
+
+      const verticalBorder
+        = gridLineWidth
+        + (borderHithlight ? activeHightlight : theme.baseColor.stringDefaultColor);
       return css({
         background: background,
         color: forGround,
-        border: (props.isActive && row_idx === currentIndex)
-          ? '3pt solid ' + activeHightlight
-          : '1pt solid ' + background,
+        boxSizing: 'border-box',
+        borderTop: borderHithlight ? outerBorderWidth + activeHightlight : '',
+        borderBottom: borderHithlight
+          ? outerBorderWidth + activeHightlight
+          : gridLineWidth + theme.baseColor.stringDefaultColor,
+        borderRight: verticalBorder,
+        borderLeft: verticalBorder,
       });
     }
 
@@ -348,26 +333,10 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
     return toTableColor(colorSetting.defaultColor);
   }
-  const table_border = css({
-    border: '1pt solid #000000',
-  });
-
-  const table_resizable = css({
-    resize: 'horizontal',
-    overflow: 'hidden',
-  });
-  const fix_table_header = css({
-    position: 'sticky',
-    top: '0',
-    left: '0',
-  });
-  const table_header_color = css({
-    border: '1pt solid ' + theme.baseColor.stringDefaultColor,
-  });
 
   const filteredItemNumInfo = () => {
     const filteredNum = (props.fileListInfo.full_item_num - filteredEntries.length);
-    if (filteredNum === 0) { return '.' } // 余白を設けるため、空文字にはしない
+    if (filteredNum === 0) { return '' }
     return filteredNum + ' file(s) filterd.'
   }
 
@@ -418,80 +387,215 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     selectCurrentOnly,
   }
 
-  return <div>
-    <table
-      css={
-        {
-          borderCollapse: 'collapse',
-          resize: 'horizontal',
-          height: 10, // table全体の最小サイズを指定。これが無いと、行数が少ない時に縦長になってしまう…。
-          width: '95%',
-          fontSize: '13px',
-          lineHeight: '13pt'
-        }
-      }
-    >
-      <colgroup>
-        <col css={{ width: '1px' }} />
-      </colgroup>
-      <thead css={[table_resizable, fix_table_header]} ref={table_header}>
-        <tr>
-          <th
-            css={{ width: '10' }}
-          />{/* icon */}
-          <th
-            onClick={() => invokeSort(SORT_KEY.name)}
-            css={[table_resizable, table_header_color,]}
-          >FileName</th>
-          <th
-            onClick={() => invokeSort(SORT_KEY.type)}
-            css={[table_resizable, table_header_color,]}
-          >type</th>
-          <th
-            onClick={() => invokeSort(SORT_KEY.size)}
-            css={[table_resizable, table_header_color,]}
-          >size</th>
-          <th
-            onClick={() => invokeSort(SORT_KEY.date)}
-            css={[table_resizable, table_header_color,]}
-          >date</th>
-        </tr>
-      </thead>
-      {
-        filteredEntries.map((item, idx) => {
-          const entry = item.file_list_item;
-          return <tbody key={'List' + idx}>
-            <tr
-              ref={(idx === currentIndex) ? current_row : null}
-              onMouseDown={(event) => { onMouseDown(idx, event) }}
-              onMouseMove={(event) => { onMouseMove(idx, event) }}
-              onMouseUp={(_) => { onMouseUp(idx) }}
-              onDoubleClick={(event) => onRowdoubleclick(idx, event)}
-              css={table_color(idx)}
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    if (IsValidIndex(filteredEntries, index)) {
+      const entry = filteredEntries[index].file_list_item;
+      return (
+        <div
+          key={"Row" + index}
+          onMouseDown={(event) => { onMouseDown(index, event) }}
+          onMouseMove={(event) => { onMouseMove(index, event) }}
+          onMouseUp={(_) => { onMouseUp(index) }}
+          onDoubleClick={(event) => onRowdoubleclick(index, event)}
+          css={table_color(index)}
+          style={{
+            ...style,
+            display: "flex",
+            boxSizing: "border-box",
+          }}
+        >
+          {columns.map((col, columnIndex) => (
+            <div
+              key={col.title}
+              style={{
+                width: colWidths[columnIndex],
+                position: "relative",
+              }}
             >
-              <td
-                css={{ background: theme.baseColor.backgroundColor }}
+              <div
+                style={{
+                  width: colWidths[columnIndex],
+                  padding: "0 6px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
               >
-                <img src={`data:image/bmp;base64,${entry.file_icon ?? ""}`} />
-              </td>
-              <td css={table_border}>{FileNameWithEmphasis(item)}</td>
-              <td css={table_border}>{entry.file_extension}</td>
-              <td css={table_border}>{entry.file_size ?? "-"}</td>
-              <td css={table_border}>{entry.date}</td>
-            </tr>
-          </tbody>
-        })
-      }
-    </table>
+                {(() => {
+                  switch (columnIndex) {
+                    case 0: return <img src={`data:image/bmp;base64,${entry.file_icon ?? ""}`} />;
+                    case 1: return < >{FileNameWithEmphasis(filteredEntries[index])}</>;
+                    case 2: return < >{entry.file_extension}</>;
+                    case 3: return < >{entry.file_size ?? "-"}</>;
+                    case 4: return < >{entry.date}</>;
+                  }
+                })()}
+              </div>
+              {(columnIndex !== columns.length - 1)
+                ? <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    width: separatorWidth,
+                    height: "100%",
+                    backgroundColor: theme.baseColor.stringDefaultColor,
+                  }}
+                >
+                </div>
+                : <></>
+              }
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return <div
+        style={{ ...style }}
+        onMouseDown={(event) => { onMouseDown(filteredEntries.length, event) }}
+        onMouseUp={(_) => { onMouseUp(filteredEntries.length) }}
+        onMouseMove={(event) => { onMouseMove(filteredEntries.length, event) }}
+      >
+        {filteredItemNumInfo()}
+      </div>
+    }
+  };
+
+  return (
     <div
-      style={{ height: 50, }}
-      onMouseDown={(event) => { onMouseDown(filteredEntries.length, event) }}
-      onMouseUp={(_) => { onMouseUp(filteredEntries.length) }}
-      onMouseMove={(event) => { onMouseMove(filteredEntries.length, event) }}
-    >{filteredItemNumInfo()} </div>
-  </div >
+      style={{ height: props.height, width: props.width }}
+    >
+      <FileListHeader
+        backgroundColor={theme.baseColor.backgroundColor}
+        foregroundColor={theme.baseColor.stringDefaultColor}
+        panel_idx={props.panel_idx}
+        updateFileListInfo={props.updateFileListInfo}
+        colWidths={colWidths}
+        setColWidths={setColWidths}
+      />
+      <AutoSizer>
+        {({ height, width }) => {
+          return <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
+            <div style={{ flex: 1 }}>
+              <FixedSizeList
+                height={height - headerHeight}
+                width={width}
+                itemSize={rowHeight}
+                itemCount={filteredEntries.length + 1}
+                ref={listRef}
+                onItemsRendered={
+                  (props) => setVisibleRange({ start: props.visibleStartIndex, end: props.visibleStopIndex })}
+              >
+                {Row}
+              </FixedSizeList>
+            </div>
+          </div>
+        }}</AutoSizer>
+    </div>
+  )
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function CalcScrollIndex(
+  visibleRange: { start: number; end: number; },
+  focusIndex: number,
+  margin: number
+): number {
+  const upside_adjust_pos = (focusIndex - margin);
+  const outof_upside = upside_adjust_pos <= visibleRange.start;
+
+  const downside_adjust_pos = focusIndex + margin;
+  const outof_downside = downside_adjust_pos >= visibleRange.end;
+  if (outof_upside && outof_downside) { return focusIndex; }
+  if (outof_upside) { return upside_adjust_pos; }
+  if (outof_downside) { return downside_adjust_pos; }
+  return focusIndex;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+function FileListHeader(
+  props: {
+    backgroundColor: string,
+    foregroundColor: string,
+    panel_idx: number,
+    updateFileListInfo: (info: FileListUiInfo) => void,
+    colWidths: number[],
+    setColWidths: React.Dispatch<React.SetStateAction<number[]>>
+  }
+) {
+  const resizeInfo = useRef<{ trgCol: number, initPos: number, initWidth: number } | null>(null);
+
+  const handleMouseDown = (index: number, e: React.MouseEvent) => {
+    resizeInfo.current = { trgCol: index, initPos: e.clientX, initWidth: props.colWidths[index] };
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (resizeInfo.current === null) { return; }
+    const delta = e.clientX - resizeInfo.current.initPos;
+    const newWidth = resizeInfo.current.initWidth + delta;
+    const newWidths = [...props.colWidths];
+    newWidths[resizeInfo.current.trgCol] = Math.max(minColWidth, newWidth);
+    props.setColWidths(newWidths);
+  };
+
+  const handleMouseUp = () => {
+    resizeInfo.current = null;
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+  };
+
+  const separator = (idx: number) => <div
+    onMouseDown={(e) => handleMouseDown(idx, e)}
+    style={{
+      position: "absolute",
+      right: 0,
+      top: 0,
+      width: separatorWidth,
+      height: "100%",
+      cursor: "col-resize",
+      zIndex: 1,
+      backgroundColor: props.foregroundColor,
+    }}
+  />
+
+  return <div
+    style={{
+      height: headerHeight,
+      display: "flex",
+      fontWeight: "bold",
+      borderTop: gridLineWidth + props.foregroundColor,
+      borderBottom: gridLineWidth + props.foregroundColor,
+      borderLeft: gridLineWidth + props.backgroundColor,
+      borderRight: gridLineWidth + props.backgroundColor,
+    }}>
+    {columns.map((col, idx) => (
+      <div
+        key={idx}
+        onClick={async () => {
+          if (!col.sortKey) return;
+          const paneInfo = await invoke<FileListUiInfo>('sort_file_list', {
+            paneIdx: props.panel_idx,
+            sortKey: col.sortKey,
+          });
+          props.updateFileListInfo(paneInfo);
+        }}
+        style={{
+          flexShrink: 0,
+          position: "relative",
+          width: props.colWidths[idx],
+          padding: "0 8px",
+          boxSizing: "border-box",
+          userSelect: "none",
+          backgroundColor: props.backgroundColor,
+        }}
+      >
+        {col.title}
+        {(idx !== columns.length - 1) ? separator(idx) : <></>}
+      </div>
+    ))}
+  </div>
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function SequenceAry(rangeTerm1: number, rangeTerm2: number) {

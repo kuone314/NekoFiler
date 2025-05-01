@@ -27,6 +27,7 @@ import { FileFilterBar, FileFilterBarFunc, FileFilterType } from './FileFilterBa
 import { MenuitemStyle, ReadonlyTextInputStyle, useTheme } from './ThemeStyle';
 import { UnlistenFn, listen } from '@tauri-apps/api/event';
 import { PiLinkLight } from 'react-icons/pi';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -428,7 +429,7 @@ export const MainPanel = (
           />
         </div>
         <div
-          css={css([{ display: 'grid', overflow: 'auto' }])}
+          css={css([{ overflow: 'clip' }])}
           onDoubleClick={onDoubleClick}
           tabIndex={0}
           ref={myGrid}
@@ -439,27 +440,32 @@ export const MainPanel = (
             e.preventDefault();
           }}
         >
-          {
-            fileListInfo
-              ? <FileList
-                isActive={props.isActive}
-                panel_idx={props.panel_idx}
-                fileListInfo={fileListInfo}
-                updateFileListInfo={setFileListInfo}
-                onSelectItemNumChanged={props.onSelectItemNumChanged}
-                accessParentDir={accessParentDir}
-                accessDirectry={(dirName: string) => AccessDirectory(nameToPath(dirName), null)}
-                accessFile={(fileName: string) => {
-                  const decoretedPath = '&"./' + fileName + '"';
-                  executeShellCommand('Access file', decoretedPath, props.dirPath);
-                }}
-                focusOppositePane={props.focusOppositePane}
-                getOppositePath={props.getOppositePath}
-                gridRef={myGrid}
-                ref={FileListFunctions}
-              />
-              : <div>Directry Unfound.</div>
-          }
+          {fileListInfo ?
+            <AutoSizer>
+              {({ height, width }) => {
+                return <FileList
+                  isActive={props.isActive}
+                  panel_idx={props.panel_idx}
+                  fileListInfo={fileListInfo}
+                  updateFileListInfo={setFileListInfo}
+                  onSelectItemNumChanged={props.onSelectItemNumChanged}
+                  accessParentDir={accessParentDir}
+                  accessDirectry={(dirName: string) => AccessDirectory(nameToPath(dirName), null)}
+                  accessFile={(fileName: string) => {
+                    const decoretedPath = '&"./' + fileName + '"';
+                    executeShellCommand('Access file', decoretedPath, props.dirPath);
+                  }}
+                  focusOppositePane={props.focusOppositePane}
+                  getOppositePath={props.getOppositePath}
+                  gridRef={myGrid}
+                  ref={FileListFunctions}
+                  height={height}
+                  width={width}
+                />
+              }
+              }
+            </AutoSizer>
+            : <div>Directry Unfound.</div>}
         </div>
       </div>
       {dialog}
