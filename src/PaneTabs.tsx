@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Button, MenuItem } from '@mui/material';
+import { Button } from '@mui/material';
 
 
 import { separator } from './FilePathSeparator';
@@ -12,7 +12,7 @@ import { TabColor, TabColorSettings } from './TabColorSetting';
 
 import { MainPanel } from './MainPane';
 import { TabInfo, TabsInfo } from './TabsInfo';
-import { ControlledMenu } from '@szhsin/react-menu';
+import { ControlledMenu, MenuItem } from '@szhsin/react-menu';
 import { Sequence } from './Utility';
 import { LogInfo } from './LogMessagePane';
 import { ButtonStyle, MenuitemStyle, useTheme } from './ThemeStyle';
