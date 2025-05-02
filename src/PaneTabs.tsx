@@ -143,7 +143,7 @@ export const PaneTabs = (
         css={menuItemStyle}
         onClick={_ => removeOtherTabs(contextMenuTabIdx)}
       >
-        Close Other Tabs
+        Close All Other Tabs
       </MenuItem>
       <MenuItem
         css={menuItemStyle}
