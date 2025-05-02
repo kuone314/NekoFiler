@@ -336,6 +336,8 @@ export const MainPanel = (
     () => { myGrid.current?.focus() },
   );
 
+  const menuItemStyle = MenuitemStyle(theme.baseColor);
+
   const commandSelectMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}
@@ -354,8 +356,6 @@ export const MainPanel = (
       }
     </ControlledMenu>
   }
-
-  const menuItemStyle = MenuitemStyle(theme.baseColor);
 
   const contextMenu = () => {
     if (!FileListFunctions) { return <></>; }
