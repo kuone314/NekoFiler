@@ -120,13 +120,13 @@ export function ComboBoxStyle(baseColor: BaseColorSetting) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 export function MenuitemStyle(baseColor: BaseColorSetting) {
-  return css({
-    backgroundColor: baseColor.elementDefaultColor,
-    color: baseColor.stringDefaultColor,
-    '&:hover': {
-      backgroundColor: baseColor.elementSelectionColor,
-    },
-  });
+  return css`
+    background-color: ${baseColor.elementDefaultColor};
+    color: ${baseColor.stringDefaultColor};
+    &.szh-menu__item--hover {
+      background-color: ${baseColor.elementSelectionColor};
+    }
+  `;
 }
 
 

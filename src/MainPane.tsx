@@ -347,6 +347,7 @@ export const MainPanel = (
       {
         menuItemAry.current.map((command, idx) => {
           return <MenuItem
+            css={menuItemStyle}
             onClick={_ => execCommand(command, srcKey)}
             key={idx}
           >
