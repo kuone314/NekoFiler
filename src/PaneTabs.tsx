@@ -129,6 +129,12 @@ export const PaneTabs = (
     >
       <MenuItem
         css={menuItemStyle}
+        onClick={_ => removeOtherTabs(contextMenuTabIdx)}
+      >
+        Close All Other Tabs
+      </MenuItem>
+      <MenuItem
+        css={menuItemStyle}
         onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
       >
         Close Right Tabs
@@ -138,12 +144,6 @@ export const PaneTabs = (
         onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
       >
         Close Left Tabs
-      </MenuItem>
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => removeOtherTabs(contextMenuTabIdx)}
-      >
-        Close All Other Tabs
       </MenuItem>
       <MenuItem
         css={menuItemStyle}
