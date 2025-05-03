@@ -50,7 +50,7 @@ export const PaneTabs = (
     focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
-    duplicateTabToOppositePane: () => void,
+    duplicateTabToOppositePane: (trgDir: string) => void,
   },
 ) => {
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -121,54 +121,55 @@ export const PaneTabs = (
     props.onTabsChanged(newTabAry, activeTabIdx);
   }
 
+  const tabContextMenuItems = [
+    {
+      nemuName: "Duplicate Tab To Opposite Pane",
+      onClick: () => props.duplicateTabToOppositePane(tabAry[contextMenuTabIdx].path),
+    },
+    {
+      nemuName: "Close All Other Tabs",
+      onClick: () => removeOtherTabs(contextMenuTabIdx),
+    },
+    {
+      nemuName: "Close Right Tabs",
+      onClick: () => removeAllRightTabs(contextMenuTabIdx),
+    },
+    {
+      nemuName: "Close Left Tabs",
+      onClick: () => removeAllLeftTabs(contextMenuTabIdx),
+    },
+    {
+      nemuName: "Close Tab",
+      onClick: () => removeTab(contextMenuTabIdx),
+    },
+    {
+      nemuName: "Set Tab Color,",
+      onClick: () => props.setTabColor(tabAry[contextMenuTabIdx].path),
+    },
+    {
+      nemuName: "Set Tab Name",
+      onClick: () => props.setTabName(tabAry[contextMenuTabIdx].path),
+    },
+    {
+      nemuName: "Toggle Pin",
+      onClick: () => togglePined(contextMenuTabIdx),
+    },
+  ]
+
   const contextMenu = () => {
     return <ControlledMenu
       state={isMenuOpen ? 'open' : 'closed'}
       onClose={() => { setMenuOpen(false); }}
       anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
     >
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => removeAllRightTabs(contextMenuTabIdx)}
-      >
-        Close Right Tabs
-      </MenuItem>
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => removeAllLeftTabs(contextMenuTabIdx)}
-      >
-        Close Left Tabs
-      </MenuItem>
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => removeOtherTabs(contextMenuTabIdx)}
-      >
-        Close Other Tabs
-      </MenuItem>
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => removeTab(contextMenuTabIdx)}
-      >
-        Close Tab
-      </MenuItem>
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => props.setTabColor(tabAry[contextMenuTabIdx].path)}
-      >
-        Set Tab Color
-      </MenuItem>
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => props.setTabName(tabAry[contextMenuTabIdx].path)}
-      >
-        Set Tab Name
-      </MenuItem>
-      <MenuItem
-        css={menuItemStyle}
-        onClick={_ => togglePined(contextMenuTabIdx)}
-      >
-        Toggle Pin
-      </MenuItem>
+      {
+        tabContextMenuItems.map(item => <MenuItem
+          css={menuItemStyle}
+          onClick={item.onClick}
+        >
+          {item.nemuName}
+        </MenuItem>)
+      }
     </ControlledMenu>
   }
 
@@ -264,7 +265,7 @@ export const PaneTabs = (
           gridRef={props.gridRef}
           key={activeTabIdx}
           setKeyBind={props.setKeyBind}
-          duplicateTabToOppositePane={props.duplicateTabToOppositePane}
+          duplicateTabToOppositePane={()=>props.duplicateTabToOppositePane(tabAry[activeTabIdx].path)}
         />
       </div>
     </>
