@@ -148,12 +148,9 @@ export function MainModeView(
     addTab(currentPaneIndex, settingDir)
   }
 
-  function duplicateTabToOppositePane() {
+  function duplicateTabToOppositePane(dirPath: string) {
     const oppositeIndex = (currentPaneIndex + 1) % 2;
-    addTab(
-      oppositeIndex,
-      GetActive(tabsPathAry[currentPaneIndex]).path
-    );
+    addTab(oppositeIndex, dirPath);
   }
 
   const [commandBar, commandBarFunc] = CommandBar(

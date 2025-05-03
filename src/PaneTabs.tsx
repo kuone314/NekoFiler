@@ -50,7 +50,7 @@ export const PaneTabs = (
     focusCommandBar: () => void,
     gridRef?: React.RefObject<HTMLDivElement>,
     setKeyBind: (trgKey: React.KeyboardEvent<HTMLDivElement> | null) => void,
-    duplicateTabToOppositePane: () => void,
+    duplicateTabToOppositePane: (trgDir: string) => void,
   },
 ) => {
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -261,7 +261,7 @@ export const PaneTabs = (
           gridRef={props.gridRef}
           key={activeTabIdx}
           setKeyBind={props.setKeyBind}
-          duplicateTabToOppositePane={props.duplicateTabToOppositePane}
+          duplicateTabToOppositePane={()=>props.duplicateTabToOppositePane(tabAry[activeTabIdx].path)}
         />
       </div>
     </>
