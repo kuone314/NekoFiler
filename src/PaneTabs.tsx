@@ -123,6 +123,10 @@ export const PaneTabs = (
 
   const tabContextMenuItems = [
     {
+      nemuName: "Duplicate Tab To Opposite Pane",
+      onClick: () => props.duplicateTabToOppositePane(tabAry[contextMenuTabIdx].path),
+    },
+    {
       nemuName: "Close All Other Tabs",
       onClick: () => removeOtherTabs(contextMenuTabIdx),
     },
