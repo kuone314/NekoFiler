@@ -170,6 +170,12 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     ctrlKey: boolean,
   }
   const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
+    if (event.detail >= 2) {
+      accessCurrentItem()
+      event.stopPropagation();
+      return;
+    }
+
     if (event.buttons !== 1) { return; }
     const info = {
       startIndex: row_idx,
@@ -205,11 +211,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       setCurrentIndex(row_idx);
     }
   }
-
-  const onRowdoubleclick = (_row_idx: number, event: React.MouseEvent<Element>) => {
-    accessCurrentItem()
-    event.stopPropagation();
-  };
 
   const accessCurrentItem = () => {
     if (!IsValidIndex(filteredEntries, currentIndex)) { return; }
@@ -396,7 +397,6 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
           onMouseDown={(event) => { onMouseDown(index, event) }}
           onMouseMove={(event) => { onMouseMove(index, event) }}
           onMouseUp={(_) => { onMouseUp(index) }}
-          onDoubleClick={(event) => onRowdoubleclick(index, event)}
           css={table_color(index)}
           style={{
             ...style,
