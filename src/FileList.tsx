@@ -171,8 +171,10 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
   const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
     if (event.detail >= 2) {
-      accessCurrentItem()
-      event.stopPropagation();
+      if (IsValidIndex(filteredEntries, row_idx)) {
+        accessCurrentItem()
+        event.stopPropagation();
+      }
       return;
     }
 
