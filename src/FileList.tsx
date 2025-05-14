@@ -12,7 +12,6 @@ import { ColorCodeString } from './ColorCodeString';
 import { useTheme } from './ThemeStyle';
 import { invoke } from '@tauri-apps/api/core';
 import { FixedSizeList } from 'react-window';
-import AutoSizer from "react-virtualized-auto-sizer";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -474,24 +473,19 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
         colWidths={colWidths}
         setColWidths={setColWidths}
       />
-      <AutoSizer>
-        {({ height, width }) => {
-          return <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
-            <div style={{ flex: 1 }}>
-              <FixedSizeList
-                height={height - headerHeight}
-                width={width}
-                itemSize={rowHeight}
-                itemCount={filteredEntries.length + 1}
-                ref={listRef}
-                onItemsRendered={
-                  (props) => setVisibleRange({ start: props.visibleStartIndex, end: props.visibleStopIndex })}
-              >
-                {Row}
-              </FixedSizeList>
-            </div>
-          </div>
-        }}</AutoSizer>
+      <div style={{ flex: 1 }}>
+        <FixedSizeList
+          height={props.height - headerHeight}
+          width={props.width}
+          itemSize={rowHeight}
+          itemCount={filteredEntries.length + 1}
+          ref={listRef}
+          onItemsRendered={
+            (props) => setVisibleRange({ start: props.visibleStartIndex, end: props.visibleStopIndex })}
+        >
+          {Row}
+        </FixedSizeList>
+      </div>
     </div>
   )
 });
