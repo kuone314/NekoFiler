@@ -470,7 +470,10 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
 
   return (
     <div
-      style={{ height: props.height, width: props.width }}
+      style={{
+        height: props.height,
+        width: props.width,
+      }}
     >
       <FileListHeader
         backgroundColor={theme.baseColor.backgroundColor}
