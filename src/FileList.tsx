@@ -431,20 +431,17 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
                   }
                 })()}
               </div>
-              {(columnIndex !== columns.length - 1)
-                ? <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    width: separatorWidth,
-                    height: "100%",
-                    backgroundColor: theme.baseColor.stringDefaultColor,
-                  }}
-                >
-                </div>
-                : <></>
-              }
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  width: separatorWidth,
+                  height: "100%",
+                  backgroundColor: theme.baseColor.stringDefaultColor,
+                }}
+              >
+              </div>
             </div>
           ))}
         </div>
@@ -587,7 +584,7 @@ function FileListHeader(
         }}
       >
         {col.title}
-        {(idx !== columns.length - 1) ? separator(idx) : <></>}
+        {separator(idx)}
       </div>
     ))}
   </div>
