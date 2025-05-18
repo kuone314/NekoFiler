@@ -473,6 +473,8 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       style={{
         height: props.height,
         width: props.width,
+        overflowX: 'scroll',
+        overflowY: 'clip',
       }}
     >
       <FileListHeader
