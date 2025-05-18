@@ -389,61 +389,71 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     selectCurrentOnly,
   }
 
+  const colWidthsTotal = colWidths.reduce((acc, cur) => acc + cur, 0);
+
   const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
     if (IsValidIndex(filteredEntries, index)) {
       const entry = filteredEntries[index].file_list_item;
       return (
         <div
           key={"Row" + index}
-          onMouseDown={(event) => { onMouseDown(index, event) }}
-          onMouseMove={(event) => { onMouseMove(index, event) }}
-          onMouseUp={(_) => { onMouseUp(index) }}
-          css={table_color(index)}
           style={{
             ...style,
+            overflowX: "clip",
             display: "flex",
             boxSizing: "border-box",
           }}
         >
-          {columns.map((col, columnIndex) => (
-            <div
-              key={col.title}
-              style={{
-                width: colWidths[columnIndex],
-                position: "relative",
-              }}
-            >
+          <div
+            onMouseDown={(event) => { onMouseDown(index, event) }}
+            onMouseMove={(event) => { onMouseMove(index, event) }}
+            onMouseUp={(_) => { onMouseUp(index) }}
+            css={table_color(index)}
+            style={{
+              display: "flex",
+              boxSizing: "border-box",
+              width: colWidthsTotal,
+            }}>
+            {columns.map((col, columnIndex) => (
               <div
+                key={col.title}
                 style={{
                   width: colWidths[columnIndex],
-                  padding: "0 6px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
+                  position: "relative",
                 }}
               >
-                {(() => {
-                  switch (columnIndex) {
-                    case 0: return <img src={`data:image/bmp;base64,${entry.file_icon ?? ""}`} />;
-                    case 1: return < >{FileNameWithEmphasis(filteredEntries[index])}</>;
-                    case 2: return < >{entry.file_extension}</>;
-                    case 3: return < >{entry.file_size ?? "-"}</>;
-                    case 4: return < >{entry.date}</>;
-                  }
-                })()}
+                <div
+                  style={{
+                    width: colWidths[columnIndex],
+                    padding: "0 6px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {(() => {
+                    switch (columnIndex) {
+                      case 0: return <img src={`data:image/bmp;base64,${entry.file_icon ?? ""}`} />;
+                      case 1: return < >{FileNameWithEmphasis(filteredEntries[index])}</>;
+                      case 2: return < >{entry.file_extension}</>;
+                      case 3: return < >{entry.file_size ?? "-"}</>;
+                      case 4: return < >{entry.date}</>;
+                    }
+                  })()}
+                </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      width: separatorWidth,
+                      height: "100%",
+                      backgroundColor: theme.baseColor.stringDefaultColor,
+                    }}
+                  >
+                  </div>
               </div>
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  width: separatorWidth,
-                  height: "100%",
-                  backgroundColor: theme.baseColor.stringDefaultColor,
-                }}
-              >
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       );
     } else {
@@ -473,7 +483,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       <div style={{ flex: 1 }}>
         <FixedSizeList
           height={props.height - headerHeight}
-          width={props.width}
+          width={Math.max(colWidthsTotal, props.width)}
           itemSize={rowHeight}
           itemCount={filteredEntries.length + 1}
           ref={listRef}
