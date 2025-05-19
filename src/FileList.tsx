@@ -172,8 +172,10 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     if (event.detail >= 2) {
       if (IsValidIndex(filteredEntries, row_idx)) {
         accessCurrentItem()
-        event.stopPropagation();
+      } else {
+        props.accessParentDir();
       }
+      event.stopPropagation();
       return;
     }
 
@@ -440,17 +442,17 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
                     }
                   })()}
                 </div>
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      width: separatorWidth,
-                      height: "100%",
-                      backgroundColor: theme.baseColor.stringDefaultColor,
-                    }}
-                  >
-                  </div>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    width: separatorWidth,
+                    height: "100%",
+                    backgroundColor: theme.baseColor.stringDefaultColor,
+                  }}
+                >
+                </div>
               </div>
             ))}
           </div>
