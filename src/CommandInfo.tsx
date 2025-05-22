@@ -110,7 +110,7 @@ export const shellCommandTemplate = `# Available variables
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function decoratePath(path: String): string {
-  return '"' + path + '"';
+  return "'" + path + "'";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,12 +166,12 @@ export function commandExecuter(
       .split(/\n/)
       .map(decoratePath)
       .join(',');
-    const current_dir_def = `$current_dir = "${current_dir}";`;
-    const opposite_dir_def = `$opposite_dir = "${opposite_dir}";`;
+    const current_dir_def = `$current_dir = ${decoratePath(current_dir)};`;
+    const opposite_dir_def = `$opposite_dir = ${decoratePath(opposite_dir)};`;
     const path_ary_def = `$selecting_item_path_ary = @(${path_ary});`;
     const name_ary_def = `$selecting_item_name_ary = @(${name_ary});`;
     const dialog_input_def = `$dialog_input_str_ary = @(${dialog_input_string_ary});`;
-    const script_dir_def = `$script_dir = "${script_dir_full_path}";`;
+    const script_dir_def = `$script_dir = ${decoratePath(script_dir_full_path)};`;
 
     const command_strs = [path_ary_def, name_ary_def, current_dir_def, opposite_dir_def, dialog_input_def, script_dir_def, command_line,];
     const replaced_command_line = command_strs.join('\n');
