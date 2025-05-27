@@ -9,8 +9,6 @@ use chrono::{DateTime, Local};
 use winapi::um::winbase::GetLogicalDriveStringsA;
 use winapi::um::winnt::CHAR;
 
-// use super::FileBaseInfo;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug)]
 pub struct FileBaseInfo {
