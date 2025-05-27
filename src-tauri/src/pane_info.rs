@@ -81,24 +81,24 @@ impl FileListFullInfo {
     dirctry_path: &String,
     initial_focus: Option<String>,
   ) -> Option<FileListFullInfo> {
-    let file_list = get_file_list(&dirctry_path);
-    let file_list = file_list.map(|file_list| {
-      file_list
-        .iter()
-        .map(|file_data| FileListItem::new(file_data, false))
-        .collect::<Vec<_>>()
-    });
+    let Some(file_list) = get_file_list(&dirctry_path) else {
+      return None;
+    };
+
+    let file_list = file_list
+      .iter()
+      .map(|file_data| FileListItem::new(file_data, false))
+      .collect::<Vec<_>>();
 
     let focus_idx = initial_focus
       .and_then(|initial_focus| {
         file_list
-          .as_ref()?
           .iter()
           .position(|file| file.file_name == initial_focus)
       })
       .unwrap_or(0);
 
-    file_list.map(|file_list| FileListFullInfo {
+    Some(FileListFullInfo {
       filtered_item_info: (0..file_list.len())
         .map(|org_idx| FilterdFileInfo {
           org_idx,
