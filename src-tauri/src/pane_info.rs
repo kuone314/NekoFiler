@@ -21,6 +21,25 @@ pub mod selections;
 pub mod sort;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+pub fn get_file_list_ex(path: &str) -> Option<Vec<FileBaseInfo>> {
+  let Some(result) = get_file_list(&path) else {
+    return None;
+  };
+
+  let ignore_system_file = is_ignore_system_file();
+  if !ignore_system_file {
+    return Some(result);
+  };
+
+  Some(
+    result
+      .into_iter()
+      .filter(|item| !item.is_system_file())
+      .collect_vec(),
+  )
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Clone)]
 pub struct FileListUiInfo {
   full_item_num: usize,
@@ -81,7 +100,7 @@ impl FileListFullInfo {
     dirctry_path: &String,
     initial_focus: Option<String>,
   ) -> Option<FileListFullInfo> {
-    let Some(file_list) = get_file_list(&dirctry_path) else {
+    let Some(file_list) = get_file_list_ex(&dirctry_path) else {
       return None;
     };
 
@@ -460,7 +479,7 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
     return;
   };
 
-  let Some(new_file_list) = get_file_list(&pane_info.dirctry_path) else {
+  let Some(new_file_list) = get_file_list_ex(&pane_info.dirctry_path) else {
     pane_info.file_list_info = None;
     return;
   };
