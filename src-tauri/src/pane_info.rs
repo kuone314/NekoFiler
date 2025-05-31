@@ -251,6 +251,7 @@ impl PaneInfo {
 
 #[derive(Debug)]
 pub struct FilerData {
+  ignore_system_file: Mutex<bool>,
   background: Mutex<Color>,
   pane_info_list: [PaneHandler; 2],
 }
@@ -258,6 +259,7 @@ pub struct FilerData {
 impl FilerData {
   fn new() -> Self {
     Self {
+      ignore_system_file: Mutex::new(true),
       background: Mutex::new(Color { r: 0, g: 0, b: 0 }),
       pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
@@ -274,6 +276,16 @@ static PANE_DATA: Lazy<FilerData> = Lazy::new(|| FilerData::new());
 #[tauri::command]
 pub fn set_background_color(color: Color) {
   *PANE_DATA.background.lock().unwrap() = color;
+}
+
+#[tauri::command]
+pub fn set_ignore_system_file(value: bool) {
+  *PANE_DATA.ignore_system_file.lock().unwrap() = value;
+}
+
+#[tauri::command]
+pub fn is_ignore_system_file() -> bool {
+  PANE_DATA.ignore_system_file.lock().unwrap().clone()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

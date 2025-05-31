@@ -14,6 +14,8 @@ use get_exe_dir::get_exe_dir;
 
 mod pane_info;
 use pane_info::set_background_color;
+use pane_info::set_ignore_system_file;
+use pane_info::is_ignore_system_file;
 use pane_info::set_dirctry_path;
 use pane_info::set_filter;
 use pane_info::set_focus_idx;
@@ -46,6 +48,8 @@ fn main() {
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
       set_background_color,
+      set_ignore_system_file,
+      is_ignore_system_file,
       set_dirctry_path,
       set_filter,
       add_selecting_idx,
