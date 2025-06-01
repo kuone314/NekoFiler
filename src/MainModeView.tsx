@@ -45,8 +45,17 @@ export function MainModeView(
   }
 ) {
   const [tabsPathAry, setTabsPathAry] = useState<TabsInfo[]>([]);
+  const [ignoreSystemFile, setIgnoreSystemFile] = useState(true);
+
   useEffect(() => {
-    (async () => { setTabsPathAry(await ReadLastOpenedTabs()) })()
+    invoke<boolean>("set_ignore_system_file", { value: ignoreSystemFile });
+  }, [ignoreSystemFile]);
+
+  useEffect(() => {
+    (async () => {
+      setTabsPathAry(await ReadLastOpenedTabs());
+      setIgnoreSystemFile(await invoke<boolean>("is_ignore_system_file"));
+    })()
   }, []);
 
   const [currentPaneIndex, setCurrentPaneIndex] = useState(0);
@@ -256,7 +265,7 @@ export function MainModeView(
         <div
           css={css({
             display: 'grid',
-            gridTemplateRows: 'auto auto 1fr auto', // Settings separator logPane statusBar
+            gridTemplateRows: 'auto auto auto 1fr auto', // Separator CheckBox Settings logPane statusBar
             height: props.height - 20,
           })}
         >
@@ -265,6 +274,16 @@ export function MainModeView(
             onClick={() => { setSeparator(separator === '/' ? '\\' : '/') }}>
             separator:{separator}
           </button>
+
+          <label>
+            <input
+              type='checkbox'
+              checked={ignoreSystemFile}
+              onChange={(_) => setIgnoreSystemFile(!ignoreSystemFile)}
+            />
+            Ignore System File
+          </label>
+
           <button
             css={css(buttonStyle)}
             onClick={() => { setOpenSettings(!openSettings) }}

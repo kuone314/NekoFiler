@@ -21,6 +21,25 @@ pub mod selections;
 pub mod sort;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+pub fn get_file_list_ex(path: &str) -> Option<Vec<FileBaseInfo>> {
+  let Some(result) = get_file_list(&path) else {
+    return None;
+  };
+
+  let ignore_system_file = is_ignore_system_file();
+  if !ignore_system_file {
+    return Some(result);
+  };
+
+  Some(
+    result
+      .into_iter()
+      .filter(|item| !item.is_system_file())
+      .collect_vec(),
+  )
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Serialize, Clone)]
 pub struct FileListUiInfo {
   full_item_num: usize,
@@ -81,24 +100,24 @@ impl FileListFullInfo {
     dirctry_path: &String,
     initial_focus: Option<String>,
   ) -> Option<FileListFullInfo> {
-    let file_list = get_file_list(&dirctry_path);
-    let file_list = file_list.map(|file_list| {
-      file_list
-        .iter()
-        .map(|file_data| FileListItem::new(file_data, false))
-        .collect::<Vec<_>>()
-    });
+    let Some(file_list) = get_file_list_ex(&dirctry_path) else {
+      return None;
+    };
+
+    let file_list = file_list
+      .iter()
+      .map(|file_data| FileListItem::new(file_data, false))
+      .collect::<Vec<_>>();
 
     let focus_idx = initial_focus
       .and_then(|initial_focus| {
         file_list
-          .as_ref()?
           .iter()
           .position(|file| file.file_name == initial_focus)
       })
       .unwrap_or(0);
 
-    file_list.map(|file_list| FileListFullInfo {
+    Some(FileListFullInfo {
       filtered_item_info: (0..file_list.len())
         .map(|org_idx| FilterdFileInfo {
           org_idx,
@@ -251,6 +270,7 @@ impl PaneInfo {
 
 #[derive(Debug)]
 pub struct FilerData {
+  ignore_system_file: Mutex<bool>,
   background: Mutex<Color>,
   pane_info_list: [PaneHandler; 2],
 }
@@ -258,6 +278,7 @@ pub struct FilerData {
 impl FilerData {
   fn new() -> Self {
     Self {
+      ignore_system_file: Mutex::new(true),
       background: Mutex::new(Color { r: 0, g: 0, b: 0 }),
       pane_info_list: [PaneHandler::new(0), PaneHandler::new(1)],
     }
@@ -274,6 +295,20 @@ static PANE_DATA: Lazy<FilerData> = Lazy::new(|| FilerData::new());
 #[tauri::command]
 pub fn set_background_color(color: Color) {
   *PANE_DATA.background.lock().unwrap() = color;
+}
+
+#[tauri::command]
+pub fn set_ignore_system_file(
+  app_handle: tauri::AppHandle,
+  value: bool,
+) {
+  *PANE_DATA.ignore_system_file.lock().unwrap() = value;
+  update_file_list(&app_handle)
+}
+
+#[tauri::command]
+pub fn is_ignore_system_file() -> bool {
+  PANE_DATA.ignore_system_file.lock().unwrap().clone()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,7 +483,7 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
     return;
   };
 
-  let Some(new_file_list) = get_file_list(&pane_info.dirctry_path) else {
+  let Some(new_file_list) = get_file_list_ex(&pane_info.dirctry_path) else {
     pane_info.file_list_info = None;
     return;
   };

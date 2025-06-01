@@ -9,7 +9,7 @@ use chrono::{DateTime, Local};
 use winapi::um::winbase::GetLogicalDriveStringsA;
 use winapi::um::winnt::CHAR;
 
-// use super::FileBaseInfo;
+use windows::Win32::Storage::FileSystem::FILE_ATTRIBUTE_SYSTEM;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Debug)]
@@ -43,6 +43,14 @@ impl FileBaseInfo {
       return None;
     };
     get_date_str(&meta_data)
+  }
+
+  pub(crate) fn is_system_file(&self) -> bool {
+    let Some(meta_data) = self.meta_data.as_ref() else {
+      return false;
+    };
+    let attrs = meta_data.file_attributes();
+    (attrs & FILE_ATTRIBUTE_SYSTEM.0) != 0
   }
 
   pub(crate) fn file_extension(&self) -> String {
