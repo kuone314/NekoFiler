@@ -298,8 +298,12 @@ pub fn set_background_color(color: Color) {
 }
 
 #[tauri::command]
-pub fn set_ignore_system_file(value: bool) {
+pub fn set_ignore_system_file(
+  app_handle: tauri::AppHandle,
+  value: bool,
+) {
   *PANE_DATA.ignore_system_file.lock().unwrap() = value;
+  update_file_list(&app_handle)
 }
 
 #[tauri::command]
