@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 use std::process::Command;
+use std::os::windows::process::CommandExt;
+use windows::Win32::System::Threading::CREATE_NO_WINDOW;
 
 use tauri::{AppHandle, Emitter};
 use uuid::Uuid;
@@ -65,12 +67,12 @@ impl Executer {
   ) -> Option<()> {
     self.push_log(&app_handle);
 
-    let output = Command::new("Powershell")
-      .args(["-WindowStyle", "Hidden"])
-      .args(["-Command", &self.command])
-      .current_dir(&self.dir)
-      .output()
-      .ok()?;
+let output = Command::new("powershell")
+    .args(["-Command", &self.command])
+    .current_dir(&self.dir)
+    .creation_flags(CREATE_NO_WINDOW.0)
+    .output()
+    .ok()?;
 
     update_file_list(&app_handle);
 
