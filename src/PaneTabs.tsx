@@ -163,7 +163,8 @@ export const PaneTabs = (
       anchorPoint={{ x: contextMenuPosX, y: contextMenuPosY }} // 適当…。
     >
       {
-        tabContextMenuItems.map(item => <MenuItem
+        tabContextMenuItems.map((item,idx) => <MenuItem
+          key={idx}
           css={menuItemStyle}
           onClick={item.onClick}
         >
