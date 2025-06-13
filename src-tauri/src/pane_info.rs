@@ -252,6 +252,7 @@ impl PaneHandler {
 pub struct PaneInfo {
   dirctry_path: String,
   filter: FilterInfo,
+  viewing_idx_range: std::ops::Range<usize>,
   file_list_info: Option<FileListFullInfo>,
 }
 impl PaneInfo {
@@ -260,6 +261,7 @@ impl PaneInfo {
       dirctry_path: "".to_owned(),
       filter: FilterInfo::new(),
       file_list_info: None,
+      viewing_idx_range: 0..0,
     }
   }
 
@@ -311,6 +313,16 @@ pub fn is_ignore_system_file() -> bool {
   PANE_DATA.ignore_system_file.lock().unwrap().clone()
 }
 
+#[tauri::command]
+pub fn set_viewing_idx_range(
+  pane_idx: usize,
+  range_stt: usize,
+  range_end: usize,
+) {
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].data.lock().unwrap();
+  pane_info.viewing_idx_range = range_stt..range_end;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
 pub fn set_dirctry_path(
@@ -345,6 +357,7 @@ pub fn set_dirctry_path(
     dirctry_path: path,
     filter: FilterInfo::new(),
     file_list_info,
+    viewing_idx_range: 0..0,
   };
   pane_info.to_ui_info()
 }
