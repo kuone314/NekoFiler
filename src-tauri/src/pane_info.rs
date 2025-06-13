@@ -457,13 +457,21 @@ fn update_pane_info(
     },
   );
 
+  let viewing_idx_range = pane_info.viewing_idx_range.clone();
   let dirctry_path = pane_info.dirctry_path.clone();
   let Some(file_list_info) = &mut pane_info.file_list_info else {
     return;
   };
 
-  // フィルタ後の物だけで良いかも。
-  for file_list_item in file_list_info.full_item_list.iter_mut() {
+  for filterd_idx in viewing_idx_range {
+    let Some(filtered_item_info) = file_list_info.filtered_item_info.get(filterd_idx) else {
+      continue;
+    };
+    let org_idx = filtered_item_info.org_idx;
+    let Some(file_list_item) = file_list_info.full_item_list.get_mut(org_idx) else {
+      continue;
+    };
+
     let file_path = &PathBuf::from(&dirctry_path).join(&file_list_item.file_name);
     file_list_item.file_icon = get_file_icon(file_path, &background);
 
