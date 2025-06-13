@@ -252,6 +252,7 @@ impl PaneHandler {
 pub struct PaneInfo {
   dirctry_path: String,
   filter: FilterInfo,
+  viewing_idx_range: std::ops::Range<usize>,
   file_list_info: Option<FileListFullInfo>,
 }
 impl PaneInfo {
@@ -260,6 +261,7 @@ impl PaneInfo {
       dirctry_path: "".to_owned(),
       filter: FilterInfo::new(),
       file_list_info: None,
+      viewing_idx_range: 0..0,
     }
   }
 
@@ -311,6 +313,16 @@ pub fn is_ignore_system_file() -> bool {
   PANE_DATA.ignore_system_file.lock().unwrap().clone()
 }
 
+#[tauri::command]
+pub fn set_viewing_idx_range(
+  pane_idx: usize,
+  range_stt: usize,
+  range_end: usize,
+) {
+  let mut pane_info = PANE_DATA.pane_info_list[pane_idx].data.lock().unwrap();
+  pane_info.viewing_idx_range = range_stt..range_end;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #[tauri::command]
 pub fn set_dirctry_path(
@@ -345,6 +357,7 @@ pub fn set_dirctry_path(
     dirctry_path: path,
     filter: FilterInfo::new(),
     file_list_info,
+    viewing_idx_range: 0..0,
   };
   pane_info.to_ui_info()
 }
@@ -444,13 +457,21 @@ fn update_pane_info(
     },
   );
 
+  let viewing_idx_range = pane_info.viewing_idx_range.clone();
   let dirctry_path = pane_info.dirctry_path.clone();
   let Some(file_list_info) = &mut pane_info.file_list_info else {
     return;
   };
 
-  // フィルタ後の物だけで良いかも。
-  for file_list_item in file_list_info.full_item_list.iter_mut() {
+  for filterd_idx in viewing_idx_range {
+    let Some(filtered_item_info) = file_list_info.filtered_item_info.get(filterd_idx) else {
+      continue;
+    };
+    let org_idx = filtered_item_info.org_idx;
+    let Some(file_list_item) = file_list_info.full_item_list.get_mut(org_idx) else {
+      continue;
+    };
+
     let file_path = &PathBuf::from(&dirctry_path).join(&file_list_item.file_name);
     file_list_item.file_icon = get_file_icon(file_path, &background);
 

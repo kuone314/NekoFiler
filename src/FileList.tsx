@@ -122,6 +122,16 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   const [visibleRange, setVisibleRange] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
 
   useEffect(() => {
+    invoke(
+      'set_viewing_idx_range',
+      {
+        paneIdx: props.panel_idx,
+        rangeStt: visibleRange.start,
+        rangeEnd: visibleRange.end,
+      })
+  }, [visibleRange]);
+
+  useEffect(() => {
     const scrollIndex = CalcScrollIndex(visibleRange, props.fileListInfo.focus_idx, adjustMargin)
     listRef.current?.scrollToItem(scrollIndex);
   }, [props.fileListInfo.focus_idx]);

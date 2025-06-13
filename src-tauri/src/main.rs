@@ -19,6 +19,7 @@ use pane_info::is_ignore_system_file;
 use pane_info::set_dirctry_path;
 use pane_info::set_filter;
 use pane_info::set_focus_idx;
+use pane_info::set_viewing_idx_range;
 use pane_info::update_file_list;
 use pane_info::sort::sort_file_list;
 use pane_info::selections::add_selecting_idx;
@@ -54,6 +55,7 @@ fn main() {
       set_filter,
       add_selecting_idx,
       set_selecting_idx,
+      set_viewing_idx_range,
       toggle_selection,
       set_focus_idx,
       sort_file_list,
