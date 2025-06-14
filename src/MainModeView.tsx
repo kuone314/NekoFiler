@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
 import CommandBar from './CommandBar';
@@ -8,7 +8,7 @@ import { PaneTabs } from './PaneTabs';
 /** @jsxImportSource @emotion/react */
 import { css, SerializedStyles } from '@emotion/react'
 
-import { LogInfo, LogMessagePein } from './LogMessagePane';
+import { LogInfo, LogMessagePein, LogMessagePeinFunc } from './LogMessagePane';
 import { TabColorSettings } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
@@ -130,10 +130,10 @@ export function MainModeView(
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
 
 
-  const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
-  });
+  const logMessagePeinFunc = useRef<LogMessagePeinFunc>(null);
+
   const addLogMessage = (message: LogInfo) => {
-    logMessagePeinFunc.addMessage(message);
+    logMessagePeinFunc.current?.addMessage(message);
   };
 
   const [updateDlg, Update] = Updater(addLogMessage);
@@ -303,7 +303,9 @@ export function MainModeView(
                 Update)
               : <></>
           }
-          {logMessagePein}
+          <LogMessagePein
+            ref={logMessagePeinFunc}
+          />
           <div // statas bar
             css={css({
               height: statusBarHeight,

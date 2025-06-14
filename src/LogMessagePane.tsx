@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
@@ -127,9 +127,12 @@ function LopPane(
 }
 
 
-export function LogMessagePein(_props: {
-})
-  : [JSX.Element, LogMessagePeinFunc,] {
+type LogMessagePeinProps = {
+};
+
+export const LogMessagePein = forwardRef<LogMessagePeinFunc, LogMessagePeinProps>((_props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
   const [logAry, setLogAry] = useState<LogPaneInfo[]>([]);
   const [requireScrollToBottom, setRequireScrollToBottom] = useState(false);
 
@@ -205,5 +208,6 @@ export function LogMessagePein(_props: {
         }
       </div>
     </>
-  return [element, functions];
-}
+  return element;
+});
+
