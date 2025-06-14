@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
@@ -30,14 +30,16 @@ export interface LogInfo {
 }
 
 function LopPane(
-  logPaneInfo: LogPaneInfo,
-  onClick: () => void,
-  onCommandClick: () => void,
+  props: {
+    logPaneInfo: LogPaneInfo,
+    onClick: () => void,
+    onCommandClick: () => void,
+  }
 ) {
   const theme = useTheme();
   const textInputStyle = TextInputStyle(theme.baseColor);
 
-  const logInfo = logPaneInfo.logInfo;
+  const logInfo = props.logPaneInfo.logInfo;
 
   const isError = () => {
     const rc = logInfo.rc ?? 0;
@@ -52,11 +54,11 @@ function LopPane(
 
   const deteal = () => {
     return <>
-      <div onClick={onCommandClick} css={css({ userSelect: 'text' })}>
-        command{icon(logPaneInfo.isCommandOpen)}
+      <div onClick={props.onCommandClick} css={css({ userSelect: 'text' })}>
+        command{icon(props.logPaneInfo.isCommandOpen)}
       </div>
       {
-        logPaneInfo.isCommandOpen
+        props.logPaneInfo.isCommandOpen
           ? <textarea
             style={textInputStyle}
             css={css({ userSelect: 'text', fontSize: '18px', })}
@@ -102,7 +104,7 @@ function LopPane(
       })}
     >
       <div
-        onClick={onClick}
+        onClick={props.onClick}
         css={css({
           display: 'flex',
           flexDirection: 'row',
@@ -115,10 +117,10 @@ function LopPane(
         >
           {logInfo.title}
         </div>
-        {icon(logPaneInfo.isOpen)}
+        {icon(props.logPaneInfo.isOpen)}
       </div>
       {
-        logPaneInfo.isOpen
+        props.logPaneInfo.isOpen
           ? deteal()
           : <></>
       }
@@ -127,9 +129,12 @@ function LopPane(
 }
 
 
-export function LogMessagePein(_props: {
-})
-  : [JSX.Element, LogMessagePeinFunc,] {
+type LogMessagePeinProps = {
+};
+
+export const LogMessagePein = forwardRef<LogMessagePeinFunc, LogMessagePeinProps>((_props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
   const [logAry, setLogAry] = useState<LogPaneInfo[]>([]);
   const [requireScrollToBottom, setRequireScrollToBottom] = useState(false);
 
@@ -196,14 +201,14 @@ export function LogMessagePein(_props: {
       >
         {
           logAry.map((logInfo, idx) => <div key={idx} >{
-            LopPane(
-              logInfo,
-              () => toggleLogPaneOpen(idx),
-              () => toggleLogPaneCommandOpen(idx),
-            )
+            <LopPane
+              logPaneInfo={logInfo}
+              onClick={() => toggleLogPaneOpen(idx)}
+              onCommandClick={() => toggleLogPaneCommandOpen(idx)} />
           }</div>)
         }
       </div>
     </>
-  return [element, functions];
-}
+  return element;
+});
+

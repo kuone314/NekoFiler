@@ -8,7 +8,7 @@ import { separator } from './FilePathSeparator';
 import { AddressBar, AddressBarFunc, } from './AddressBar';
 import { FileList, FileListFunc, FileListUiInfo, } from './FileList';
 
-import { BUILDIN_COMMAND_TYPE, commandExecuter } from './CommandInfo';
+import { BUILDIN_COMMAND_TYPE, CommandExecuter, CommandExecuterFunc } from './CommandInfo';
 import { KeyBindSetting, COMMAND_TYPE, readKeyBindSetting, match } from './KeyBindInfo';
 
 /** @jsxImportSource @emotion/react */
@@ -257,7 +257,7 @@ export const MainPanel = (
     }
 
     if (command.action.type === COMMAND_TYPE.power_shell) {
-      execShellCommand(
+      commandExecuterFunc.current?.execShellCommand(
         command.action.command_name,
         props.dirPath,
         FileListFunctions.current?.selectingItemName() ?? [],
@@ -331,10 +331,8 @@ export const MainPanel = (
 
   const myGrid = props.gridRef ?? React.createRef<HTMLDivElement>();
 
-  const [dialog, execShellCommand] = commandExecuter(
-    props.addLogMessage,
-    () => { myGrid.current?.focus() },
-  );
+
+  const commandExecuterFunc = useRef<CommandExecuterFunc>(null);
 
   const menuItemStyle = MenuitemStyle(theme.baseColor);
 
@@ -369,7 +367,7 @@ export const MainPanel = (
         contextMenuInfoAry.map((command, idx) => {
           return <MenuItem
             css={menuItemStyle}
-            onClick={_ => execShellCommand(
+            onClick={_ => commandExecuterFunc.current?.execShellCommand(
               command.command_name,
               props.dirPath,
               FileListFunctions.current?.selectingItemName() ?? [],
@@ -469,7 +467,11 @@ export const MainPanel = (
             : <div>Directry Unfound.</div>}
         </div>
       </div>
-      {dialog}
+      <CommandExecuter
+        addLogMessage={props.addLogMessage}
+        onDialogClose={() => { myGrid.current?.focus() }}
+        ref={commandExecuterFunc}
+      />
       {commandSelectMenu()}
     </>
   );

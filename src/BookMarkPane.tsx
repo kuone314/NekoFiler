@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
@@ -109,17 +109,20 @@ export function BookMarkPane(
     setCurrentIndex(trgIdx + 1);
   }
 
-  const [editDlg, EditStart] = BookMarkEditor(
-    (editedBookMarkItem: BookMarkItem) => {
-      let newBookMarkItemAry = Array.from(bookMarkItemAry);
-      newBookMarkItemAry[currentIndex] = editedBookMarkItem;
-      setBookMarkItemAry(newBookMarkItemAry);
-      writeBookMarkItem(newBookMarkItemAry);
-    }
-  );
+  const bookMarkEditorFunc = useRef<BookMarkEditorFunc>(null);
 
   return <>
-    {editDlg}
+    <BookMarkEditor
+      onOk={(editedBookMarkItem: BookMarkItem) => {
+        let newBookMarkItemAry = Array.from(bookMarkItemAry);
+        newBookMarkItemAry[currentIndex] = editedBookMarkItem;
+        setBookMarkItemAry(newBookMarkItemAry);
+        writeBookMarkItem(newBookMarkItemAry);
+      }}
+      ref={bookMarkEditorFunc}
+    />
+
+
     <div>BookMark</div>
     <button
       css={buttonStyle}
@@ -129,7 +132,7 @@ export function BookMarkPane(
       css={buttonStyle}
       onClick={() => {
         if (!IsValidIndex(bookMarkItemAry, currentIndex)) { return; }
-        EditStart(bookMarkItemAry[currentIndex])
+        bookMarkEditorFunc.current?.editStart(bookMarkItemAry[currentIndex])
       }}
     >Edit</button>
     <button
@@ -166,9 +169,18 @@ export function BookMarkPane(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function BookMarkEditor(
+export interface BookMarkEditorFunc {
+  editStart: (srcBookMarkItem: BookMarkItem) => void
+}
+
+type BookMarkEditorProps = {
   onOk: (editedBookMarkItem: BookMarkItem) => void,
-): [JSX.Element, (srcBookMarkItem: BookMarkItem) => void,] {
+};
+
+export const BookMarkEditor = forwardRef<BookMarkEditorFunc, BookMarkEditorProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
+
   const [name, setName] = useState('');
   const [path, setPath] = useState('');
   const theme = useTheme();
@@ -185,7 +197,7 @@ export function BookMarkEditor(
     >
       <button
         css={buttonStyle}
-        onClick={() => { onOk({ name, path }); dlg.current?.close() }}
+        onClick={() => { props.onOk({ name, path }); dlg.current?.close() }}
       >
         Ok
       </button>
@@ -233,5 +245,8 @@ export function BookMarkEditor(
     dlg.current?.showModal();
   }
 
-  return [dialogElement, EditStart];
-}
+  const functions = {
+    editStart: EditStart,
+  }
+  return dialogElement;
+});

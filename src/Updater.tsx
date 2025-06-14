@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import React from 'react';
 
@@ -11,9 +11,18 @@ import { v4 as uuidv4 } from 'uuid';
 import { ButtonStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function Updater(
+export interface UpdaterFunc {
+  update:  () => void;
+}
+
+type UpdaterProps = {
   addLogMessage: (message: LogInfo) => void,
-): [JSX.Element, () => void,] {
+};
+
+export const Updater = forwardRef<UpdaterFunc, UpdaterProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
+
   const [latestVersion, setLatestVersion] = useState('');
   const [targetVersion, setTargetVersion] = useState('');
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
@@ -25,7 +34,7 @@ export function Updater(
     invoke<void>("update_filer", { version: targetVersion }).catch(
       message => {
         const message_str = message as string;
-        addLogMessage({
+        props.addLogMessage({
           title: 'Update failed.',
           stdout: '',
           stderr: message_str,
@@ -111,5 +120,9 @@ export function Updater(
     })()
   }
 
-  return [dialogElement, Update];
-}
+  const functions = {
+    update: Update,
+  };
+
+  return dialogElement;
+});

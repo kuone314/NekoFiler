@@ -6,7 +6,7 @@ import { separator, ApplySeparator } from './FilePathSeparator';
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import React from 'react';
 
 import { GenerateDefaultSeting } from './DefaultCommandSettins';
@@ -114,18 +114,24 @@ function decoratePath(path: String): string {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-type ExecShellCommand = (
-  command_name: string,
-  current_dir: string,
-  selecting_item_name_ary: string[],
-  opposite_path: string,
-  separator: separator,
-) => void;
+export interface CommandExecuterFunc {
+  execShellCommand:  (
+    command_name: string,
+    current_dir: string,
+    selecting_item_name_ary: string[],
+    opposite_path: string,
+    separator: separator,
+  ) => void;
+}
 
-export function commandExecuter(
+type CommandExecuterProps = {
   addLogMessage: (message: LogInfo) => void,
   onDialogClose: () => void,
-): [JSX.Element, ExecShellCommand,] {
+};
+
+export const CommandExecuter = forwardRef<CommandExecuterFunc, CommandExecuterProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
   const dlg: React.MutableRefObject<HTMLDialogElement | null> = useRef(null);
   const [title, setTitle] = useState<string>('');
   const [dlgString, setDlgString] = useState<string>('');
@@ -187,7 +193,7 @@ export function commandExecuter(
     const commands = await readShellCommandSetting();
     const command = commands.find(command => command.command_name === command_name);
     if (command === undefined) {
-      addLogMessage({
+      props.addLogMessage({
         title: "Command not found.",
         stdout: '',
         stderr: "'" + command_name + "'" + " is not valid command.",
@@ -317,7 +323,7 @@ export function commandExecuter(
       height: '80%',
     })}
     ref={dlg}
-    onClose={() => { onDialogClose(); }}
+    onClose={() => { props.onDialogClose(); }}
   >
     <div
       css={css({
@@ -341,6 +347,11 @@ export function commandExecuter(
     </div>
   </dialog>
 
-  return [element, execShellCommand];
-}
+  const functions = {
+    execShellCommand: execShellCommand,
+  };
+
+  return element;
+});
+
 

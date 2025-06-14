@@ -1,19 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
-import CommandBar from './CommandBar';
+import CommandBar, { CommandBarFuncs } from './CommandBar';
 import { separator } from './FilePathSeparator';
 import { PaneTabs } from './PaneTabs';
 
 /** @jsxImportSource @emotion/react */
 import { css, SerializedStyles } from '@emotion/react'
 
-import { LogInfo, LogMessagePein } from './LogMessagePane';
+import { LogInfo, LogMessagePein, LogMessagePeinFunc } from './LogMessagePane';
 import { TabColorSettings } from './TabColorSetting';
 
 import { ReadLastOpenedTabs, TabInfo, TabsInfo, WriteLastOpenedTabs } from './TabsInfo';
 import { BookMarkPane } from './BookMarkPane';
-import { Updater } from './Updater';
+import { Updater, UpdaterFunc } from './Updater';
 import { invoke } from '@tauri-apps/api/core';
 
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
@@ -130,13 +130,13 @@ export function MainModeView(
   const grid = [React.createRef<HTMLDivElement>(), React.createRef<HTMLDivElement>()];
 
 
-  const [logMessagePein, logMessagePeinFunc] = LogMessagePein({
-  });
+  const logMessagePeinFunc = useRef<LogMessagePeinFunc>(null);
+
   const addLogMessage = (message: LogInfo) => {
-    logMessagePeinFunc.addMessage(message);
+    logMessagePeinFunc.current?.addMessage(message);
   };
 
-  const [updateDlg, Update] = Updater(addLogMessage);
+  const updaterFunc = useRef<UpdaterFunc>(null);
 
   const commandBarHeight = 60; // とりあえず固定で。
   const borderThickness = 2;
@@ -162,13 +162,7 @@ export function MainModeView(
     addTab(oppositeIndex, dirPath);
   }
 
-  const [commandBar, commandBarFunc] = CommandBar(
-    {
-      path: getPath,
-      addLogMessage: addLogMessage,
-      focusToFileList: () => grid[currentPaneIndex].current?.focus(),
-    }
-  )
+  const commandBarFunc = useRef<CommandBarFuncs>(null);
 
   function ErrorFallback({
     error,
@@ -195,7 +189,10 @@ export function MainModeView(
 
   return (
     <>
-      {updateDlg}
+      <Updater
+        addLogMessage={addLogMessage}
+        ref={updaterFunc}
+      />
       <div
         css={css({
           display: 'grid',
@@ -252,7 +249,7 @@ export function MainModeView(
                       separator={separator}
                       gridRef={grid[idx]}
                       focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
-                      focusCommandBar={() => commandBarFunc.focus()}
+                      focusCommandBar={() => commandBarFunc.current?.focus()}
                       setKeyBind={props.setKeyBind}
                       duplicateTabToOppositePane={duplicateTabToOppositePane}
                     />
@@ -260,7 +257,12 @@ export function MainModeView(
                 </div>
               })
           }
-          {commandBar}
+          <CommandBar
+            path={getPath}
+            addLogMessage={addLogMessage}
+            focusToFileList={() => grid[currentPaneIndex].current?.focus()}
+            ref={commandBarFunc}
+          />
         </div>
         <div
           css={css({
@@ -300,10 +302,12 @@ export function MainModeView(
                 props.setContextMenu,
                 getPath,
                 OpenSettingDir,
-                Update)
+                () => { updaterFunc.current?.update() })
               : <></>
           }
-          {logMessagePein}
+          <LogMessagePein
+            ref={logMessagePeinFunc}
+          />
           <div // statas bar
             css={css({
               height: statusBarHeight,
