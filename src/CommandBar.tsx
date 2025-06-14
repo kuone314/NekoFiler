@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import React from 'react';
 import { executeShellCommand } from './RustFuncs';
 
@@ -13,14 +13,15 @@ export interface CommandBarFuncs {
   focus: () => void,
 }
 
+type CommandBarProps = {
+  path: () => string
+  addLogMessage: (message: LogInfo) => void,
+  focusToFileList: () => void,
+};
 
-export function CommandBar(
-  props: {
-    path: () => string
-    addLogMessage: (message: LogInfo) => void,
-    focusToFileList: () => void,
-  }
-): [JSX.Element, CommandBarFuncs,] {
+export const CommandBar = forwardRef<CommandBarFuncs, CommandBarProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
   const [str, setStr] = useState<string>("");
 
   const theme = useTheme();
@@ -35,7 +36,7 @@ export function CommandBar(
     if (event.key === 'Escape') { props.focusToFileList(); return; }
   };
 
-  const ref = React.createRef<HTMLInputElement>();
+  const inputRef = React.createRef<HTMLInputElement>();
 
   const elm = (
     <div style={
@@ -47,7 +48,7 @@ export function CommandBar(
     }>
       <input
         style={textInputStyle}
-        ref={ref}
+        ref={inputRef}
         type="text"
         placeholder='Input PowerSehll command.(e.g. echo Foo)'
         value={str}
@@ -59,12 +60,12 @@ export function CommandBar(
       />
     </div>
   );
-  return [
-    elm,
-    {
-      focus: () => { ref.current?.focus() }
-    }
-  ];
-}
+
+  const functions = {
+    focus: () => { inputRef.current?.focus() }
+  };
+
+  return elm;
+});
 
 export default CommandBar;

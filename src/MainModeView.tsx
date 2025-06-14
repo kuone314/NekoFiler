@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 
-import CommandBar from './CommandBar';
+import CommandBar, { CommandBarFuncs } from './CommandBar';
 import { separator } from './FilePathSeparator';
 import { PaneTabs } from './PaneTabs';
 
@@ -162,13 +162,7 @@ export function MainModeView(
     addTab(oppositeIndex, dirPath);
   }
 
-  const [commandBar, commandBarFunc] = CommandBar(
-    {
-      path: getPath,
-      addLogMessage: addLogMessage,
-      focusToFileList: () => grid[currentPaneIndex].current?.focus(),
-    }
-  )
+  const commandBarFunc = useRef<CommandBarFuncs>(null);
 
   function ErrorFallback({
     error,
@@ -252,7 +246,7 @@ export function MainModeView(
                       separator={separator}
                       gridRef={grid[idx]}
                       focusOppositePane={() => { grid[(idx + 1) % 2].current?.focus(); }}
-                      focusCommandBar={() => commandBarFunc.focus()}
+                      focusCommandBar={() => commandBarFunc.current?.focus()}
                       setKeyBind={props.setKeyBind}
                       duplicateTabToOppositePane={duplicateTabToOppositePane}
                     />
@@ -260,7 +254,12 @@ export function MainModeView(
                 </div>
               })
           }
-          {commandBar}
+          <CommandBar
+            path={getPath}
+            addLogMessage={addLogMessage}
+            focusToFileList={() => grid[currentPaneIndex].current?.focus()}
+            ref={commandBarFunc}
+          />
         </div>
         <div
           css={css({
