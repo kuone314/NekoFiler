@@ -46,20 +46,22 @@ function LogPane(
     return logInfo.stderr !== '' || rc !== 0;
   }
 
-  const icon = (isOpen: boolean) => {
-    return isOpen
+  const Icon = (props: { isOpen: boolean }) => {
+    return props.isOpen
       ? <IoIosArrowDropdown />
       : <IoIosArrowDropright />
   }
 
-  const deteal = () => {
+  function Deteal() {
     return <>
       <div
         onClick={props.onCommandClick}
         css={css({ userSelect: 'text' })}
       >
         command
-        {icon(props.logPaneInfo.isCommandOpen)}
+        <Icon
+          isOpen={props.logPaneInfo.isCommandOpen}
+        />
       </div>
       {
         props.logPaneInfo.isCommandOpen
@@ -121,11 +123,13 @@ function LogPane(
         >
           {logInfo.title}
         </div>
-        {icon(props.logPaneInfo.isOpen)}
+        <Icon
+          isOpen={props.logPaneInfo.isOpen}
+        />
       </div>
       {
         props.logPaneInfo.isOpen
-          ? deteal()
+          ? <Deteal />
           : <></>
       }
     </Box >
