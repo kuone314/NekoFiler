@@ -54,8 +54,12 @@ function LogPane(
 
   const deteal = () => {
     return <>
-      <div onClick={props.onCommandClick} css={css({ userSelect: 'text' })}>
-        command{icon(props.logPaneInfo.isCommandOpen)}
+      <div
+        onClick={props.onCommandClick}
+        css={css({ userSelect: 'text' })}
+      >
+        command
+        {icon(props.logPaneInfo.isCommandOpen)}
       </div>
       {
         props.logPaneInfo.isCommandOpen
