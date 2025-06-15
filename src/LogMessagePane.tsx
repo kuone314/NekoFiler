@@ -29,7 +29,7 @@ export interface LogInfo {
   stderr: string,
 }
 
-function LopPane(
+function LogPane(
   props: {
     logPaneInfo: LogPaneInfo,
     onClick: () => void,
@@ -46,16 +46,22 @@ function LopPane(
     return logInfo.stderr !== '' || rc !== 0;
   }
 
-  const icon = (isOpen: boolean) => {
-    return isOpen
+  const Icon = (props: { isOpen: boolean }) => {
+    return props.isOpen
       ? <IoIosArrowDropdown />
       : <IoIosArrowDropright />
   }
 
-  const deteal = () => {
+  function Deteal() {
     return <>
-      <div onClick={props.onCommandClick} css={css({ userSelect: 'text' })}>
-        command{icon(props.logPaneInfo.isCommandOpen)}
+      <div
+        onClick={props.onCommandClick}
+        css={css({ userSelect: 'text' })}
+      >
+        command
+        <Icon
+          isOpen={props.logPaneInfo.isCommandOpen}
+        />
       </div>
       {
         props.logPaneInfo.isCommandOpen
@@ -64,7 +70,7 @@ function LopPane(
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={15}
             cols={1000}
-            value={logInfo.command} />
+            defaultValue={logInfo.command} />
           : <></>
       }
       <div>rc:{(logInfo.rc !== null) ? logInfo.rc : ''}</div>
@@ -75,7 +81,7 @@ function LopPane(
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={10}
             cols={1000}
-            value={logInfo.stdout} />
+            defaultValue={logInfo.stdout} />
           : <></>
       }
       {
@@ -85,7 +91,7 @@ function LopPane(
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={10}
             cols={1000}
-            value={logInfo.stderr} />
+            defaultValue={logInfo.stderr} />
           : <></>
       }
     </>
@@ -117,11 +123,13 @@ function LopPane(
         >
           {logInfo.title}
         </div>
-        {icon(props.logPaneInfo.isOpen)}
+        <Icon
+          isOpen={props.logPaneInfo.isOpen}
+        />
       </div>
       {
         props.logPaneInfo.isOpen
-          ? deteal()
+          ? <Deteal />
           : <></>
       }
     </Box >
@@ -201,7 +209,7 @@ export const LogMessagePein = forwardRef<LogMessagePeinFunc, LogMessagePeinProps
       >
         {
           logAry.map((logInfo, idx) => <div key={idx} >{
-            <LopPane
+            <LogPane
               logPaneInfo={logInfo}
               onClick={() => toggleLogPaneOpen(idx)}
               onCommandClick={() => toggleLogPaneCommandOpen(idx)} />
