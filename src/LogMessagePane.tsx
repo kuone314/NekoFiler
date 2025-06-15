@@ -64,7 +64,7 @@ function LopPane(
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={15}
             cols={1000}
-            value={logInfo.command} />
+            defaultValue={logInfo.command} />
           : <></>
       }
       <div>rc:{(logInfo.rc !== null) ? logInfo.rc : ''}</div>
@@ -75,7 +75,7 @@ function LopPane(
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={10}
             cols={1000}
-            value={logInfo.stdout} />
+            defaultValue={logInfo.stdout} />
           : <></>
       }
       {
@@ -85,7 +85,7 @@ function LopPane(
             css={css({ userSelect: 'text', fontSize: '18px', })}
             rows={10}
             cols={1000}
-            value={logInfo.stderr} />
+            defaultValue={logInfo.stderr} />
           : <></>
       }
     </>
