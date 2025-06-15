@@ -29,7 +29,7 @@ export interface LogInfo {
   stderr: string,
 }
 
-function LopPane(
+function LogPane(
   props: {
     logPaneInfo: LogPaneInfo,
     onClick: () => void,
@@ -201,7 +201,7 @@ export const LogMessagePein = forwardRef<LogMessagePeinFunc, LogMessagePeinProps
       >
         {
           logAry.map((logInfo, idx) => <div key={idx} >{
-            <LopPane
+            <LogPane
               logPaneInfo={logInfo}
               onClick={() => toggleLogPaneOpen(idx)}
               onCommandClick={() => toggleLogPaneCommandOpen(idx)} />
