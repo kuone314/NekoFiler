@@ -75,7 +75,9 @@ export const MainPanel = (
     [props.dirPath]
   );
 
-  useEffect(() => props.onItemNumChanged(fileListInfo?.filtered_item_list.length ?? 0), [fileListInfo]);
+  useEffect(() => {
+    props.onItemNumChanged(fileListInfo?.filtered_item_list.length ?? 0);
+  }, [fileListInfo]);
 
   const filterBarFunc = useRef<FileFilterBarFunc>(null);
   async function setFilter(filterType: FileFilterType, matcherString: String) {
