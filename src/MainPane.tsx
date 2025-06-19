@@ -453,7 +453,6 @@ export const MainPanel = (
                   panel_idx={props.panel_idx}
                   fileListInfo={fileListInfo}
                   updateFileListInfo={setFileListInfo}
-                  onSelectItemNumChanged={props.onSelectItemNumChanged}
                   accessParentDir={accessParentDir}
                   accessDirectry={(dirName: string) => AccessDirectory(nameToPath(dirName), null)}
                   accessFile={(fileName: string) => {

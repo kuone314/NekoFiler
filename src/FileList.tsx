@@ -94,7 +94,6 @@ type FileListProps = {
   width: number,
   fileListInfo: FileListUiInfo,
   updateFileListInfo: (info: FileListUiInfo) => void,
-  onSelectItemNumChanged: (newSelectItemNum: number) => void,
   accessParentDir: () => void,
   accessDirectry: (dirName: string) => void,
   accessFile: (fileName: string) => void,
