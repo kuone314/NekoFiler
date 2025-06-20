@@ -76,7 +76,7 @@ export const MainPanel = (
   );
 
   useEffect(() => {
-    props.onItemNumChanged(fileListInfo?.filtered_item_list.length ?? 0);
+    props.onItemNumChanged(fileListInfo?.full_item_num ?? 0);
     const selectedItemNum = fileListInfo?.filtered_item_list
       .filter(item => item.file_list_item.is_selected)
       .length ?? 0;
