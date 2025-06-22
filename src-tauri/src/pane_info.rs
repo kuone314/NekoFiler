@@ -566,7 +566,7 @@ pub fn update_file_name_list(pane_info: &mut PaneInfo) {
       file_list_info
         .full_item_list
         .iter()
-        .take_while(|item| item.file_name == org_focus_file_name)
+        .take_while(|item| item.file_name != org_focus_file_name)
         .filter(|item| new_file_list_map.contains_key(&item.file_name))
         .count()
     }
