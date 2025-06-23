@@ -133,6 +133,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   useEffect(() => {
     const scrollIndex = CalcScrollIndex(visibleRange, props.fileListInfo.focus_idx, adjustMargin)
     listRef.current?.scrollToItem(scrollIndex);
+    setAdjustMargin(defaultAdjustMargin);
   }, [props.fileListInfo.focus_idx]);
 
   const [mouseSelectInfo, setMouseSelectInfo] = useState<MouseSelectInfo | null>(null);
@@ -154,8 +155,12 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     props.updateFileListInfo(paneInfo);
   }
 
-  const setCurrentIndex = async (newIndex: number) => {
+  const setCurrentIndex = async (newIndex: number, adjustMargin: number) => {
     if (!IsValidIndex(filteredEntries, newIndex)) { return; }
+    if (newIndex === currentIndex) { return; }
+
+    setAdjustMargin(adjustMargin);
+
     const paneInfo = await invoke<FileListUiInfo>("set_focus_idx", {
       paneIdx: props.panel_idx,
       newFocusIdx: newIndex,
@@ -168,8 +173,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     if (select) {
       addSelectingIndexRange(currentIndex, newIndex);
     }
-    setCurrentIndex(newIndex);
-    setAdjustMargin(defaultAdjustMargin);
+    setCurrentIndex(newIndex, defaultAdjustMargin);
   }
 
   interface MouseSelectInfo {
@@ -179,12 +183,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
   const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
     if (event.detail >= 2) {
-      if (IsValidIndex(filteredEntries, row_idx)) {
-        accessCurrentItem()
-      } else {
-        props.accessParentDir();
-      }
-      event.stopPropagation();
+      onMouseDoubleClick(row_idx, event);
       return;
     }
 
@@ -210,18 +209,22 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     } else {
       setSelectingIndexArray(SequenceAry(start.startIndex, newIdx));
     }
-    if (newIdx < filteredEntries.length) {
-      const isDrag = (start.startIndex !== newIdx);
-      setAdjustMargin(isDrag ? 1 : 0);
-      setCurrentIndex(newIdx);
-    }
+
+    if (!IsValidIndex(filteredEntries, newIdx)) { return; }
+    const isDrag = (start.startIndex !== newIdx);
+    setCurrentIndex(newIdx, isDrag ? 1 : 0);
   }
-  const onMouseUp = (row_idx: number) => {
+  const onMouseUp = () => {
     setMouseSelectInfo(null);
-    if (row_idx < filteredEntries.length) {
-      setAdjustMargin(0);
-      setCurrentIndex(row_idx);
+  }
+
+  const onMouseDoubleClick = (row_idx: number, event: React.MouseEvent<Element>) => {
+    if (IsValidIndex(filteredEntries, row_idx)) {
+      accessCurrentItem()
+    } else {
+      props.accessParentDir();
     }
+    event.stopPropagation();
   }
 
   const accessCurrentItem = () => {
@@ -418,7 +421,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
           <div
             onMouseDown={(event) => { onMouseDown(index, event) }}
             onMouseMove={(event) => { onMouseMove(index, event) }}
-            onMouseUp={(_) => { onMouseUp(index) }}
+            onMouseUp={onMouseUp}
             css={table_color(index)}
             style={{
               display: "flex",
@@ -471,7 +474,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       return <div
         style={{ ...style }}
         onMouseDown={(event) => { onMouseDown(filteredEntries.length, event) }}
-        onMouseUp={(_) => { onMouseUp(filteredEntries.length) }}
+        onMouseUp={onMouseUp}
         onMouseMove={(event) => { onMouseMove(filteredEntries.length, event) }}
       >
         {filteredItemNumInfo()}
