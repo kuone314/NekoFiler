@@ -133,6 +133,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   useEffect(() => {
     const scrollIndex = CalcScrollIndex(visibleRange, props.fileListInfo.focus_idx, adjustMargin)
     listRef.current?.scrollToItem(scrollIndex);
+    setAdjustMargin(defaultAdjustMargin);
   }, [props.fileListInfo.focus_idx]);
 
   const [mouseSelectInfo, setMouseSelectInfo] = useState<MouseSelectInfo | null>(null);
@@ -154,8 +155,12 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     props.updateFileListInfo(paneInfo);
   }
 
-  const setCurrentIndex = async (newIndex: number) => {
+  const setCurrentIndex = async (newIndex: number, adjustMargin: number) => {
     if (!IsValidIndex(filteredEntries, newIndex)) { return; }
+    if (newIndex === currentIndex) { return; }
+
+    setAdjustMargin(adjustMargin);
+
     const paneInfo = await invoke<FileListUiInfo>("set_focus_idx", {
       paneIdx: props.panel_idx,
       newFocusIdx: newIndex,
@@ -168,8 +173,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     if (select) {
       addSelectingIndexRange(currentIndex, newIndex);
     }
-    setCurrentIndex(newIndex);
-    setAdjustMargin(defaultAdjustMargin);
+    setCurrentIndex(newIndex, defaultAdjustMargin);
   }
 
   interface MouseSelectInfo {
@@ -207,10 +211,8 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     }
 
     if (!IsValidIndex(filteredEntries, newIdx)) { return; }
-
     const isDrag = (start.startIndex !== newIdx);
-    setAdjustMargin(isDrag ? 1 : 0);
-    setCurrentIndex(newIdx);
+    setCurrentIndex(newIdx, isDrag ? 1 : 0);
   }
   const onMouseUp = () => {
     setMouseSelectInfo(null);
