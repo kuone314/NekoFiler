@@ -205,7 +205,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     } else {
       setSelectingIndexArray(SequenceAry(start.startIndex, newIdx));
     }
-    if (newIdx < filteredEntries.length) {
+    if (IsValidIndex(filteredEntries, newIdx)) {
       const isDrag = (start.startIndex !== newIdx);
       setAdjustMargin(isDrag ? 1 : 0);
       setCurrentIndex(newIdx);
