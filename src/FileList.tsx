@@ -205,11 +205,12 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     } else {
       setSelectingIndexArray(SequenceAry(start.startIndex, newIdx));
     }
-    if (IsValidIndex(filteredEntries, newIdx)) {
-      const isDrag = (start.startIndex !== newIdx);
-      setAdjustMargin(isDrag ? 1 : 0);
-      setCurrentIndex(newIdx);
-    }
+
+    if (!IsValidIndex(filteredEntries, newIdx)) { return; }
+
+    const isDrag = (start.startIndex !== newIdx);
+    setAdjustMargin(isDrag ? 1 : 0);
+    setCurrentIndex(newIdx);
   }
   const onMouseUp = (row_idx: number) => {
     setMouseSelectInfo(null);
