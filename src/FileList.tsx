@@ -212,12 +212,8 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
     setAdjustMargin(isDrag ? 1 : 0);
     setCurrentIndex(newIdx);
   }
-  const onMouseUp = (row_idx: number) => {
+  const onMouseUp = () => {
     setMouseSelectInfo(null);
-    if (row_idx < filteredEntries.length) {
-      setAdjustMargin(0);
-      setCurrentIndex(row_idx);
-    }
   }
 
   const onMouseDoubleClick = (row_idx: number, event: React.MouseEvent<Element>) => {
@@ -423,7 +419,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
           <div
             onMouseDown={(event) => { onMouseDown(index, event) }}
             onMouseMove={(event) => { onMouseMove(index, event) }}
-            onMouseUp={(_) => { onMouseUp(index) }}
+            onMouseUp={onMouseUp}
             css={table_color(index)}
             style={{
               display: "flex",
@@ -476,7 +472,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       return <div
         style={{ ...style }}
         onMouseDown={(event) => { onMouseDown(filteredEntries.length, event) }}
-        onMouseUp={(_) => { onMouseUp(filteredEntries.length) }}
+        onMouseUp={onMouseUp}
         onMouseMove={(event) => { onMouseMove(filteredEntries.length, event) }}
       >
         {filteredItemNumInfo()}
