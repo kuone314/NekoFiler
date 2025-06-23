@@ -179,12 +179,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
   const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
     if (event.detail >= 2) {
-      if (IsValidIndex(filteredEntries, row_idx)) {
-        accessCurrentItem()
-      } else {
-        props.accessParentDir();
-      }
-      event.stopPropagation();
+      onMouseDoubleClick(row_idx, event);
       return;
     }
 
@@ -222,6 +217,15 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
       setAdjustMargin(0);
       setCurrentIndex(row_idx);
     }
+  }
+
+  const onMouseDoubleClick = (row_idx: number, event: React.MouseEvent<Element>) => {
+    if (IsValidIndex(filteredEntries, row_idx)) {
+      accessCurrentItem()
+    } else {
+      props.accessParentDir();
+    }
+    event.stopPropagation();
   }
 
   const accessCurrentItem = () => {
