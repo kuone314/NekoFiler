@@ -183,7 +183,8 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
   }
   const onMouseDown = (row_idx: number, event: React.MouseEvent<Element>) => {
     if (event.detail >= 2) {
-      onMouseDoubleClick(row_idx, event);
+      // stateの変更により、onDoubleClick が効かなくなるのを防ぐ為、
+      // 処理を打ち切る。
       return;
     }
 
@@ -422,6 +423,7 @@ export const FileList = forwardRef<FileListFunc, FileListProps>((props, ref) => 
             onMouseDown={(event) => { onMouseDown(index, event) }}
             onMouseMove={(event) => { onMouseMove(index, event) }}
             onMouseUp={onMouseUp}
+            onDoubleClick={(event) => { onMouseDoubleClick(index, event) }}
             css={table_color(index)}
             style={{
               display: "flex",
