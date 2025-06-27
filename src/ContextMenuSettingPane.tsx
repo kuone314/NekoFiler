@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
@@ -40,23 +40,13 @@ export function ContextMenuSettingPane(
   }
 
   const [editingIndex, setEditingIndex] = useState(0);
-  const [editDlg, Editor] = ContextMenuInfoEditor(
-    (props.height - dlgHeightMagin),
-    (editItem: ContextMenuInfo) => {
-      let newSettings = Array.from(contextMenuSettings);
-      if (IsValidIndex(newSettings, editingIndex)) {
-        newSettings[editingIndex] = editItem;
-      }
-      else {
-        newSettings.push(editItem);
-      }
-      setContextMenuSettings(newSettings);
 
-    });
+  const editorFunc = useRef<ContextMenuInfoEditorFunc>(null);
+
   const EditSetting = (trgIdx: number) => {
     setEditingIndex(trgIdx)
     const contextMenuInfo = contextMenuSettings[trgIdx];
-    Editor(contextMenuInfo)
+    editorFunc.current?.editStart(contextMenuInfo)
   }
 
   function Swap(idx_1: number, idx_2: number): void {
@@ -85,11 +75,24 @@ export function ContextMenuSettingPane(
       display_name: "",
       command_name: "",
     };
-    Editor(newSetting);
+    editorFunc.current?.editStart(newSetting);
   }
 
   return <>
-    {editDlg}
+    <ContextMenuInfoEditor
+      ref={editorFunc}
+      height={(props.height - dlgHeightMagin)}
+      onOk={(editItem: ContextMenuInfo) => {
+        let newSettings = Array.from(contextMenuSettings);
+        if (IsValidIndex(newSettings, editingIndex)) {
+          newSettings[editingIndex] = editItem;
+        }
+        else {
+          newSettings.push(editItem);
+        }
+        setContextMenuSettings(newSettings);
+      }}
+    />
     <div
       css={css({
         height: props.height,
@@ -197,13 +200,19 @@ export function ContextMenuSettingPane(
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function ContextMenuInfoEditor(
+
+export interface ContextMenuInfoEditorFunc {
+  editStart: (srcCommandInfo: ContextMenuInfo) => void
+}
+
+type ContextMenuInfoEditorProps = {
   height: number,
   onOk: (editedKeyBindItem: ContextMenuInfo) => void,
-): [
-    JSX.Element,
-    (srcCommandInfo: ContextMenuInfo) => void,
-  ] {
+};
+
+export const ContextMenuInfoEditor = forwardRef<ContextMenuInfoEditorFunc, ContextMenuInfoEditorProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
   const [menuName, setMenuName] = useState('');
 
   const [shellCommandNameList, setShellCommandNameList] = useState<string[]>([]);
@@ -244,7 +253,7 @@ export function ContextMenuInfoEditor(
             display_name: menuName,
             command_name: commandName,
           };
-          onOk(key_bind_setting);
+          props.onOk(key_bind_setting);
           dlg.current?.close()
         }}
       >
@@ -260,7 +269,7 @@ export function ContextMenuInfoEditor(
   }
 
   const [commandSettingDialog, startCommandSetting] = ShellCommandsSettingPane({
-    height,
+    height: props.height,
     onOK: () => updateShellCommandList(),
   });
 
@@ -268,14 +277,14 @@ export function ContextMenuInfoEditor(
     css={css({
       background: theme.baseColor.backgroundColor,
       color: theme.baseColor.stringDefaultColor,
-      height: height,
+      height: props.height,
       width: '60%', // 適当…。
     })}
     ref={dlg}>
     {commandSettingDialog}
     <div
       css={css({
-        height: (height - buttonHeight),
+        height: (props.height - buttonHeight),
         overflow: 'scroll',
       })}
     >
@@ -326,5 +335,9 @@ export function ContextMenuInfoEditor(
     dlg.current?.showModal();
   }
 
-  return [dialogElement, EditStart];
-}
+
+  const functions = {
+    editStart: EditStart,
+  };
+  return dialogElement;
+});
