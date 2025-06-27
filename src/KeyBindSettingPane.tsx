@@ -8,7 +8,7 @@ import { IsValidIndex, LastIndex } from './Utility';
 import { Button } from '@mui/material';
 import { BuildinCommandType, BUILDIN_COMMAND_TYPE, ToBuildinCommandType, readShellCommandSetting } from './CommandInfo';
 import { toKeyStr, KeyBindSetting, readKeyBindSetting, writeKeyBindSetting, match, COMMAND_TYPE, CommandType } from './KeyBindInfo';
-import { ShellCommandsSettingPane } from './ShellCommandsSettingPane';
+import { ShellCommandsSettingPane, ShellCommandsSettingPaneFunc } from './ShellCommandsSettingPane';
 import { ButtonStyle, ComboBoxStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
 
@@ -100,7 +100,7 @@ export function KeyBindSettingPane(
         command_name: '',
       }
     };
-   editorFunc.current?.editStart(newSetting)
+    editorFunc.current?.editStart(newSetting)
   }
 
   return <>
@@ -326,10 +326,7 @@ export const KeyBindEditor = forwardRef<KeyBindEditorFunc, KeyBindEditorProps>((
     </div >
   }
 
-  const [commandSettingDialog, startCommandSetting] = ShellCommandsSettingPane({
-    height: props.height,
-    onOK: () => updateShellCommandList(),
-  });
+  const shellCommandsSettingPaneFunc = useRef<ShellCommandsSettingPaneFunc>(null);
 
   const dialogElement = <dialog
     css={css({
@@ -339,7 +336,11 @@ export const KeyBindEditor = forwardRef<KeyBindEditorFunc, KeyBindEditorProps>((
       width: '60%', // 適当…。
     })}
     ref={dlg}>
-    {commandSettingDialog}
+    <ShellCommandsSettingPane
+      ref={shellCommandsSettingPaneFunc}
+      height={props.height}
+      onOK={() => updateShellCommandList()}
+    />
     <div
       css={css({
         height: (props.height - buttonHeight),
@@ -401,7 +402,7 @@ export const KeyBindEditor = forwardRef<KeyBindEditorFunc, KeyBindEditorProps>((
               />
               <button
                 css={buttonStyle}
-                onClick={startCommandSetting}
+                onClick={shellCommandsSettingPaneFunc.current?.editStart}
               >Edit Commands</button>
             </>
             :

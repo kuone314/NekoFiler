@@ -7,7 +7,7 @@ import Select from 'react-select'
 import { IsValidIndex, LastIndex } from './Utility';
 import { Button } from '@mui/material';
 import { readShellCommandSetting } from './CommandInfo';
-import { ShellCommandsSettingPane } from './ShellCommandsSettingPane';
+import { ShellCommandsSettingPane, ShellCommandsSettingPaneFunc } from './ShellCommandsSettingPane';
 import { ContextMenuInfo, readContextMenuSetting, writeContextMenuSetting } from './ContextMenu';
 import { ButtonStyle, ComboBoxStyle, TextInputStyle, useTheme } from './ThemeStyle';
 
@@ -268,10 +268,7 @@ export const ContextMenuInfoEditor = forwardRef<ContextMenuInfoEditorFunc, Conte
     </div >
   }
 
-  const [commandSettingDialog, startCommandSetting] = ShellCommandsSettingPane({
-    height: props.height,
-    onOK: () => updateShellCommandList(),
-  });
+  const shellCommandsSettingPaneFunc = useRef<ShellCommandsSettingPaneFunc>(null);
 
   const dialogElement = <dialog
     css={css({
@@ -281,7 +278,11 @@ export const ContextMenuInfoEditor = forwardRef<ContextMenuInfoEditorFunc, Conte
       width: '60%', // 適当…。
     })}
     ref={dlg}>
-    {commandSettingDialog}
+    <ShellCommandsSettingPane
+      ref={shellCommandsSettingPaneFunc}
+      height={props.height}
+      onOK={() => updateShellCommandList()}
+    />
     <div
       css={css({
         height: (props.height - buttonHeight),
@@ -311,7 +312,7 @@ export const ContextMenuInfoEditor = forwardRef<ContextMenuInfoEditorFunc, Conte
         />
         <button
           css={buttonStyle}
-          onClick={startCommandSetting}
+          onClick={shellCommandsSettingPaneFunc.current?.editStart}
         >Edit Commands</button>
 
       </div>

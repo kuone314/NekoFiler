@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
@@ -19,15 +19,18 @@ const buttonHeight = 70;
 const dlgHeightMagin = 60;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-export function ShellCommandsSettingPane(
-  props: {
-    height: number,
-    onOK: () => void,
-  }
-): [
-    JSX.Element,
-    () => void,
-  ] {
+export interface ShellCommandsSettingPaneFunc {
+  editStart: () => void,
+}
+
+type ShellCommandsSettingPaneProps = {
+  height: number,
+  onOK: () => void,
+};
+
+export const ShellCommandsSettingPane = forwardRef<ShellCommandsSettingPaneFunc, ShellCommandsSettingPaneProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
   const [shellCommandsSettings, setShellCommandsSettings] = useState<ShellCommand[]>([]);
   useEffect(() => { (async () => { setShellCommandsSettings(await readShellCommandSetting()); })() }, []);
   function writSettings() {
@@ -240,8 +243,12 @@ export function ShellCommandsSettingPane(
     dlg.current?.showModal();
   }
 
-  return [dialogElement, EditStart];
-}
+  const functions = {
+    editStart: EditStart,
+  };
+
+  return dialogElement;
+});
 
 
 
