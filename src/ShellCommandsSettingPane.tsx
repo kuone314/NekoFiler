@@ -88,23 +88,12 @@ export const ShellCommandsSettingPane = forwardRef<ShellCommandsSettingPaneFunc,
       + "(Total " + binding_command_list.length + " binds)"
   }
 
+  const keyBindEditorFunc = useRef<KeyBindEditorFunc>(null);
 
-  const [editDlg, Editor] = KeyBindEditor(
-    (props.height - dlgHeightMagin),
-    (editedSetting: ShellCommand,) => {
-      let newSettings = Array.from(shellCommandsSettings);
-      if (IsValidIndex(newSettings, editingIndex)) {
-        newSettings[editingIndex] = editedSetting;
-      }
-      else {
-        newSettings.push(editedSetting);
-      }
-      setShellCommandsSettings(newSettings);
-    });
   const EditSetting = (trgIdx: number) => {
     setEditingIndex(trgIdx)
     const keyBindSetting = shellCommandsSettings[trgIdx];
-    Editor(
+    keyBindEditorFunc.current?.EditStart(
       {
         enableRename: false,
         isValidName: () => true
@@ -156,7 +145,7 @@ export const ShellCommandsSettingPane = forwardRef<ShellCommandsSettingPaneFunc,
       dialog_type: DIALOG_TYPE.none,
       script_path: '',
     };
-    Editor(
+    keyBindEditorFunc.current?.EditStart(
       {
         enableRename: true,
         isValidName: (name: string) => !isUsingCommand(name),
@@ -173,7 +162,20 @@ export const ShellCommandsSettingPane = forwardRef<ShellCommandsSettingPaneFunc,
     })}
     ref={dlg}
   >
-    {editDlg}
+    <KeyBindEditor
+      ref={keyBindEditorFunc}
+      height={(props.height - dlgHeightMagin)}
+      onOk={(editedSetting: ShellCommand,) => {
+        let newSettings = Array.from(shellCommandsSettings);
+        if (IsValidIndex(newSettings, editingIndex)) {
+          newSettings[editingIndex] = editedSetting;
+        }
+        else {
+          newSettings.push(editedSetting);
+        }
+        setShellCommandsSettings(newSettings);
+      }}
+    />
     <div
       css={css({
         height: props.height,
@@ -283,13 +285,18 @@ interface NameCondition {
   isValidName: (name: string) => boolean,
 };
 
-export function KeyBindEditor(
+export interface KeyBindEditorFunc {
+  EditStart: (nameCondition: NameCondition, srcCommandInfo: ShellCommand) => void,
+}
+
+type KeyBindEditorProps = {
   height: number,
   onOk: (editedSetting: ShellCommand) => void,
-): [
-    JSX.Element,
-    (nameCondition: NameCondition, srcCommandInfo: ShellCommand) => void,
-  ] {
+};
+
+export const KeyBindEditor = forwardRef<KeyBindEditorFunc, KeyBindEditorProps>((props, ref) => {
+  useImperativeHandle(ref, () => functions);
+
   const [commandName, setCommandName] = useState('');
   const [nameCondition, setNameCondition] = useState<NameCondition | null>(null);
 
@@ -370,7 +377,7 @@ export function KeyBindEditor(
             script_path: spriptFileName,
             dialog_type: dialogType,
           };
-          onOk(shell_command);
+          props.onOk(shell_command);
           dlg.current?.close()
         }}
       >
@@ -389,13 +396,13 @@ export function KeyBindEditor(
     css={css({
       background: theme.baseColor.backgroundColor,
       color: theme.baseColor.stringDefaultColor,
-      height: height,
+      height: props.height,
       width: '60%', // 適当…。
     })}
     ref={dlg}>
     <div
       css={css({
-        height: (height - buttonHeight),
+        height: (props.height - buttonHeight),
         overflow: 'scroll',
       })}
     >
@@ -482,6 +489,10 @@ export function KeyBindEditor(
     dlg.current?.showModal();
   }
 
-  return [dialogElement, EditStart];
-}
+  const functions = {
+    EditStart: EditStart,
+  };
+
+  return dialogElement;
+});
 
